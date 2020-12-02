@@ -1,0 +1,52 @@
+include(cmake_helpers/GitUtils.cmake)
+include(FetchContent)
+
+#git_clone(PROJECT_NAME hana
+#          GIT_URL https://github.com/boostorg/hana.git
+#          DIRECTORY ${CMAKE_SOURCE_DIR}/external_libraries)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/external_libraries/hana EXCLUDE_FROM_ALL)
+
+git_clone(PROJECT_NAME gtest
+        GIT_URL https://github.com/google/googletest.git
+        DIRECTORY ${CMAKE_SOURCE_DIR}/external_libraries)
+add_subdirectory(${CMAKE_SOURCE_DIR}/external_libraries/gtest EXCLUDE_FROM_ALL)
+
+git_clone(PROJECT_NAME nlohmann_json
+          GIT_URL https://github.com/nlohmann/json.git
+          DIRECTORY ${CMAKE_SOURCE_DIR}/external_libraries)
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(${CMAKE_SOURCE_DIR}/external_libraries/nlohmann_json EXCLUDE_FROM_ALL)
+
+
+#git_clone(PROJECT_NAME standalone_asio
+#          GIT_URL https://github.com/chriskohlhoff/asio.git
+#          DIRECTORY ${CMAKE_SOURCE_DIR}/external_libraries)
+#
+#include_directories(${CMAKE_SOURCE_DIR}/external_libraries/standalone_asio/asio/include)
+#set(ASIO_PATH ${CMAKE_SOURCE_DIR}/external_librarires/standalone_asio/asio)
+
+git_clone(PROJECT_NAME simple_web_server
+          GIT_URL https://gitlab.com/eidheim/Simple-Web-Server.git
+          DIRECTORY ${CMAKE_SOURCE_DIR}/external_libraries)
+
+#set(USE_STANDALONE_ASIO ON)
+#add_definitions(-DASIO_STANDALONE)
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/external_libraries/simple_web_server EXCLUDE_FROM_ALL)
+
+#git_clone(PROJECT_NAME sqlite_orm
+#          GIT_URL https://github.com/fnc12/sqlite_orm.git
+#          DIRECTORY ${CMAKE_SOURCE_DIR}/external_libraries)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/external_libraries/sqlite_orm EXCLUDE_FROM_ALL)
+
+#FetchContent_Declare(
+#    spdlog
+#    SOURCE_DIR ${CMAKE_SOURCE_DIR}/external_libraries/spdlog
+#    GIT_REPOSITORY https://github.com/gabime/spdlog)
+#
+#FetchContent_MakeAvailable(spdlog)
+
+git_clone(PROJECT_NAME spdlog
+        GIT_URL https://github.com/gabime/spdlog
+        DIRECTORY ${CMAKE_SOURCE_DIR}/external_libraries)
+add_subdirectory(${CMAKE_SOURCE_DIR}/external_libraries/spdlog EXCLUDE_FROM_ALL)

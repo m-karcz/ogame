@@ -2,6 +2,7 @@
 
 struct Researchs
 {
+    int lastUpdatedAt;
     int spy;
     int comp;
     int fight;
