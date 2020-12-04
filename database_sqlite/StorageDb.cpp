@@ -52,29 +52,6 @@ using StorageT = decltype(makeStorage(""));
 
 namespace sqlite
 {
-    template<typename T, typename Getter, typename Setter>
-    struct DbPersistence : IDbPersistence<T>
-    {
-        DbPersistence(Getter getter, Setter setter) : getter{getter}, setter{setter}
-        {}
-        T get() override
-        {
-            return getter();
-        }
-        void store(T obj) override
-        {
-            setter(obj);
-        }
-        Getter getter;
-        Setter setter;
-    };
-
-    template<typename T, typename Getter, typename Setter>
-    auto makeDbPersistence(Getter getter, Setter setter)
-    {
-        return std::make_unique<DbPersistence<T, Getter, Setter>>(getter, setter);
-    }
-
     auto& StorageDb::storage()
     {
         return std::any_cast<StorageT&>(typeErasedStorage);

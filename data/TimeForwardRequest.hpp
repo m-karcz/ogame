@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/hana/define_struct.hpp>
+#include <string>
 
 struct TimeForwardRequest
 {

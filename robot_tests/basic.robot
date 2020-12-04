@@ -1,13 +1,13 @@
 *** Settings ***
 Library		Collections
-Library		RequestsLibrary
+#Library		RequestsLibrary
 Library		Process
 Library     OgameLib
 
 *** Keywords ***
 Start App
 	No Operation
-	${servProcLoc} = 	Start Process 	../cmake-build-debug/server	--rnd 	stdout=noelo.txt 
+	${servProcLoc} = 	Start Process 	${serverFile}	--rnd 	stdout=noelo.txt 
 	Set Test Variable	${servProc}	${servProcLoc}
 	Sleep	1s
 

@@ -2,6 +2,10 @@
 
 #include <memory>
 
+struct Building;
+struct BuildingQueue;
+struct Storage;
+
 struct IPlanetHandle
 {
     virtual Buildings getBuildings() = 0;

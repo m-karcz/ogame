@@ -16,7 +16,6 @@ struct Service
     std::vector<ResponseVariant> handleRequests(const std::vector<RequestVariant>& req);
     ResponseVariant handleRequest(const RequestVariant&);
     OnPlanetResponse onPlanetRequest(const OnPlanetRequest&);
-    bool handleRequest(const RnDRequestVariant&);
     GeneralResponse handleRequest(const GeneralRequest&);
 private:
     StorageResponse handle(IPlayerHandle&, IPlanetHandle&, const StorageRequest&);
@@ -24,7 +23,7 @@ private:
     RegisterResponse handle(const RegisterRequest&);
     BuildResponse handle(IPlayerHandle&, IPlanetHandle&, const BuildRequest&);
     BuildingsListResponse handle(IPlayerHandle&, IPlanetHandle&, const BuildingsListRequest&);
-    bool handle(const TimeForwardRequest&);
+    BuildingQueueResponse handle(IPlayerHandle&, IPlanetHandle&, const BuildingQueueRequest&);
     void evaluateTimeline(IPlayerHandle& player, IPlanetHandle& planet);
     IStorageDb& storageDb;
     ITime& time;

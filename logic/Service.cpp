@@ -9,8 +9,7 @@
 #include "IPlanetHandle.hpp"
 #include "ProductionCalculator.hpp"
 #include "BuildingsData.hpp"
-#include "RnDTime.hpp"
-#include <iostream>
+#include "BuildingQueue.hpp"
 #include "Logger.hpp"
 
 ResponseVariant Service::handleRequest(const RequestVariant& request)
@@ -43,11 +42,6 @@ std::vector<ResponseVariant> Service::handleRequests(const std::vector<RequestVa
         ret.push_back(handleRequest(i));
     }
     return ret;
-}
-
-bool Service::handleRequest(const RnDRequestVariant& request)
-{
-    return std::visit([this](auto& req)->bool{return this->handle(req);}, request);
 }
 
 StorageResponse Service::handle(IPlayerHandle& player, IPlanetHandle& planet, const StorageRequest&)
@@ -83,15 +77,10 @@ BuildResponse Service::handle(IPlayerHandle& player, IPlanetHandle& planet, cons
     if(hasEnoughToPay(cost, storage))
     {
         logger.debug("Enough to pay");
-      /*  auto& mut = *storage->mut();
-        mut.metal = mut.metal - cost.metal;
-        mut.crystal = mut.crystal - cost.crystal;
-        mut.deuter = mut.deuter - cost.deuter;*/
         storage.metal = storage.metal - cost.metal;
         storage.crystal = storage.crystal - cost.crystal;
         storage.deuter = storage.deuter - cost.deuter;
         planet.setNewStorage(storage);
-
 
 
         BuildingQueue queue{
@@ -107,17 +96,22 @@ BuildResponse Service::handle(IPlayerHandle& player, IPlanetHandle& planet, cons
 
 BuildingsListResponse Service::handle(IPlayerHandle& player, IPlanetHandle& planet, const BuildingsListRequest&)
 {
-    std::cout << "handling buildings list" << std::endl;
     evaluateTimeline(player, planet);
-    std::cout << "evaluated timeline" << std::endl;
     return {planet.getBuildings()};
 }
 
-bool Service::handle(const TimeForwardRequest& req)
+BuildingQueueResponse Service::handle(IPlayerHandle& player, IPlanetHandle& planet, const BuildingQueueRequest&)
 {
-    //time.setTimeTo(time.getTimestamp() + req.duration);
-    dynamic_cast<RnDTime&>(time).requestShifting(req);
-    return true;
+    evaluateTimeline(player, planet);
+    BuildingQueueResponse resp{};
+    if(auto queue = planet.getBuildingQueue())
+    {
+        resp.queue = BuildingQueueEntry{
+                .building = queue->building,
+                .timeToFinish = Duration{queue->finishAt - time.getTimestamp()}
+        };
+    }
+    return resp;
 }
 
 LoginResponse Service::handle(const LoginRequest& req)
@@ -133,14 +127,11 @@ LoginResponse Service::handle(const LoginRequest& req)
 
 RegisterResponse Service::handle(const RegisterRequest& req)
 {
-    std::cout << "register trial" << std::endl;
     auto res = storageDb.registerPlayer(req.credentials);
     if(res)
     {
-        std::cout << "registered" << std::endl;
         PlanetLocation planetLoc = {.galaxy = 1, .solar = 1, .position = 7};
         auto player = storageDb.queryPlayer(req.credentials);
-        std::cout << "queried player: " << static_cast<bool>(player) <<  std::endl;
         player->createPlanet(planetLoc, time.getTimestamp());
     }
     return RegisterResponse{.status = res ? "ok" : "not ok"};
@@ -157,7 +148,6 @@ void Service::evaluateTimeline(IPlayerHandle& player, IPlanetHandle& planet)
     auto storage = planet.getStorage();
     logger.debug("Got storage");
 
-    std::cout << "after getters" << std::endl;
 
     ProductionCalculator prodCalc;
 

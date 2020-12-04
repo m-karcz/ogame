@@ -1,69 +1,179 @@
 #pragma once
 #include <boost/hana/for_each.hpp>
+#include <boost/core/demangle.hpp>
 #include "nlohmann/json.hpp"
 #include <iostream>
 #include "BigNum.hpp"
 #include "PlanetLocation.hpp"
 #include "Timestamp.hpp"
+#include "Building.hpp"
+#include "Json.hpp"
+#include <variant>
 
-using nlohmann::json;
-
-namespace nlohmann
+namespace detail
 {
-template<>
-struct adl_serializer<Timestamp> {
-    static inline void to_json(json &j, const Timestamp &timestamp) {
-        j = timestamp.time_since_epoch().count();
+    template<typename...T>
+    constexpr auto getPack(std::variant<T...>)
+    {
+        return boost::hana::make_tuple(boost::hana::type_c<T>...);
     }
-};
 
-template<>
-struct adl_serializer<Duration> {
-    static inline void from_json(const json& j, Duration& duration) {
-        duration = Duration{static_cast<int>(j)};
+    template<typename Variant>
+    constexpr auto pack = decltype(getPack(std::declval<Variant>())){};
+
+    template<typename...T>
+    constexpr auto getPack2()
+    {
+        return boost::hana::make_tuple(boost::hana::type_c<T>...);
     }
-};
-}
-
-template<typename T>
-inline void to_json(json& j, const T& data, std::enable_if_t<boost::hana::Struct<T>::value>* = nullptr)
-{
-    using namespace boost;
-    hana::for_each(hana::accessors<T>(), [&](auto accessor){
-        j[hana::first(accessor).c_str()] = hana::second(accessor)(data);
-    });
 }
 
 
-template<typename T>
-constexpr void from_json(const json& j, T& data)
+template<typename Instantiation, template<typename...> typename Template>
+struct IsInstantiation
 {
-    using namespace boost;
-    hana::for_each(hana::accessors<T>(), [&](auto accessor){
-        auto fieldName = hana::first(accessor).c_str();
-        if(not j.contains(fieldName))
+    template<typename T>
+    struct Checker : std::false_type
+    {
+
+    };
+
+    template<typename...T>
+    struct Checker<Template<T...>> : std::true_type
+    {
+
+    };
+
+    constexpr static bool value = Checker<Instantiation>::value;
+};
+
+template<typename Outer, template<typename...> typename Template>
+struct FirstType
+{
+    template<typename...>
+    struct Helper;
+
+    template<typename T, typename...Rest>
+    struct Helper<Template<T, Rest...>>
+    {
+        using Type = T;
+    };
+
+    using Type = typename Helper<Outer>::Type;
+};
+
+template<typename U>
+Json serializeFrom(const U& obj)
+{
+    using T = std::decay_t<U>;
+    if constexpr(std::is_integral_v<T> or std::is_same_v<T, std::string>)
+    {
+        return obj;
+    }
+    else if constexpr(IsInstantiation<T, std::vector>::value)
+    {
+        Json j;
+        for(auto& elem : obj)
         {
-            std::cerr << j.dump() << " does not contain " << fieldName << std::endl;
-            throw "no elo";
+            j.push_back(serializeFrom(elem));
         }
-        hana::second(accessor)(data) = j[fieldName];
-    });
+        return j;
+    }
+    else if constexpr(IsInstantiation<T, std::variant>::value)
+    {
+        Json j;
+        std::visit([&](auto&& elem){
+            j["type"] = boost::core::demangle(typeid(elem).name());
+            j["data"] = serializeFrom(elem);
+        }, obj);
+        return j;
+    }
+    else if constexpr(boost::hana::Struct<T>::value)
+    {
+        using namespace boost;
+        Json j;
+        hana::for_each(hana::accessors<T>(), [&](auto accessor){
+            j[hana::first(accessor).c_str()] = serializeFrom(hana::second(accessor)(obj));
+        });
+        return j;
+    }
+    else if constexpr(IsInstantiation<T, std::optional>::value)
+    {
+        if(obj)
+        {
+            return serializeFrom(*obj);
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+    throw std::runtime_error{__PRETTY_FUNCTION__};
 }
 
-inline void to_json(json& j, const BigNum& num)
-{
-    j = num.toString();
-}
 
 template<typename T>
-inline void to_json(json& j, const std::optional<T>& opt)
+T deserializeTo(const Json& j)
 {
-    if(opt)
+    if constexpr(std::is_integral_v<T> or std::is_same_v<T, std::string>)
     {
-        j = *opt;
+        return j;
     }
-    else
+    else if constexpr(IsInstantiation<T, std::vector>::value)
     {
-        j = nullptr;
+        using Inner = typename FirstType<T, std::vector>::Type;
+        T vec;
+        for(auto& elem : j)
+        {
+            vec.push_back(deserializeTo<Inner>(elem));
+        }
+        return vec;
     }
+    else if constexpr(IsInstantiation<T, std::variant>::value)
+    {
+        using namespace boost;
+        std::optional<T> deserialized;
+        hana::for_each(::detail::pack<T>, [&](auto typeHolder){
+            using t = typename decltype(typeHolder)::type;
+            if(j["type"].get<std::string>() == boost::core::demangle(typeid(t).name()))
+            {
+                try {
+                    t attempt;
+                    attempt = deserializeTo<t>(j["data"]);
+                    deserialized = attempt;
+                }
+                catch (...) {}
+            }
+        });
+        return *deserialized;
+
+    }
+    else if constexpr(boost::hana::Struct<T>::value)
+    {
+        using namespace boost;
+        T data;
+        hana::for_each(hana::accessors<T>(), [&](auto accessor){
+            auto fieldName = hana::first(accessor).c_str();
+            using FieldType = std::decay_t<decltype(hana::second(accessor)(data))>;
+            if(not j.contains(fieldName))
+            {
+                std::cerr << j.dump() << " does not contain " << fieldName << std::endl;
+                throw "no elo";
+            }
+            hana::second(accessor)(data) = deserializeTo<FieldType>(j[fieldName]);
+        });
+        return data;
+    }
+    else if constexpr(IsInstantiation<T, std::optional>::value)
+    {
+        if(j.is_null())
+        {
+            return std::nullopt;
+        }
+        else
+        {
+            return j.get<typename FirstType<T, std::optional>::Type>();
+        }
+    }
+    throw std::runtime_error(__PRETTY_FUNCTION__);
 }

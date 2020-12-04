@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Buildings.hpp"
+#include "Building.hpp"
 #include <boost/hana/for_each.hpp>
 #include "Materials.hpp"
 #include <unordered_map>
