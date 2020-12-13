@@ -21,7 +21,7 @@ jobs:
 
       # install dependencies
     - name: boost
-      run: sudo apt-get update && sudo apt-get install -yq libboost1.65-dev libboost-program-options1.65-dev
+      run: sudo apt-get update && sudo apt-get install -yq libboost1.73-dev libboost-program-options1.73-dev
     - name: virtualenv
       run: python -m pip install virtualenv
       
