@@ -8,6 +8,6 @@ add_library(Utils::Utils ALIAS Utils)
 #set_property()
 set (CMAKE_CXX_STANDARD 17)
 set_property(TARGET Utils PROPERTY CXX_STANDARD 17)
-target_link_libraries(Utils spdlog)
+target_link_libraries(Utils spdlog::spdlog)
 target_include_directories(Utils PUBLIC .)
 

@@ -1,10 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <optional>
+#include "BuildingFwd.hpp"
 
-struct Building;
 struct BuildingQueue;
 struct Storage;
+struct Buildings;
 
 struct IPlanetHandle
 {

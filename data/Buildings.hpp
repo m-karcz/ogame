@@ -10,16 +10,16 @@ struct Buildings
                              (int, crystalMine),
                              (int, deuterExtractor),
                              (int, solarGenerator),
-                             (int, fusionGenerator),
+                             (int, fusionReactor),
                              (int, robots),
-                             (int, nanits),
+                             (int, nanites),
                              (int, shipyard),
                              (int, metalStorage),
                              (int, crystalStorage),
                              (int, deuterStorage),
                              (int, researchLab),
-                             (int, deposit),
-                             (int, silos),
+                             (int, alianceDepot),
+                             (int, missileSilo),
                              (int, terraformer));
 };
 

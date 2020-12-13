@@ -8,7 +8,7 @@
 #include <chrono>
 #include "Logger.hpp"
 #include "StorageDb.hpp"
-#include "OnPlanetRequest.hpp"
+#include "api/OnPlanetRequest.hpp"
 #include "toJson.hpp"
 #include <map>
 
@@ -71,21 +71,27 @@ struct http_connection : public std::enable_shared_from_this<http_connection>
                 auto it = map.find(std::string{request.target()});
                 if(it != map.end())
                 {
-                    auto resp = it->second(body);
-                    response.result(http::status::ok);
-                    response.set(http::field::content_type, "application/json");
-                    beast::ostream(response.body()) << resp;
+                    try
+                    {
+                        auto resp = it->second(body);
+                        response.result(http::status::ok);
+                        response.set(http::field::content_type, "application/json");
+                        beast::ostream(response.body()) << resp;
 
-                    auto self = shared_from_this();
+                        auto self = shared_from_this();
 
-                    response.content_length(response.body().size());
+                        response.content_length(response.body().size());
 
-                    http::async_write(socket,
-                                      response,
-                                      [self](beast::error_code ec, std::size_t)
-                                      {
-                                            self->socket.shutdown(tcp::socket::shutdown_send, ec);
-                                      });
+                        http::async_write(socket,
+                                          response,
+                                          [self](beast::error_code ec, std::size_t)
+                                          {
+                                                self->socket.shutdown(tcp::socket::shutdown_send, ec);
+                                          });
+                    }catch(std::exception& ex)
+                    {
+                        logger.error("Encountered exception: {} during handling request: {}", ex.what(), body.dump());
+                    }
                 }
 
                 break;
@@ -131,7 +137,7 @@ int main()
     };
     map["/on_planet"] = [&](Json j)
     {
-        return serializeFrom(service.onPlanetRequest(deserializeTo<OnPlanetRequest>(j)));
+        return serializeFrom(service.handleSinglePlanetRequest(deserializeTo<OnPlanetRequest>(j)));
     };
     map["/rnd"] = [&](Json j)
     {

@@ -142,11 +142,12 @@ T deserializeTo(const Json& j)
                     attempt = deserializeTo<t>(j["data"]);
                     deserialized = attempt;
                 }
-                catch (...) {}
+                catch (...) {
+                    throw;
+                }
             }
         });
         return *deserialized;
-
     }
     else if constexpr(boost::hana::Struct<T>::value)
     {
@@ -157,7 +158,6 @@ T deserializeTo(const Json& j)
             using FieldType = std::decay_t<decltype(hana::second(accessor)(data))>;
             if(not j.contains(fieldName))
             {
-                std::cerr << j.dump() << " does not contain " << fieldName << std::endl;
                 throw "no elo";
             }
             hana::second(accessor)(data) = deserializeTo<FieldType>(j[fieldName]);
@@ -172,8 +172,13 @@ T deserializeTo(const Json& j)
         }
         else
         {
-            return j.get<typename FirstType<T, std::optional>::Type>();
+            return deserializeTo<typename FirstType<T, std::optional>::Type>(j);
         }
     }
+    else if constexpr(std::is_same_v<T, Duration>)
+    {
+        return Duration{deserializeTo<int>(j)};
+    }
+
     throw std::runtime_error(__PRETTY_FUNCTION__);
 }

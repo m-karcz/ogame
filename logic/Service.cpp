@@ -1,9 +1,9 @@
 #include "Service.hpp"
-#include "LoginRequest.hpp"
-#include "RegisterRequest.hpp"
-#include "StorageRequest.hpp"
-#include "TimeForwardRequest.hpp"
-#include "BuildRequest.hpp"
+#include "api/LoginRequest.hpp"
+#include "api/RegisterRequest.hpp"
+#include "api/StorageRequest.hpp"
+#include "api/TimeForwardRequest.hpp"
+#include "api/BuildRequest.hpp"
 #include "PlayerId.hpp"
 #include "IPlayerHandle.hpp"
 #include "IPlanetHandle.hpp"
@@ -11,105 +11,82 @@
 #include "BuildingsData.hpp"
 #include "BuildingQueue.hpp"
 #include "Logger.hpp"
+#include "handlers/BuildRequestHandler.hpp"
+#include "handlers/BuildingsListRequestHandler.hpp"
+#include "handlers/BuildingQueueRequestHandler.hpp"
+#include "handlers/StorageRequestHandler.hpp"
+#include "api/OnPlanetRequest.hpp"
+#include <boost/hana/map.hpp>
+#include <boost/hana/at_key.hpp>
 
-ResponseVariant Service::handleRequest(const RequestVariant& request)
+namespace hana = boost::hana;
+
+namespace
 {
-    return {};//std::visit([this](auto& req)->ResponseVariant{return this->handle(req);}, request);
+template<typename Key, typename Value>
+constexpr auto kvPair = hana::make_pair(hana::type_c<Key>, hana::type_c<Value>);
+constexpr auto actionHandlers = hana::make_map(kvPair<BuildRequest,BuildRequestHandler>);
+constexpr auto queryHandlers = hana::make_map(kvPair<BuildingsListRequest,BuildingsListRequestHandler>,
+                                              kvPair<BuildingQueueRequest,BuildingQueueRequestHandler>,
+                                              kvPair<StorageRequest      ,StorageRequestHandler>);
+template<typename Action>
+using ActionHandlerType = typename decltype(+actionHandlers[hana::type_c<Action>])::type;
+template<typename Query>
+using QueryHandlerType = typename decltype(+queryHandlers[hana::type_c<Query>])::type;
+
+void evaluateTimeline(SinglePlanetContext& ctx)
+{
+    auto timestamp = ctx.timestamp;
+
+    auto& planet = ctx.planet;
+    auto& player = ctx.player;
+
+    auto buildingQueue = planet.getBuildingQueue();
+    auto buildings = planet.getBuildings();
+    auto storage = planet.getStorage();
+
+    ProductionCalculator prodCalc;
+
+    if(buildingQueue and buildingQueue->finishAt < timestamp)
+    {
+        logger.debug("Building queue to finish at {} now has {}", buildingQueue->finishAt.time_since_epoch().count(), timestamp.time_since_epoch().count());
+        auto finishBuildingTimestamp = buildingQueue->finishAt;
+        prodCalc.updateStorage(storage, finishBuildingTimestamp, buildings);
+
+        planet.dequeueBuilding(*buildingQueue);
+        planet.incrementBuildingLevel(buildingQueue->building);
+        buildings = planet.getBuildings();
+    }
+
+    prodCalc.updateStorage(storage, timestamp, buildings);
+    planet.setNewStorage(storage);
 }
+}
+
 
 GeneralResponse Service::handleRequest(const GeneralRequest& request)
 {
     return std::visit([this](auto& req)->GeneralResponse{return this->handle(req);}, request);
 }
 
-OnPlanetResponse Service::onPlanetRequest(const OnPlanetRequest& request)
+OnPlanetResponse Service::handleSinglePlanetRequest(const OnPlanetRequest& request)
 {
-    OnPlanetResponse ret;
+    OnPlanetResponse resp;
+
     auto playerHandle = storageDb.queryPlayer(request.playerId);
     auto planetHandle = playerHandle->getPlanet(request.planet);
-    for(auto i : request.requests)
+
+    SinglePlanetContext ctx{*playerHandle, *planetHandle, time.getTimestamp()};
+
+    evaluateTimeline(ctx);
+
+    if(request.action)
     {
-        std::visit([&](auto& req){ret.push_back(this->handle(*playerHandle, *planetHandle, req));}, i);
+        std::visit([&](auto&& action){resp.push_back(ActionHandlerType<std::decay_t<decltype(action)>>{ctx}.handleAction(action));}, *request.action);
     }
-    return ret;
-}
-
-std::vector<ResponseVariant> Service::handleRequests(const std::vector<RequestVariant>& req)
-{
-    std::vector<ResponseVariant> ret;
-    for(auto i : req)
+    for(auto&& query : request.queries)
     {
-        ret.push_back(handleRequest(i));
-    }
-    return ret;
-}
-
-StorageResponse Service::handle(IPlayerHandle& player, IPlanetHandle& planet, const StorageRequest&)
-{
-    return {};
-}
-
-namespace
-{
-unsigned calculateTimeToBuild(const Materials& cost)
-{
-    double costF = std::stod((cost.metal + cost.crystal).toString());
-
-    int robotics = 0;
-    int nanits = 0;
-
-    return 3600 * costF / (2500 * (1 + robotics) * std::pow(2, nanits));
-}
-}
-
-BuildResponse Service::handle(IPlayerHandle& player, IPlanetHandle& planet, const BuildRequest& req)
-{
-    logger.debug(__PRETTY_FUNCTION__);
-    Building building{req.buildingName};
-
-    logger.debug("Got building to built: {}", building.fieldName);
-    int level = planet.getBuildingLevel(building);
-
-    auto cost = getBuildingCost(building, level);
-
-    auto storage = planet.getStorage();
-
-    if(hasEnoughToPay(cost, storage))
-    {
-        logger.debug("Enough to pay");
-        storage.metal = storage.metal - cost.metal;
-        storage.crystal = storage.crystal - cost.crystal;
-        storage.deuter = storage.deuter - cost.deuter;
-        planet.setNewStorage(storage);
-
-
-        BuildingQueue queue{
-            .building = building,
-            .finishAt = time.getTimestamp() + Duration{calculateTimeToBuild(cost)}
-        };
-        planet.queueBuilding(queue);
-        return {};
-    }
-    logger.debug("Not enough to pay");
-    return {};
-}
-
-BuildingsListResponse Service::handle(IPlayerHandle& player, IPlanetHandle& planet, const BuildingsListRequest&)
-{
-    evaluateTimeline(player, planet);
-    return {planet.getBuildings()};
-}
-
-BuildingQueueResponse Service::handle(IPlayerHandle& player, IPlanetHandle& planet, const BuildingQueueRequest&)
-{
-    evaluateTimeline(player, planet);
-    BuildingQueueResponse resp{};
-    if(auto queue = planet.getBuildingQueue())
-    {
-        resp.queue = BuildingQueueEntry{
-                .building = queue->building,
-                .timeToFinish = Duration{queue->finishAt - time.getTimestamp()}
-        };
+        std::visit([&](auto&& q){resp.push_back(QueryHandlerType<std::decay_t<decltype(q)>>{ctx}.handleQuery(q));}, query);
     }
     return resp;
 }
@@ -137,35 +114,4 @@ RegisterResponse Service::handle(const RegisterRequest& req)
     return RegisterResponse{.status = res ? "ok" : "not ok"};
 }
 
-void Service::evaluateTimeline(IPlayerHandle& player, IPlanetHandle& planet)
-{
-    auto timestamp = time.getTimestamp();
-
-    auto buildingQueue = planet.getBuildingQueue();
-    logger.debug("Got buildingsQueue");
-    auto buildings = planet.getBuildings();
-    logger.debug("Got buildings");
-    auto storage = planet.getStorage();
-    logger.debug("Got storage");
-
-
-    ProductionCalculator prodCalc;
-
-
-    if(buildingQueue)
-    {
-        auto finishBuildingTimestamp = buildingQueue->finishAt;
-        prodCalc.updateStorage(storage, finishBuildingTimestamp, buildings);
-
-        planet.dequeueBuilding(*buildingQueue);
-        planet.incrementBuildingLevel(buildingQueue->building);
-        buildings = planet.getBuildings();
-    }
-
-
-
-    prodCalc.updateStorage(storage, timestamp, buildings);
-    planet.setNewStorage(storage);
-
-}
 

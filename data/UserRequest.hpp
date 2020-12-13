@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PlayerId.hpp"
-#include "RequestVariant.hpp"
+#include "api/RequestVariant.hpp"
 
 struct UserRequest
 {

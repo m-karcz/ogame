@@ -2,6 +2,7 @@
 
 #include "Storage.hpp"
 #include "CalculatedProduction.hpp"
+#include "Buildings.hpp"
 
 struct ProductionCalculator
 {

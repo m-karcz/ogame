@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-add_library(Data  Buildings.hpp Researchs.hpp Ships.hpp Storage.hpp PlayerId.hpp Timestamp.hpp dummy.cpp RegisterRequest.hpp)
+add_library(Data  Buildings.hpp Researchs.hpp Ships.hpp Storage.hpp PlayerId.hpp Timestamp.hpp dummy.cpp api/RegisterRequest.hpp)
 add_library(Data::Data ALIAS Data)
 
 

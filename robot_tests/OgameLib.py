@@ -103,27 +103,34 @@ class OgameLib:
 
     @keyword
     def get_buildings(self):
-        resp = self.sendOnPlanetRequest(makeBuildingsListRequest())
+        resp = self.sendOnPlanetRequest([makeBuildingsListRequest()])
         buildingList = getTypedResp(resp, "BuildingsListResponse")["buildings"]
-        print(buildingList)
         print(buildingList)
         self.planetsData[self.chosenPlanet].buildings = dict(buildingList)
 
     @keyword
     def queue_building(self, humanBuildingName):
         buildingName = camelCaseName(humanBuildingName)
-        resp = self.sendOnPlanetRequest(makeBuildRequest(buildingName))
+        resp = self.sendOnPlanetRequest([], makeBuildRequest(buildingName))
 
     def getPlanet(self):
         return self.planets[self.chosenPlanet];
 
-    def sendOnPlanetRequest(self, typedReq):
+    def sendOnPlanetRequest(self, queries, action = None):
         req = {
             "playerId" : self.playerId,
-            "planet" : self.getPlanet(),
-            "requests" : [typedReq]
+            "planet": self.getPlanet(),
+            "queries" : queries,
+            "action" : action
         }
         return self.sendRequest(req, "on_planet")
+    #def sendOnPlanetRequest(self, typedReq):
+    #    req = {
+    #        "playerId" : self.playerId,
+    #        "planet" : self.getPlanet(),
+    #        "requests" : [typedReq]
+    #    }
+    #    return self.sendRequest(req, "on_planet")
 
     @keyword
     def checkBuildingLevel(self, humanBuildingName, level):

@@ -329,12 +329,13 @@ inline BigNum mulByDigit(const BigNum& lhs, char digit)
 
 inline BigNum operator*(const BigNum& lhs, const BigNum& rhs)
 {
-    BigNum result{};
+    /*BigNum result{};
     for(size_t i = 0; i < rhs.data.size(); i++)
     {
-        result = result + mulByDigit(lhs, rhs.data[i]) << i;
+        result = result + (mulByDigit(lhs, rhs.data[i]) << i);
     }
-    return result >> FRACTIONAL_SIZE;
+    return result >> FRACTIONAL_SIZE;*/
+    return {std::stod(lhs.toString()) * std::stod(rhs.toString())};
 }
 
 inline BigNum operator""_big(unsigned long long value)

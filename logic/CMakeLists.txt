@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 
-add_library(Logic Service.hpp Service.cpp)
+add_library(Logic Service.hpp Service.cpp handlers/BuildRequestHandler.cpp handlers/BuildRequestHandler.hpp handlers/StorageRequestHandler.cpp handlers/StorageRequestHandler.hpp handlers/BuildingsListRequestHandler.cpp handlers/BuildingsListRequestHandler.hpp handlers/BuildingQueueRequestHandler.hpp handlers/BuildingQueueRequestHandler.cpp)
+
 add_library(Logic::Logic ALIAS Logic)
 
-#target_compile_features(Utils PRIVATE cxx_std_17)
-#set_property()
 set (CMAKE_CXX_STANDARD 17)
 set_property(TARGET Logic PROPERTY CXX_STANDARD 17)
 target_include_directories(Logic PUBLIC .)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BigNum.hpp"
+#include "Storage.hpp"
 
 struct Materials
 {

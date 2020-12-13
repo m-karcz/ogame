@@ -33,7 +33,7 @@ namespace sqlite_orm
     {
         Building extract(const char* rowValue)
         {
-            return {rowValue};
+            return {{rowValue}};
         }
 
         Building extract(sqlite3_stmt* stmt, int colIndex)

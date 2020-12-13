@@ -2,18 +2,19 @@
 
 struct Researchs
 {
-    int lastUpdatedAt;
-    int spy;
-    int comp;
-    int fight;
-    int def;
-    int shield;
+    int espionage;
+    int computer;
+    int weapons;
+    int shielding;
+    int armour;
     int energy;
-    int hyperTech;
-    int combustionEngine;
-    int impusleEngine;
-    int hyperEngine;
+    int hyperspace;
+    int combustionDrive;
+    int impusleDrive;
+    int hyperspaceDrive;
     int laser;
     int ion;
     int plasma;
+    int intergalactic;
+    int graviton;
 };
