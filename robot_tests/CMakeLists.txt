@@ -14,7 +14,7 @@ add_custom_command(
     OUTPUT venv.stamp
     DEPENDS venv requirements.txt
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt requirements.txt
-    COMMAND ./venv/bin/pip --proxy http://defra1c-proxy.emea.nsn-net.net:8080 install -r requirements.txt --upgrade
+    COMMAND ./venv/bin/pip install -r requirements.txt --upgrade
 )
 
 add_custom_target(robot_tests
