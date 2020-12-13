@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(ogame)
 
 include(CMakeLists.txt.externals)
-find_package(Boost 1.71 COMPONENTS program_options REQUIRED)
+find_package(Boost 1.65 COMPONENTS program_options REQUIRED)
 
 add_subdirectory(utils)
 add_subdirectory(data)
