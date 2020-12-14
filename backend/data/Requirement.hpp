@@ -2,6 +2,7 @@
 
 #include "Building.hpp"
 #include "Research.hpp"
+#include <vector>
 #include <boost/hana/define_struct.hpp>
 
 struct LeveledBuilding

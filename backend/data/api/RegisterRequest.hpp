@@ -3,6 +3,7 @@
 #include <boost/hana/define_struct.hpp>
 #include "UserCredentials.hpp"
 #include <string>
+#include "Status.hpp"
 
 struct RegisterRequest
 {
@@ -13,5 +14,5 @@ struct RegisterRequest
 struct RegisterResponse
 {
     BOOST_HANA_DEFINE_STRUCT(RegisterResponse,
-                             (std::string, status));
+                             (Status, status));
 };

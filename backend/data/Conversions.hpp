@@ -1,9 +1,11 @@
+#pragma once
 #include <boost/hana/for_each.hpp>
 #include <boost/hana/accessors.hpp>
 #include <unordered_map>
 #include <string_view>
 #include <string.h>
 #include <boost/hana/define_struct.hpp>
+
 
 namespace detailConversion
 {

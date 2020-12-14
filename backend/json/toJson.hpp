@@ -6,9 +6,10 @@
 #include "BigNum.hpp"
 #include "PlanetLocation.hpp"
 #include "Timestamp.hpp"
-#include "Building.hpp"
 #include "Json.hpp"
 #include <variant>
+#include "SingleEntityFwd.hpp"
+#include "Status.hpp"
 
 namespace detail
 {
@@ -66,7 +67,13 @@ template<typename U>
 Json serializeFrom(const U& obj)
 {
     using T = std::decay_t<U>;
-    if constexpr(std::is_integral_v<T> or std::is_same_v<T, std::string>)
+    if constexpr(std::is_same_v<T, Status>)
+    {
+        Json j;
+        j = serialize(obj);
+        return j;
+    }
+    else if constexpr(std::is_integral_v<T> or std::is_same_v<T, std::string>)
     {
         return obj;
     }
@@ -97,6 +104,10 @@ Json serializeFrom(const U& obj)
         });
         return j;
     }
+    else if constexpr(IsInstantiation<T, SingleEntity>::value)
+    {
+        return serializeFrom(obj.fieldName);
+    }
     else if constexpr(IsInstantiation<T, std::optional>::value)
     {
         if(obj)
@@ -108,6 +119,7 @@ Json serializeFrom(const U& obj)
             return nullptr;
         }
     }
+
     throw std::runtime_error{__PRETTY_FUNCTION__};
 }
 
@@ -174,6 +186,10 @@ T deserializeTo(const Json& j)
         {
             return deserializeTo<typename FirstType<T, std::optional>::Type>(j);
         }
+    }
+    else if constexpr(IsInstantiation<T, SingleEntity>::value)
+    {
+        return {deserializeTo<std::string>(j)};
     }
     else if constexpr(std::is_same_v<T, Duration>)
     {

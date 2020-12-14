@@ -2,6 +2,7 @@
 
 #include <boost/hana/define_struct.hpp>
 #include <string>
+#include "Status.hpp"
 
 struct TimeForwardRequest
 {
@@ -12,5 +13,5 @@ struct TimeForwardRequest
 struct TimeForwardResponse
 {
     BOOST_HANA_DEFINE_STRUCT(TimeForwardResponse,
-                             (std::string, status));
+                             (Status, status));
 };

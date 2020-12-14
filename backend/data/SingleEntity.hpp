@@ -1,3 +1,4 @@
+#pragma once
 #include "Conversions.hpp"
 #include "SingleEntityFwd.hpp"
 

@@ -3,6 +3,7 @@
 #include <boost/hana/define_struct.hpp>
 #include <string>
 #include "PlanetLocation.hpp"
+#include "Status.hpp"
 
 struct BuildRequest
 {
@@ -13,5 +14,5 @@ struct BuildRequest
 struct BuildResponse
 {
     BOOST_HANA_DEFINE_STRUCT(BuildResponse,
-                             (std::string, status));
+                             (Status, status));
 };
