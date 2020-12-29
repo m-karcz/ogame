@@ -5,7 +5,7 @@
 #include "Constraints.hpp"
 #include "ColumnOptions.hpp"
 #include "UserCredentialsWrapper.hpp"
-#include <sqlite_orm.hpp>
+#include <sqlite_orm.h>
 
 namespace sqlite
 {

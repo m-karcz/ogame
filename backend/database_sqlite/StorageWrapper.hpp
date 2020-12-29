@@ -3,7 +3,7 @@
 #include "Storage.hpp"
 #include <boost/hana/define_struct.hpp>
 #include "Constraints.hpp"
-#include <sqlite_orm.hpp>
+#include <sqlite_orm.h>
 #include "PlanetWrapper.hpp"
 
 namespace sqlite

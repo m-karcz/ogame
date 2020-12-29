@@ -1,6 +1,6 @@
 #pragma once
 #include <boost/hana/transform.hpp>
-#include <sqlite_orm.hpp>
+#include <sqlite_orm.h>
 #include <boost/hana/unpack.hpp>
 #include <boost/hana/concat.hpp>
 #include "Constraints.hpp"

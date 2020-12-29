@@ -1,5 +1,5 @@
 #include "StorageDb.hpp"
-#include "sqlite_orm.hpp"
+#include <sqlite_orm.h>
 #include <boost/hana/find_if.hpp>
 #include <boost/hana/equal.hpp>
 #include <boost/hana/for_each.hpp>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Building.hpp"
-#include <sqlite_orm.hpp>
+#include <sqlite_orm.h>
 
 namespace sqlite_orm
 {

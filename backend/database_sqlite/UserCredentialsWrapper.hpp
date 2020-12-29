@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UserCredentials.hpp"
+#include <sqlite_orm.h>
 
 namespace sqlite
 {
