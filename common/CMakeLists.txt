@@ -7,10 +7,11 @@ set(OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 #                   DEPENDS
 #                        types.yaml
 #                        generator.py)
+execute_process(COMMAND mkdir -p \\"${OUTDIR}\\")
 
-execute_process(COMMAND mkdir -p \\"${OUTDIR}\\"
-                COMMAND python3 generator.py ${OUTDIR}
+execute_process(COMMAND python3 generator.py ${OUTDIR}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
 
 add_subdirectory(${OUTDIR} ${OUTDIR})
 
