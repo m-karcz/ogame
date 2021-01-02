@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux'
-import {ResourcesViewState, getResourcesViewState, Store} from "./Store"
+import {getResourcesViewState, Store} from "./Store"
 
 const mapStateToProps = (state: Store) => ({
     "resources": getResourcesViewState(state)

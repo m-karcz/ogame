@@ -1,6 +1,6 @@
 import {Reducer, combineReducers} from "redux"
 import {LOGIN_SUBMIT, REGISTER_SUBMIT, REGISTER_SUCCESSFUL, LOGIN_SUCCESSFUL, LoginSubmitAction, RegisterSubmitAction, LoginSuccessfulAction, RegisterSuccessfulAction} from "./Actions"
-import {Store, ActualPlanetData, DEFAULT_STORE_STATE, DEFAULT_LOGIN_FORM_STATE, LoginFormState, LoginState, RegisterState, PlanetLocation} from "./Store";
+import {Store, ActualPlanetData, DEFAULT_LOGIN_FORM_STATE, LoginFormState, LoginState, RegisterState, PlanetLocation} from "./Store";
 
 type LoginFormAction = LoginSubmitAction | RegisterSubmitAction | LoginSuccessfulAction | RegisterSuccessfulAction;
 

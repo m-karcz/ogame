@@ -4,13 +4,11 @@ import './index.css';
 import Login from './Login';
 import reportWebVitals from './reportWebVitals';
 import {Provider} from 'react-redux'
-import { createStore, combineReducers, AnyAction, Reducer} from 'redux';
+import { createStore } from 'redux';
 import {
   BrowserRouter as Router,
   Switch,
-  Route,
-  Link,
-  useHistory
+  Route
 } from "react-router-dom";
 import {combinedReducer} from "./Reducers"
 import {DEFAULT_STORE_STATE} from "./Store"

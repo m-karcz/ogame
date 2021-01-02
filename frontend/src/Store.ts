@@ -109,7 +109,7 @@ export function getResourcesViewState(store: Store) : ResourcesViewState
     const planetData = getActualPlanetData(store);
     if(! planetData)
     {
-        throw "no elo";
+        console.log("attempted to access null planetData");
     }
     return planetData!.resourcesView;
 }

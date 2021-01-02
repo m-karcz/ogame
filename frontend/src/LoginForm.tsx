@@ -22,8 +22,8 @@ class LoginForm extends React.Component<LoginFormProps, never>
         return <div>
             <input type="text" name="login-input" onChange={this.setLogin.bind(this)}/>
             <input type="password" name="passcode-input" onChange={this.setPasscode.bind(this)}/>
-            <input type="submit" value="Login" disabled={this.props.loginState == LoginState.requested} onClick={this.loginClick.bind(this)}/>
-            <input type="submit" value="Register" disabled={this.props.registerState == RegisterState.requested} onClick={this.registerClick.bind(this)}/>
+            <input type="submit" value="Login" disabled={this.props.loginState === LoginState.requested} onClick={this.loginClick.bind(this)}/>
+            <input type="submit" value="Register" disabled={this.props.registerState === RegisterState.requested} onClick={this.registerClick.bind(this)}/>
         </div>
     }
     private setLogin(event: any)
