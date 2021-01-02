@@ -1,50 +1,49 @@
 import React from 'react'
 import {connect} from 'react-redux'
+import {LOGIN_SUBMIT, REGISTER_SUBMIT, LoginSubmitAction, RegisterSubmitAction} from "./Actions"
+import {LoginFormState, LoginState, RegisterState, getLoginFormState, LoginFields, DEFAULT_LOGIN_FIELDS} from "./Store"
 
-const mapStateToProps = () => ({});
 const mapDispatchToProps = (dispatch: any) => ({
-    onLoginClick: (login: string, passcode:string ) => dispatch({type: "LOGIN_SUBMIT", payload: {login: login, passcode: passcode}}),
-    onRegisterClick: (login: string, passcode:string ) => dispatch({type: "REGISTER_SUBMIT", payload: {login: login, passcode: passcode}})
+    onLoginClick: (fields: LoginFields) => dispatch({type: LOGIN_SUBMIT, payload: fields} as LoginSubmitAction),
+    onRegisterClick: (fields: LoginFields) => dispatch({type: REGISTER_SUBMIT, payload: fields} as RegisterSubmitAction)
 })
 
+type LoginFormProps = LoginFormState & ReturnType<typeof mapDispatchToProps>;
 
-class LoginForm extends React.Component<any, any>
+class LoginForm extends React.Component<LoginFormProps, never>
 {
-    constructor(props: any) 
+    constructor(props: LoginFormProps) 
     {
         super(props)
-        this.passcode = "";
-        this.login = "";
+        this.fields = DEFAULT_LOGIN_FIELDS;
     }
     render()
     {
         return <div>
-            <input type="text" onChange={this.setLogin.bind(this)}/>
-            <input type="password" onChange={this.setPasscode.bind(this)}/>
-            <input type="submit" value="Login" onClick={this.loginClick.bind(this)}/>
-            <input type="submit" value="Register" onClick={this.registerClick.bind(this)}/>
+            <input type="text" name="login-input" onChange={this.setLogin.bind(this)}/>
+            <input type="password" name="passcode-input" onChange={this.setPasscode.bind(this)}/>
+            <input type="submit" value="Login" disabled={this.props.loginState == LoginState.requested} onClick={this.loginClick.bind(this)}/>
+            <input type="submit" value="Register" disabled={this.props.registerState == RegisterState.requested} onClick={this.registerClick.bind(this)}/>
         </div>
     }
     private setLogin(event: any)
     {
-        this.login = event.target.value;
+        this.fields.login = event.target.value;
     }
     private setPasscode(event: any)
     {
-        this.passcode = event.target.value;
+        this.fields.passcode = event.target.value;
     }
     private loginClick()
     {
-        this.props.onLoginClick(this.login, this.passcode);
+        this.props.onLoginClick(this.fields);
     }
     private registerClick()
     {
-        this.props.onRegisterClick(this.login, this.passcode);
+        this.props.onRegisterClick(this.fields);
     }
-    login: string
-    passcode: string
-
+    fields: LoginFields
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);
+export default connect(getLoginFormState, mapDispatchToProps)(LoginForm);

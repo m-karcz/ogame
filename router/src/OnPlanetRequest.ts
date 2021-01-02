@@ -48,9 +48,10 @@ export class OnPlanetRequest
         this.queries = [];
     }
     
-    addQuery(query: QueryType) : void
+    addQuery(query: QueryType) : OnPlanetRequest
     {
         this.queries.push(query);
+        return this;
     }
     action?: ActionType;
     queries: Array<QueryType>;

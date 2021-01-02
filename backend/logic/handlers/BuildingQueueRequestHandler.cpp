@@ -1,5 +1,6 @@
 #include "BuildingQueueRequestHandler.hpp"
-#include "api/BuildingQueueRequest.hpp"
+#include "BuildingQueueRequest.hpp"
+#include "BuildingQueueResponse.hpp"
 #include "BuildingQueue.hpp"
 #include "IPlanetHandle.hpp"
 

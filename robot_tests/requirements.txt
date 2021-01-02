@@ -1,2 +1,4 @@
 robotframework
 urllib3
+selenium
+webdriver_manager

@@ -119,6 +119,15 @@ Json serializeFrom(const U& obj)
             return nullptr;
         }
     }
+    else if constexpr(std::is_same_v<T, Timestamp>)
+    {
+        return serializeFrom(obj.time_since_epoch().count());
+    }
+    else if constexpr(std::is_same_v<T, BigNum>)
+    {
+        auto str = obj.toString();
+        return serializeFrom(std::stoi(str.substr(0, str.find('.'))));
+    }
 
     throw std::runtime_error{__PRETTY_FUNCTION__};
 }

@@ -136,7 +136,10 @@ int main()
     };
     map["/on_planet"] = [&](Json j)
     {
-        return serializeFrom(service.handleSinglePlanetRequest(deserializeTo<OnPlanetRequest>(j)));
+        logger.debug("processing onplanet");
+        auto deserialized = deserializeTo<OnPlanetRequest>(j);
+        logger.debug("deserialized");
+        return serializeFrom(service.handleSinglePlanetRequest(deserialized));
     };
     map["/rnd"] = [&](Json j)
     {

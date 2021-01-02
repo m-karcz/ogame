@@ -1,4 +1,5 @@
-#include "api/BuildRequest.hpp"
+#include "BuildRequest.hpp"
+#include "BuildResponse.hpp"
 #include "BuildRequestHandler.hpp"
 #include "IPlayerHandle.hpp"
 #include "IPlanetHandle.hpp"

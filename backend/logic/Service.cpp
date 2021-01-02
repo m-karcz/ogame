@@ -1,9 +1,9 @@
 #include "Service.hpp"
-#include "api/LoginRequest.hpp"
-#include "api/RegisterRequest.hpp"
-#include "api/StorageRequest.hpp"
+#include "LoginRequest.hpp"
+#include "RegisterRequest.hpp"
+#include "StorageRequest.hpp"
 #include "api/TimeForwardRequest.hpp"
-#include "api/BuildRequest.hpp"
+#include "BuildRequest.hpp"
 #include "PlayerId.hpp"
 #include "IPlayerHandle.hpp"
 #include "IPlanetHandle.hpp"
@@ -15,7 +15,8 @@
 #include "handlers/BuildingsListRequestHandler.hpp"
 #include "handlers/BuildingQueueRequestHandler.hpp"
 #include "handlers/StorageRequestHandler.hpp"
-#include "api/OnPlanetRequest.hpp"
+#include "OnPlanetRequest.hpp"
+#include "OnPlanetResponse.hpp"
 #include <boost/hana/map.hpp>
 #include <boost/hana/at_key.hpp>
 
@@ -71,6 +72,7 @@ GeneralResponse Service::handleRequest(const GeneralRequest& request)
 
 OnPlanetResponse Service::handleSinglePlanetRequest(const OnPlanetRequest& request)
 {
+    logger.debug("processing single planet request");
     OnPlanetResponse resp;
 
     auto playerHandle = storageDb.queryPlayer(request.playerId);
@@ -86,7 +88,8 @@ OnPlanetResponse Service::handleSinglePlanetRequest(const OnPlanetRequest& reque
     }
     for(auto&& query : request.queries)
     {
-        std::visit([&](auto&& q){resp.push_back(QueryHandlerType<std::decay_t<decltype(q)>>{ctx}.handleQuery(q));}, query);
+        std::visit([&](auto&& q){logger.debug("Handling query"); logger.debug(__PRETTY_FUNCTION__);
+            resp.push_back(QueryHandlerType<std::decay_t<decltype(q)>>{ctx}.handleQuery(q));}, query);
     }
     return resp;
 }

@@ -1,56 +1,39 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import Login from './Login';
 import reportWebVitals from './reportWebVitals';
 import {Provider} from 'react-redux'
-import { createStore } from 'redux';
+import { createStore, combineReducers, AnyAction, Reducer} from 'redux';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  useHistory
+} from "react-router-dom";
+import {combinedReducer} from "./Reducers"
+import {DEFAULT_STORE_STATE} from "./Store"
+import Ingame from "./Ingame"
 
-
-const initialState = {
-    "loginRequested" : null
-}
-
-function myReducer(state = initialState, action: any)
-{
-  console.log("reducer kicks in");
-  switch(action.type)
-  {
-    case "LOGIN_SUBMIT":
-    {
-        return {
-          ...state,
-          "loginRequested" : action.payload
-        }
-    }
-    case "REGISTER_SUBMIT":
-    {
-        return {
-          ...state,
-          "registerRequested": action.payload
-        }
-    }
-    case "REGISTER_SUCCESSFUL":
-    {
-        return {
-          ...state,
-          "registerRequested": null
-        }
-    }
-    default:
-    {
-      return state;
-    }
-  }
-}
-
-const store = createStore(myReducer)
-
+const store = createStore(combinedReducer, DEFAULT_STORE_STATE);
 
 ReactDOM.render(
+
   <React.StrictMode>
     <Provider store = {store}>
-      <App />
+      <div>elo</div>
+      <Router>
+        <Switch>
+          <Route exact path="/">
+            <Login />
+          </Route>
+          <Route path="/ingame">
+            <div>ingame</div>
+            <Ingame />
+          </Route>
+        </Switch>
+      </Router>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')

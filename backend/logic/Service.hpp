@@ -1,12 +1,12 @@
 #pragma once
 
-#include "api/ResponseVariant.hpp"
-#include "api/RequestVariant.hpp"
 #include "api/RnDRequestVariant.hpp"
 #include "IStorageDb.hpp"
 #include "ITime.hpp"
-#include "api/GeneralRequest.hpp"
-#include "api/OnPlanetRequest.hpp"
+#include "GeneralRequest.hpp"
+#include "GeneralResponse.hpp"
+#include "OnPlanetRequest.hpp"
+#include "OnPlanetResponse.hpp"
 
 
 

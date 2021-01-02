@@ -1,18 +1,32 @@
 import express from "express"
 import * as Api from "./GeneralRequest"
+import {OnPlanetRequest, StorageRequest} from "./OnPlanetRequest"
 import {makeBuildingViewRequest} from "./ConcreteRequests"
 import {RemoteRouter} from "./RemoteRouter"
 import session from "express-session"
+import path from "path"
+import {program} from "commander"
+import { makeDiscriminated } from "./CommonTypes"
+
+const argv = program.option("--binary <path>").parse(process.argv);
+
+console.log(argv)
+
+if(! argv["binary"])
+{
+	throw "missing binary";
+}
 
 const app = express();
 const port = 8888;
 
-const router = new RemoteRouter("http://127.0.0.1:8080", "vim");
+const router = new RemoteRouter("http://127.0.0.1:8080", argv["binary"] as string);
 
 app.use(session({ secret: 'no elo', cookie: { maxAge: 60000 }}));
 
-app.get("/", (req,res) => {
-	res.send("hello world")
+app.use(express.static(path.join(__dirname, '/../../frontend/build')));
+app.get('*', (req,res) =>{
+    res.sendFile(path.join(__dirname+'/../../frontend/build/index.html'))
 });
 
 declare module "express-session"{
@@ -56,7 +70,18 @@ app.post("/login", (req, res) => {
 			req.session.authenticated = true;
 			req.session.playerId = resp.playerId;
 		}
-		res.send(resp.planets ? resp.planets : []);
+		if(!resp.planets)
+		{
+			res.send(null)
+			return
+		}
+		router.onPlanetRequest(new OnPlanetRequest(resp.playerId, resp.planets[0]).addQuery(makeDiscriminated<StorageRequest>({}, "StorageRequest"))).then((storageResp) => {
+			const finalResp = {
+				planets: resp.planets,
+				firstPlanetStorage: storageResp
+			}
+			res.send(finalResp)
+		})
 	});
 });
 
@@ -69,9 +94,6 @@ app.post("/register", (req, res) => {
 app.listen(port, ()=>{
 	let cred: Api.UserCredentials = { login: "aaa", passcode: "bbb"};
 	let loginReq: Api.LoginRequest = { credentials: cred};
-	//const generalReq = Api.makeDiscriminated(loginReq, "LoginRequest")
-	//console.log(generalReq);
 	console.log(makeBuildingViewRequest({id: 5}, {solar: 5, galaxy:6, position:7}));
-	//console.log(req);
 	console.log("working on")
 });

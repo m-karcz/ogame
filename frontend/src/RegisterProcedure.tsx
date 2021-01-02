@@ -1,26 +1,27 @@
 import React from 'react'
 import {connect} from 'react-redux'
+import {LoginFields, RegisterState, getLoginFields, getRegisterState, Store} from "./Store";
 
-const mapStateToProps = (state: any) => ({
-    "requested" : state.registerRequested
+const mapStateToProps = (state: Store) => ({
+    "fields" : getLoginFields(state),
+    "registerState": getRegisterState(state)
 });
 const mapDispatchToProps = (dispatch: any) => ({
-    onSuccesful: () => dispatch({type: "REGISTER_SUCCESSFUL", payload: null})
+    onSuccessful: () => dispatch({type: "REGISTER_SUCCESSFUL", payload: null})
 })
 
 const address: string = "/register"
 
-class RegisterProcedure extends React.Component<any, any>
+class RegisterProcedure extends React.Component<ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>, any>
 {
     render() {
         return null;
     }
 
     componentDidUpdate() {
-        if(this.props.requested != null && this.request == undefined)
+        if(this.props.registerState == RegisterState.requested)
         {
-            const message = this.props.requested;
-            this.request = fetch(address, {"method": "POST", "body": JSON.stringify(message), "credentials": "same-origin"}).then(
+            this.request = fetch(address, {"method": "POST", "body": JSON.stringify(this.props.fields), "credentials": "same-origin"}).then(
                 () => this.props.onSuccessful()
             );
         }

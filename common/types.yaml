@@ -1,0 +1,107 @@
+PlanetLocation:
+  galaxy: int
+  solar: int
+  position: int
+
+Buildings:
+  metalMine: int
+  crystalMine: int
+  deuterExtractor: int
+  solarGenerator: int
+  fusionReactor: int
+  robots: int
+  nanites: int
+  shipyard: int
+  metalStorage: int
+  crystalStorage: int
+  deuterStorage: int
+  researchLab: int
+  alainceDepot: int
+  missileSilo: int
+  terraformer: int
+
+UserCredentials:
+  login: string
+  passcode: string
+
+PlayerId:
+  id: int
+
+Researchs:
+  espionage: int
+  computer: int
+  weapons: int
+  shielding: int
+  armour: int
+  energy: int
+  hyperspace: int
+  combustionDrive: int
+  impulseDrive: int
+  hyperspaceDrive: int
+  laser: int
+  ion: int
+  plasma: int
+  intergalactic: int
+  graviton: int
+
+
+
+LoginRequest:
+  credentials: UserCredentials
+
+LoginResponse:
+  playerId: optional<PlayerId>
+  planets: PlanetLocation[]
+
+RegisterRequest:
+  credentials: UserCredentials
+
+RegisterResponse:
+  status: Status
+
+GeneralRequest: union<LoginRequest,RegisterRequest>
+
+GeneralResponse: union<LoginResponse,RegisterResponse>
+
+BuildRequest:
+  buildingName: Building
+
+BuildResponse:
+  status: Status
+
+Storage:
+  lastUpdatedAt: Timestamp
+  metal: BigNum
+  crystal: BigNum
+  deuter: BigNum
+
+StorageRequest: {}
+
+StorageResponse:
+  storage: Storage
+
+BuildingsListRequest: {}
+
+BuildingsListResponse:
+  buildings: Buildings
+
+BuildingQueueEntry:
+  building: Building
+  timeToFinish: Duration
+
+BuildingQueueRequest: {}
+
+BuildingQueueResponse:
+  queue: optional<BuildingQueueEntry>
+
+
+OnPlanetQuery: union<StorageRequest,BuildingsListRequest,BuildingQueueRequest>
+OnPlanetAction: union<BuildRequest>
+
+OnPlanetRequest:
+  playerId: PlayerId
+  planet: PlanetLocation
+  queries: OnPlanetQuery[]
+  action: optional<OnPlanetAction>
+
+OnPlanetResponse: union<StorageResponse,BuildingsListResponse,BuildingQueueResponse,BuildResponse>[]
