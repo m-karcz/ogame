@@ -121,12 +121,16 @@ Json serializeFrom(const U& obj)
     }
     else if constexpr(std::is_same_v<T, Timestamp>)
     {
-        return serializeFrom(obj.time_since_epoch().count());
+        return serializeFrom(obj.time_since_epoch());
+    }
+    else if constexpr(std::is_same_v<T, Duration>)
+    {
+        return serializeFrom(obj.count());
     }
     else if constexpr(std::is_same_v<T, BigNum>)
     {
         auto str = obj.toString();
-        return serializeFrom(std::stoi(str.substr(0, str.find('.'))));
+        return serializeFrom((int)std::stold(obj.toString()));
     }
 
     throw std::runtime_error{__PRETTY_FUNCTION__};

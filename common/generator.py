@@ -6,6 +6,8 @@ output_dir = sys.argv[1]
 
 headers_list = []
 
+DISCRIMINATED_PREFIX = "Disc"
+
 def getHeader(typename):
     specialHeaders = {
         "string" : "<string>"
@@ -36,6 +38,27 @@ def mapNameAndGetHeader(field_type):
     if field_type[0].islower():
         return [field_type, None]
     return [field_type, '"' + field_type + '.hpp"']
+
+def camel_case_split(identifier):
+    matches = re.finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
+    return [m.group(0) for m in matches]
+
+def makeIndex(field_type):
+    return "_".join([word.upper() for word in camel_case_split(field_type)])
+
+def writeDiscriminatedType(field_type):
+    with open(output_dir + "/" + DISCRIMINATED_PREFIX + field_type + ".ts", "w") as fp:
+        fp.write("import {" + field_type + '} from "./' + field_type + '"\n\n')
+        index = makeIndex(field_type)
+        body = ['export const {} = "{}";'.format(index, field_type),
+                '',
+                'export type {}{} = {{'.format(DISCRIMINATED_PREFIX, field_type),
+                '\ttype : typeof {}'.format(makeIndex(field_type)),
+                '\tdata : {}'.format(field_type),
+                "}"]
+
+        fp.write("\n".join(body))
+        return "Disc" + field_type
 
 
 def writeFieldToHpp(field_type):
@@ -77,7 +100,47 @@ def writeFieldToHpp(field_type):
     
     return [headers, field_type]
     
+def writeFieldToTs(field_type):
+    headers = []
+    isOptional = field_type.startswith("optional")
+    if isOptional:
+        field_type = field_type[9:-1]
+    isArray = field_type.endswith("[]")
+    if isArray:
+        field_type = field_type[:-2]
+    isUnion = field_type.startswith("union")
 
+    if isUnion:
+        types = []
+        for single_type in field_type[6:-1].split(","):
+            #[name, header] = mapNameAndGetHeader(single_type)
+
+            name = mapTypeToTs(single_type)
+
+            name = writeDiscriminatedType(name)
+
+            headers.append(name)
+            types.append(name)
+
+        field_type = " | ".join(types)
+
+    else:
+        #[name, header] = mapNameAndGetHeader(field_type)
+
+        name = mapTypeToTs(field_type)
+
+        if name[0].isupper():
+            headers.append(name)
+
+        field_type = name
+    
+    if isArray:
+        field_type = "Array<" + field_type + ">"
+
+    if isOptional:
+        field_type = field_type + " | null"
+    
+    return [headers, field_type]
 
 def dumpToHpp(name, fields):
     headers_list.append(name + ".hpp")
@@ -115,6 +178,16 @@ def dumpAliasOnlyToHpp(new_name, name):
         fp.write("\n\n")
         fp.write("\n".join(body))
 
+def dumpAliasOnlyToTs(new_name, name):
+    with open(output_dir + "/" + new_name + ".ts", "w") as fp:
+        [imports, new_field_type] = writeFieldToTs(name)
+        body = ["export type {} = {};".format(new_name, new_field_type)]
+
+        fp.write("\n".join(['import {{ {} }} from "./{}"'.format(im, im) for im in imports]))
+        fp.write("\n\n")
+        fp.write("\n".join(body))
+
+
 
 def dumpToTs(name, fields):
     with open(output_dir + "/" + name + ".ts", "w") as fp:
@@ -122,10 +195,12 @@ def dumpToTs(name, fields):
         body = ["export type " + name + " = {"]
 
         for field_name, field_type in fields.items():
-            body.append("\t{} : {}".format(field_name, mapTypeToTs(field_type)))
+            [new_imports, new_field] = writeFieldToTs(field_type)
+            body.append("\t{} : {}".format(field_name, new_field))
+            imports.extend(new_imports)
         body.append("}")
 
-        fp.write("\n".join(imports))
+        fp.write("\n".join(['import {{ {} }} from "./{}"'.format(im, im) for im in imports]))
         fp.write("\n\n")
         fp.write("\n".join(body))
 
@@ -146,6 +221,7 @@ with open("types.yaml") as fp:
             dumpToTs(name, fields)
         else:
             dumpAliasOnlyToHpp(name, fields)
+            dumpAliasOnlyToTs(name, fields)
 
 
 with open(output_dir + "/CMakeLists.txt", "w") as fp:

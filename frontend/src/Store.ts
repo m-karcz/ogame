@@ -1,9 +1,8 @@
-export type Planet =
-{
-    galaxy: number,
-    solar: number,
-    position: number
-}
+import {Buildings} from "./Buildings"
+import {Storage} from "./Storage"
+import {PlanetLocation} from "./PlanetLocation"
+import {UserCredentials} from "./UserCredentials"
+import {BuildingQueueResponse} from "./BuildingQueueResponse"
 
 export enum LoginState
 {
@@ -19,39 +18,14 @@ export enum RegisterState
     successful = 2
 }
 
-export type LoginFields =
-{
-    login: string,
-    passcode: string
-}
-
 export type LoginFormState = 
 {
     loginState: LoginState
     registerState: RegisterState
-    loginFields: LoginFields
+    loginFields: UserCredentials
 }
 
-export type ResourcesViewState =
-{
-    metal: number,
-    crystal: number,
-    deuter: number
-}
-
-export type ActualPlanetData = 
-{
-    resourcesView: ResourcesViewState
-}
-
-export type PlanetLocation =
-{
-    galaxy: number,
-    solar: number,
-    position: number
-}
-
-export const DEFAULT_LOGIN_FIELDS : LoginFields = {
+export const DEFAULT_LOGIN_FIELDS : UserCredentials = {
     'login': "",
     "passcode": ""
 }
@@ -62,26 +36,93 @@ export const DEFAULT_LOGIN_FORM_STATE : LoginFormState = {
     'loginFields': DEFAULT_LOGIN_FIELDS
 };
 
-export interface Store
+export const OVERVIEW_PAGE = "OVERVIEW_PAGE";
+export const BUILDINGS_PAGE = "BUILDINGS_PAGE";
+export const LOGIN_PAGE = "LOGIN_PAGE";
+export const INGAME_PAGE = "INGAME_PAGE";
+
+export type ContextData = 
 {
-    loginForm: LoginFormState,
     planetList: Array<PlanetLocation>,
-    chosenPlanet: number
-    actualPlanetData: ActualPlanetData | null,
+    chosenPlanet: PlanetLocation,
+    actualPlanetStorage: Storage
 }
 
+export const EMPTY_CONTEXT_DATA : ContextData = 
+{
+    planetList: [],
+    chosenPlanet: { position: 0, galaxy: 0, solar: 0 },
+    actualPlanetStorage: { metal: 0, crystal: 0, deuter: 0, lastUpdatedAt: 0}
+}
 
+export function getEmptyContextWithChosen(chosenPlanet: PlanetLocation) : ContextData
+{
+    return {
+        planetList: [chosenPlanet],
+        chosenPlanet: chosenPlanet,
+        actualPlanetStorage: {metal: 0, crystal: 0, deuter: 0, lastUpdatedAt: 0}
+    }
+}
+
+export type OverviewPageState = 
+{
+    type: typeof OVERVIEW_PAGE
+}
+
+export type BuildingsPageState =
+{
+    type: typeof BUILDINGS_PAGE
+    buildings: Buildings
+    queue: BuildingQueueResponse["queue"]
+}
+
+export type IngameInnerPageState = OverviewPageState | BuildingsPageState;
+
+export type LoginPageState =
+{
+    type: typeof LOGIN_PAGE
+    loginForm: LoginFormState
+};
+
+export type IngamePageState =
+{
+    type: typeof INGAME_PAGE
+    innerPage: IngameInnerPageState
+    contextData: ContextData
+}
+
+export type PageState = LoginPageState | IngamePageState;
+
+export interface Store
+{
+    page: PageState
+}
 
 export const DEFAULT_STORE_STATE : Store = {
-    'loginForm' : DEFAULT_LOGIN_FORM_STATE,
-    'planetList': [],
-    'chosenPlanet' : 0,
-    'actualPlanetData' : null
+    page: {
+        type: LOGIN_PAGE,
+        loginForm: DEFAULT_LOGIN_FORM_STATE
+    }
+}
+
+export function getPageState(store: Store) : PageState
+{
+    return store.page;
+}
+
+export function getLoginPageState(store: Store) : LoginPageState
+{
+    return store.page as LoginPageState;
+}
+
+export function getIngamePageState(store: Store) : IngamePageState
+{
+    return store.page as IngamePageState;
 }
 
 export function getLoginFormState(store: Store) : LoginFormState
 {
-    return store.loginForm;
+    return getLoginPageState(store).loginForm;
 }
 
 export function getLoginState(store: Store) : LoginState
@@ -94,22 +135,27 @@ export function getRegisterState(store: Store) : RegisterState
     return getLoginFormState(store).registerState;
 }
 
-export function getLoginFields(store: Store) : LoginFields
+export function getLoginFields(store: Store) : UserCredentials
 {
     return getLoginFormState(store).loginFields;
 }
 
-export function getActualPlanetData(store: Store) : ActualPlanetData | null
+export function getActualPlanetStorage(store: Store) : Storage
 {
-    return store.actualPlanetData;
+    return getIngamePageState(store).contextData.actualPlanetStorage;
 }
 
-export function getResourcesViewState(store: Store) : ResourcesViewState
+export function getChosenPlanet(store: Store) : PlanetLocation
 {
-    const planetData = getActualPlanetData(store);
-    if(! planetData)
-    {
-        console.log("attempted to access null planetData");
-    }
-    return planetData!.resourcesView;
+    return getIngamePageState(store).contextData.chosenPlanet;
+}
+
+export function getBuildings(store: Store) : Buildings
+{
+    return (getIngamePageState(store).innerPage as BuildingsPageState).buildings;
+}
+
+export function getBuildingQueue(store: Store)
+{
+    return (getIngamePageState(store).innerPage as BuildingsPageState).queue;
 }

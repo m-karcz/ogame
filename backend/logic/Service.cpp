@@ -46,6 +46,8 @@ void evaluateTimeline(SinglePlanetContext& ctx)
     auto buildings = planet.getBuildings();
     auto storage = planet.getStorage();
 
+    logger.debug("everything queried");
+
     ProductionCalculator prodCalc;
 
     if(buildingQueue and buildingQueue->finishAt < timestamp)
@@ -59,8 +61,11 @@ void evaluateTimeline(SinglePlanetContext& ctx)
         buildings = planet.getBuildings();
     }
 
+    logger.debug("attempt to update storage");
     prodCalc.updateStorage(storage, timestamp, buildings);
+    logger.debug("attempt to setting new storage");
     planet.setNewStorage(storage);
+    logger.debug("set new storage successful");
 }
 }
 
@@ -91,6 +96,7 @@ OnPlanetResponse Service::handleSinglePlanetRequest(const OnPlanetRequest& reque
         std::visit([&](auto&& q){logger.debug("Handling query"); logger.debug(__PRETTY_FUNCTION__);
             resp.push_back(QueryHandlerType<std::decay_t<decltype(q)>>{ctx}.handleQuery(q));}, query);
     }
+    logger.debug("handled all queries");
     return resp;
 }
 

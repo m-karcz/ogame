@@ -1,9 +1,9 @@
 import React from 'react';
 import {connect} from 'react-redux'
-import {getResourcesViewState, Store} from "./Store"
+import {getActualPlanetStorage, Store} from "./Store"
 
 const mapStateToProps = (state: Store) => ({
-    "resources": getResourcesViewState(state)
+    "resources": getActualPlanetStorage(state)
 })
 
 class ResourcesView extends React.Component<ReturnType<typeof mapStateToProps>, any>{

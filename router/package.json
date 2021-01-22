@@ -2,10 +2,10 @@
   "name": "router",
   "version": "1.0.0",
   "description": "",
-  "main": "build/router.js",
+  "main": "build/router/src/router.js",
   "scripts": {
     "build": "tsc",
-    "prestart": "npm run build",
+    "prestart": "npm run build && cp build/build/common/generated/* build/router/src",
     "start": "node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,6 +17,9 @@
     "node-fetch": "^2.6.1",
     "yargs": "^16.2.0"
   },
+  "moduleSearchPaths": [
+    "../../build/build/common/generated"
+  ],
   "devDependencies": {
     "@types/commander": "^2.12.2",
     "@types/express": "^4.17.9",

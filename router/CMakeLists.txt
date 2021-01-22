@@ -11,7 +11,7 @@ add_custom_target(prepare_router
         frontend
     COMMAND npm run prestart
     COMMAND printf \"\#!/bin/bash\\n\" > ${RUN_ROUTER}
-    COMMAND echo "node ${CMAKE_CURRENT_SOURCE_DIR}/build/router.js --binary \\\"$<TARGET_FILE:server>\\\"" >> ${RUN_ROUTER}
+    COMMAND echo "node ${CMAKE_CURRENT_SOURCE_DIR}/build/router/src/router.js --binary \\\"$<TARGET_FILE:server>\\\"" >> ${RUN_ROUTER}
     COMMAND chmod +x ${RUN_ROUTER}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 

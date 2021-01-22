@@ -45,7 +45,6 @@ Researchs:
   graviton: int
 
 
-
 LoginRequest:
   credentials: UserCredentials
 
@@ -94,7 +93,6 @@ BuildingQueueRequest: {}
 BuildingQueueResponse:
   queue: optional<BuildingQueueEntry>
 
-
 OnPlanetQuery: union<StorageRequest,BuildingsListRequest,BuildingQueueRequest>
 OnPlanetAction: union<BuildRequest>
 
@@ -105,3 +103,29 @@ OnPlanetRequest:
   action: optional<OnPlanetAction>
 
 OnPlanetResponse: union<StorageResponse,BuildingsListResponse,BuildingQueueResponse,BuildResponse>[]
+
+GeneralContext:
+  planetList: PlanetLocation[]
+  storage: Storage
+
+OverviewViewRequest:
+  planet: PlanetLocation
+
+OverviewViewResponse:
+  context: GeneralContext
+
+BuildingsViewRequest:
+  planet: PlanetLocation
+
+BuildingsViewResponse:
+  context: GeneralContext
+  buildings: Buildings
+  buildingQueue: BuildingQueueResponse
+
+StartBuildingActionRequest:
+  planet: PlanetLocation
+  building: Building
+
+StartBuildingActionResponse:
+  status: Status
+  response: BuildingsViewResponse

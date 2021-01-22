@@ -1,84 +1,79 @@
-import {Reducer, combineReducers} from "redux"
-import {LOGIN_SUBMIT, REGISTER_SUBMIT, REGISTER_SUCCESSFUL, LOGIN_SUCCESSFUL, LoginSubmitAction, RegisterSubmitAction, LoginSuccessfulAction, RegisterSuccessfulAction} from "./Actions"
-import {Store, ActualPlanetData, DEFAULT_LOGIN_FORM_STATE, LoginFormState, LoginState, RegisterState, PlanetLocation} from "./Store";
+import {Reducer, AnyAction} from "redux"
+import {registerRequest, loginSucceeded, loginRequest, registerSuccessful, contextUpdated, buildingsLoaded} from "./Actions"
+import {EMPTY_CONTEXT_DATA, Store, LoginState, RegisterState, DEFAULT_STORE_STATE, getLoginPageState, getLoginFormState, OVERVIEW_PAGE, INGAME_PAGE, getIngamePageState, getChosenPlanet, BUILDINGS_PAGE, getEmptyContextWithChosen} from "./Store";
 
-type LoginFormAction = LoginSubmitAction | RegisterSubmitAction | LoginSuccessfulAction | RegisterSuccessfulAction;
+//type LoginFormAction = LoginSubmitAction | RegisterSubmitAction | LoginSuccessfulAction | RegisterSuccessfulAction;
 
-const loginFormReducer : Reducer<LoginFormState, LoginFormAction> = (state = DEFAULT_LOGIN_FORM_STATE, action) =>
-{
-  switch(action.type)
-  {
-    case LOGIN_SUBMIT:
-    {
-      return {
-        ...state,
-        "loginState": LoginState.requested,
-        "loginFields": action.payload
-      }
-    }
-    case REGISTER_SUBMIT:
-    {
-      return {
-        ...state,
-        "registerState": RegisterState.requested,
-        "loginFields": action.payload
-      }
-    }
-    case REGISTER_SUCCESSFUL:
-    {
-      return {
-        ...state,
-        "registerState": RegisterState.successful
-      }
-    }
-    case LOGIN_SUCCESSFUL:
-    {
-      return {
-        ...state,
-        "loginState": LoginState.successful
-      }
-    }
-    default:
-    {
-      return state;
-    }
-  }
-}
-
-const planetListReducer : Reducer<Array<PlanetLocation>, LoginFormAction> = (state, action) => {
-    switch(action.type)
-    {
-      case LOGIN_SUCCESSFUL:
-      {
-        return action.payload.planetList
-      }
-      default:
-      {
-        return state ? state : [];
-      }
-    }
-}
-const chosenPlanetReducer : Reducer<number, LoginFormAction> = (state, action) => {
-    return state ? state : 0;
-}
-const actualPlanetDataReducer : Reducer<ActualPlanetData | null, LoginFormAction> = (state, action) => {
-    switch(action.type)
-    {
-      case LOGIN_SUCCESSFUL:
-      {
-        return {
-          ...state,
-          "resourcesView": action.payload.resources
+const myReducer : Reducer<Store, AnyAction> = (state = DEFAULT_STORE_STATE, action) => {
+  if(loginRequest.match(action))
+    return {
+      ...state,
+      page : {
+        ...getLoginPageState(state),
+        loginForm: {
+          ...getLoginFormState(state),
+          loginState: LoginState.requested
         }
       }
-      default:
-      {
-         return state ? state : null;
+    }
+  else if(loginSucceeded.match(action))
+    return {
+      ...state,
+      page : {
+        type: INGAME_PAGE,
+        innerPage : {
+          type: OVERVIEW_PAGE
+        },
+        contextData: getEmptyContextWithChosen(action.payload.chosenPlanet)
       }
     }
+  else if(registerRequest.match(action))
+    return {
+      page : {
+        ...getLoginPageState(state),
+        loginForm : {
+          ...getLoginFormState(state),
+          registerState: RegisterState.requested
+        }
+      }
+    }
+  else if(registerSuccessful.match(action))
+    return {
+      ...state,
+      page : {
+        ...getLoginPageState(state),
+        loginForm : {
+          ...getLoginFormState(state),
+          registerState: RegisterState.successful
+        }
+      }
+    }
+  else if(contextUpdated.match(action))
+    return {
+      ...state,
+      page : {
+        ...getIngamePageState(state),
+        contextData: {
+          actualPlanetStorage: action.payload.storage,
+          planetList: action.payload.planetList,
+          chosenPlanet: getChosenPlanet(state)
+        }
+      }
+    }
+  else if(buildingsLoaded.match(action))
+    return {
+      ...state,
+      page : {
+        ...getIngamePageState(state),
+        innerPage: {
+          type: BUILDINGS_PAGE,
+          buildings: action.payload.buildings,
+          queue: action.payload.queue
+        }
+      }
+    }
+  else
+    return state
 }
 
-export const combinedReducer = combineReducers<Store, LoginFormAction>({"loginForm": loginFormReducer,
-                                                                        "planetList": planetListReducer,
-                                                                        "chosenPlanet": chosenPlanetReducer,
-                                                                        "actualPlanetData": actualPlanetDataReducer});
+export const combinedReducer = myReducer;

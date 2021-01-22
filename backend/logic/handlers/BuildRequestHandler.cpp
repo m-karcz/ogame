@@ -41,6 +41,8 @@ BuildResponse BuildRequestHandler::handleAction(const BuildRequest& req)
 
     auto storage = planet.getStorage();
 
+    logger.debug("having: {} {} {}", storage.metal.toString(), storage.crystal.toString(), storage.deuter.toString());
+
     if(hasEnoughToPay(cost, storage))
     {
         logger.debug("Enough to pay");

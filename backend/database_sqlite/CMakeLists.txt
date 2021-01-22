@@ -10,5 +10,5 @@ add_subdirectory(sqlite_orm)
 set (CMAKE_CXX_STANDARD 17)
 set_property(TARGET DatabaseSQLite PROPERTY CXX_STANDARD 17)
 target_include_directories(DatabaseSQLite PUBLIC .)
-target_link_libraries(DatabaseSQLite DatabaseInterface::DatabaseInterface SQLiteOrm::SQLiteOrm)
+target_link_libraries(DatabaseSQLite DatabaseInterface::DatabaseInterface SQLiteOrm::SQLiteOrm Utils::Utils)
 

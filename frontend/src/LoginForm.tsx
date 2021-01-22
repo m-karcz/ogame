@@ -1,11 +1,12 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {LOGIN_SUBMIT, REGISTER_SUBMIT, LoginSubmitAction, RegisterSubmitAction} from "./Actions"
-import {LoginFormState, LoginState, RegisterState, getLoginFormState, LoginFields, DEFAULT_LOGIN_FIELDS} from "./Store"
+import {loginRequest, registerRequest} from "./Actions"
+import {LoginFormState, LoginState, RegisterState, getLoginFormState, DEFAULT_LOGIN_FIELDS} from "./Store"
+import {UserCredentials} from "./UserCredentials"
 
 const mapDispatchToProps = (dispatch: any) => ({
-    onLoginClick: (fields: LoginFields) => dispatch({type: LOGIN_SUBMIT, payload: fields} as LoginSubmitAction),
-    onRegisterClick: (fields: LoginFields) => dispatch({type: REGISTER_SUBMIT, payload: fields} as RegisterSubmitAction)
+    onLoginClick: (fields: UserCredentials) => dispatch(loginRequest(fields)),
+    onRegisterClick: (fields: UserCredentials) => dispatch(registerRequest(fields))
 })
 
 type LoginFormProps = LoginFormState & ReturnType<typeof mapDispatchToProps>;
@@ -42,7 +43,7 @@ class LoginForm extends React.Component<LoginFormProps, never>
     {
         this.props.onRegisterClick(this.fields);
     }
-    fields: LoginFields
+    fields: UserCredentials
 }
 
 

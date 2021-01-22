@@ -1,8 +1,10 @@
 import {IRouter} from "./IRouter"
-import {Discriminated, GeneralRequestUnion, GeneralResponseUnion} from "./GeneralRequest"
 import fetch from "node-fetch"
 import {ChildProcess, spawn} from "child_process"
 import {OnPlanetRequest} from "./OnPlanetRequest"
+import {GeneralRequest} from "./GeneralRequest"
+import {GeneralResponse} from "./GeneralResponse"
+import {OnPlanetResponse} from "./OnPlanetResponse"
 
 export class RemoteRouter implements IRouter
 {
@@ -11,11 +13,11 @@ export class RemoteRouter implements IRouter
         this.remoteAddress = remoteAddress;
         this.remoteProcess = spawn(binaryPath);
     }
-    generalRequest(request: Discriminated<GeneralRequestUnion>) : Promise<GeneralResponseUnion>
+    generalRequest(request: GeneralRequest) : Promise<GeneralResponse>
     {
-        return this.delegateToBinary<Discriminated<GeneralRequestUnion>, GeneralResponseUnion>(request, "/general");
+        return this.delegateToBinary<GeneralRequest, GeneralResponse>(request, "/general");
     }
-    onPlanetRequest(request: OnPlanetRequest) : Promise<any>
+    onPlanetRequest(request: OnPlanetRequest) : Promise<OnPlanetResponse>
     {            
         return this.delegateToBinary<OnPlanetRequest, any>(request, "/on_planet");
     }

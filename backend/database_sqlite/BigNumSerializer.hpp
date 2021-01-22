@@ -2,6 +2,7 @@
 
 #include "BigNum.hpp"
 #include <sqlite_orm.h>
+#include "Logger.hpp"
 
 namespace sqlite_orm
 {
@@ -15,6 +16,7 @@ namespace sqlite_orm
     {
         int bind(sqlite3_stmt* stmt, int index, const BigNum& value)
         {
+            logger.debug("{} {}", value.toString(), __PRETTY_FUNCTION__);
             return statement_binder<std::string>().bind(stmt, index, value.toString());
         }
     };
@@ -24,6 +26,7 @@ namespace sqlite_orm
     {
         std::string operator()(const BigNum& value)
         {
+            logger.debug("{} {}", value.toString(), __PRETTY_FUNCTION__);
             return value.toString();
         }
     };
@@ -33,6 +36,8 @@ namespace sqlite_orm
     {
         BigNum extract(const char* rowValue)
         {
+            logger.debug("{} {}", rowValue, __PRETTY_FUNCTION__);
+            logger.debug("{} {}", BigNum::fromStr(rowValue).toString(), __PRETTY_FUNCTION__);
             return BigNum::fromStr(rowValue);
         }
 

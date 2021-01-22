@@ -82,3 +82,11 @@ TEST_F(BigNumDivisionTests, div)
 
     ASSERT_EQ((lhs / rhs).toString(), "3.000000");
 }
+
+TEST(BigNumComparisonTests, cmp)
+{
+    auto lhs = BigNum::fromStr("12");
+    auto rhs = BigNum::fromStr("500");
+
+    ASSERT_TRUE(lhs < rhs);
+}

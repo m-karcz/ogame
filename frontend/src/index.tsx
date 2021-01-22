@@ -4,7 +4,7 @@ import './index.css';
 import Login from './Login';
 import reportWebVitals from './reportWebVitals';
 import {Provider} from 'react-redux'
-import { createStore } from 'redux';
+import { createStore, applyMiddleware} from 'redux';
 import {
   BrowserRouter as Router,
   Switch,
@@ -13,25 +13,23 @@ import {
 import {combinedReducer} from "./Reducers"
 import {DEFAULT_STORE_STATE} from "./Store"
 import Ingame from "./Ingame"
+import Page from "./Page"
+import RouterConnectivity from "./RouterConnectivity"
+import { composeWithDevTools } from 'redux-devtools-extension';
+import { getIngameMiddleware } from "./middlewares/InGamePageProcedures"
+import { getLoginMiddleware } from "./middlewares/LoginPageProcedures"
 
-const store = createStore(combinedReducer, DEFAULT_STORE_STATE);
+const conn = new RouterConnectivity();
+
+
+const store = createStore(combinedReducer, DEFAULT_STORE_STATE, composeWithDevTools(applyMiddleware(getIngameMiddleware(conn), getLoginMiddleware(conn))));
 
 ReactDOM.render(
 
   <React.StrictMode>
     <Provider store = {store}>
       <div>elo</div>
-      <Router>
-        <Switch>
-          <Route exact path="/">
-            <Login />
-          </Route>
-          <Route path="/ingame">
-            <div>ingame</div>
-            <Ingame />
-          </Route>
-        </Switch>
-      </Router>
+      <Page/>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')
