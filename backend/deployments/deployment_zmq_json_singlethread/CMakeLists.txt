@@ -1,0 +1,3 @@
+add_executable(zmq_json_1thread ZmqJson1Thread.cpp)
+target_compile_features(zmq_json_1thread PRIVATE cxx_std_17)
+target_link_libraries(zmq_json_1thread DatabaseInMemory::DatabaseInMemory SerializationJson::SerializationJson RnD::RnD cppzmq DeploymentCommon::DeploymentCommon)

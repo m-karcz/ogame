@@ -3,7 +3,8 @@ import {Request as ExpressRequest} from "express"
 import {OnPlanetRequestBuilder} from "./OnPlanetRequestBuilder"
 import {StorageRequest} from "./StorageRequest"
 import {STORAGE_REQUEST} from "./DiscStorageRequest"
-import {RemoteRouter} from "./RemoteRouter"
+//import {RemoteRouter} from "./RemoteRouter"
+import {RemoteZmqRouter} from "./RemoteZmqRouter"
 import session from "express-session"
 import path from "path"
 import {program} from "commander"
@@ -17,7 +18,6 @@ import {OnPlanetResponse} from "./OnPlanetResponse"
 import {StorageResponse} from "./StorageResponse"
 import {STORAGE_RESPONSE} from "./DiscStorageResponse"
 import bodyParser from "body-parser"
-import { epilog } from "yargs"
 import { BuildingsViewRequest } from "./BuildingsViewRequest"
 import { BuildingsViewResponse } from "./BuildingsViewResponse"
 import { BUILDINGS_LIST_REQUEST } from "./DiscBuildingsListRequest"
@@ -29,6 +29,7 @@ import { BUILDINGS_LIST_RESPONSE } from "./DiscBuildingsListResponse"
 import { StartBuildingActionRequest} from "./StartBuildingActionRequest"
 import { StartBuildingActionResponse} from "./StartBuildingActionResponse"
 import { BUILD_REQUEST } from "./DiscBuildRequest"
+import { RouterMiddleware} from "./RouterMiddleware"
 
 const argv = program.option("--binary <path>").parse(process.argv);
 
@@ -42,9 +43,11 @@ if(! argv["binary"])
 const app = express();
 const port = 8888;
 
-const router = new RemoteRouter("http://127.0.0.1:8080", argv["binary"] as string);
+const router = new RemoteZmqRouter("http://127.0.0.1:8080", argv["binary"] as string);
 
-app.use(session({ secret: 'no elo', cookie: { maxAge: 60000 }}));
+const routerMiddleware = new RouterMiddleware(router);
+
+app.use(session({ secret: 'no elo', cookie: { maxAge: 600000 }}));
 
 app.use(express.static(path.join(__dirname, '/../../../../frontend/build')));
 app.get('*', (req,res) =>{
@@ -52,18 +55,6 @@ app.get('*', (req,res) =>{
 });
 
 app.use(bodyParser.json())
-
-function pick<T>(typename: string)
-{
-	return function(resp: OnPlanetResponse) : T{
-		const elem = resp.find((elem) => elem.type === typename);
-		if(elem === undefined)
-		{
-			throw new Error("no elo");
-		}
-		return elem.data! as unknown as T;
-	}
-}
 
 declare module "express-session"{
 	interface Session
@@ -77,28 +68,6 @@ interface TypedRequest<T> extends ExpressRequest
 {
 	body: T
 }
-
-
-/*app.use("/*", function(req, res, next){
-	if(req.session.authenticated === undefined)
-	{
-		req.session.authenticated = false;
-		req.session.playerId = null;
-	}
-	console.log("before checking authentication");
-	next();
-});
-
-app.use("/game*", function(req, res, next){
-	if(req.session.authenticated)
-	{
-		console.log("authenticated");
-		next()
-		return
-	}
-	console.log("unauthenticated");
-	res.send("unauthenticated");
-});*/
 
 app.use(function(req, res, next) {
 	if(req.session.authenticated === undefined)
@@ -129,61 +98,22 @@ app.use(function(req, res, next) {
 })
 
 
-app.post("/game/buildings", function(req: TypedRequest<BuildingsViewRequest>, res)
+app.post("/game/buildings", async function(req: TypedRequest<BuildingsViewRequest>, res)
 {
-	const body = req.body;
-	const onPlanet = new OnPlanetRequestBuilder(req.session.playerId!, body.planet)
-					.addQuery({type: STORAGE_REQUEST, data:{}})
-					.addQuery({type: BUILDINGS_LIST_REQUEST, data:{}})
-					.addQuery({type: BUILDING_QUEUE_REQUEST, data:{}}).msg
-	router.onPlanetRequest(onPlanet).then(resp => {
-		const msg : BuildingsViewResponse = {
-			context: {
-				storage: pick<StorageResponse>(STORAGE_RESPONSE)(resp).storage,
-				planetList: [body.planet]
-			},
-			buildingQueue: pick<BuildingQueueResponse>(BUILDING_QUEUE_RESPONSE)(resp),
-			buildings: pick<BuildingsListResponse>(BUILDINGS_LIST_RESPONSE)(resp).buildings
-			
-		}
-		res.send(msg);
-	})
+	const resp = await routerMiddleware.buildingsView(req.session.playerId!, req.body);
+	res.send(resp);
 });
 
-app.post("/game/startBuilding", function(req: TypedRequest<StartBuildingActionRequest>, res)
+app.post("/game/startBuilding", async function(req: TypedRequest<StartBuildingActionRequest>, res)
 {
-	const body = req.body;
-	const onPlanet = new OnPlanetRequestBuilder(req.session.playerId!, body.planet, {type: BUILD_REQUEST, data: {buildingName: body.building}})
-					.addQuery({type: STORAGE_REQUEST, data:{}})
-					.addQuery({type: BUILDINGS_LIST_REQUEST, data:{}})
-					.addQuery({type: BUILDING_QUEUE_REQUEST, data:{}}).msg
-	router.onPlanetRequest(onPlanet).then(resp => {
-		const msg : BuildingsViewResponse = {
-			context: {
-				storage: pick<StorageResponse>(STORAGE_RESPONSE)(resp).storage,
-				planetList: [body.planet]
-			},
-			buildingQueue: pick<BuildingQueueResponse>(BUILDING_QUEUE_RESPONSE)(resp),
-			buildings: pick<BuildingsListResponse>(BUILDINGS_LIST_RESPONSE)(resp).buildings
-			
-		}
-		res.send({response: msg, status: "ok"} as StartBuildingActionResponse);
-	})
+	const resp = await routerMiddleware.startBuilding(req.session.playerId!, req.body);
+	res.send(resp);
 })
 
-app.post("/game/overview", function(req : TypedRequest<OverviewViewRequest>, res)
+app.post("/game/overview", async function(req : TypedRequest<OverviewViewRequest>, res)
 {
-	console.log("/game/overview");
-	const body = req.body;
-	router.onPlanetRequest(new OnPlanetRequestBuilder(req.session.playerId!, body.planet).addQuery({type: STORAGE_REQUEST, data:{}}).msg).then(resp => {
-		const msg : OverviewViewResponse = {
-			context: {
-				storage: pick<StorageResponse>(STORAGE_RESPONSE)(resp).storage,
-				planetList: [body.planet]
-			}
-		}
-		res.send(msg);
-	})
+	const resp = await routerMiddleware.overview(req.session.playerId!, req.body);
+	res.send(resp);
 });
 
 app.post("/login", (req : TypedRequest<UserCredentials>, res) => {
@@ -194,6 +124,8 @@ app.post("/login", (req : TypedRequest<UserCredentials>, res) => {
 	router.generalRequest({type: LOGIN_REQUEST, data: pass}).then(function(resp: any)
 	{
 		console.log(resp)
+
+		resp = resp.data;
 		if(resp.playerId)
 		{
 			req.session.authenticated = true;
@@ -209,6 +141,7 @@ app.post("/login", (req : TypedRequest<UserCredentials>, res) => {
 				planets: resp.planets,
 				firstPlanetStorage: storageResp
 			}
+			console.log(storageResp);
 			res.send(finalResp)
 		})
 	});
@@ -218,7 +151,7 @@ app.post("/register", (req, res) => {
 	const pass = {
 		credentials: req.body as UserCredentials
 	}
-	router.generalRequest({type: REGISTER_REQUEST, data: pass}).then((resp) => res.send(resp));
+	router.generalRequest({type: REGISTER_REQUEST, data: pass}).then((resp) => res.send(resp.data));
 });
 
 

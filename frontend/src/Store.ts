@@ -3,6 +3,7 @@ import {Storage} from "./Storage"
 import {PlanetLocation} from "./PlanetLocation"
 import {UserCredentials} from "./UserCredentials"
 import {BuildingQueueResponse} from "./BuildingQueueResponse"
+import {TotalProductionData} from "./TotalProductionData"
 
 export enum LoginState
 {
@@ -38,6 +39,7 @@ export const DEFAULT_LOGIN_FORM_STATE : LoginFormState = {
 
 export const OVERVIEW_PAGE = "OVERVIEW_PAGE";
 export const BUILDINGS_PAGE = "BUILDINGS_PAGE";
+export const RESOURCES_PAGE = "RESOURCES_PAGE";
 export const LOGIN_PAGE = "LOGIN_PAGE";
 export const INGAME_PAGE = "INGAME_PAGE";
 
@@ -76,7 +78,13 @@ export type BuildingsPageState =
     queue: BuildingQueueResponse["queue"]
 }
 
-export type IngameInnerPageState = OverviewPageState | BuildingsPageState;
+export type ResourcesPageState =
+{
+    type: typeof RESOURCES_PAGE
+    production: TotalProductionData
+}
+
+export type IngameInnerPageState = OverviewPageState | BuildingsPageState | ResourcesPageState;
 
 export type LoginPageState =
 {
@@ -158,4 +166,9 @@ export function getBuildings(store: Store) : Buildings
 export function getBuildingQueue(store: Store)
 {
     return (getIngamePageState(store).innerPage as BuildingsPageState).queue;
+}
+
+export function getTotalProduction(store: Store)
+{
+    return (getIngamePageState(store).innerPage as ResourcesPageState).production;
 }

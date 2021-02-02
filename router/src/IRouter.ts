@@ -1,9 +1,10 @@
-import {GeneralRequest} from "./GeneralRequest"
-import {GeneralResponse} from "./GeneralResponse"
+import {GeneralRequestData} from "./GeneralRequestData"
+import {GeneralResponseData} from "./GeneralResponseData"
+import {OnPlanetResponseData} from "./OnPlanetResponseData"
 import {OnPlanetRequest} from "./OnPlanetRequest"
 
 export interface IRouter
 {
-    generalRequest(request: GeneralRequest) : Promise<GeneralResponse>
-    onPlanetRequest(request: OnPlanetRequest) : Promise<any>;
+    generalRequest(request: GeneralRequestData) : Promise<GeneralResponseData>
+    onPlanetRequest(request: OnPlanetRequest) : Promise<OnPlanetResponseData>;
 }

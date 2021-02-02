@@ -5,7 +5,7 @@ import {OnPlanetRequest} from "./OnPlanetRequest"
 import {GeneralRequest} from "./GeneralRequest"
 import {GeneralResponse} from "./GeneralResponse"
 import {OnPlanetResponse} from "./OnPlanetResponse"
-
+/*
 export class RemoteRouter implements IRouter
 {
     constructor(remoteAddress: string, binaryPath: string)
@@ -33,3 +33,5 @@ export class RemoteRouter implements IRouter
     remoteAddress: string;
     remoteProcess: ChildProcess;
 }
+*/
+export default null

@@ -5,6 +5,7 @@
 #include "Constraints.hpp"
 #include <sqlite_orm.h>
 #include "PlanetWrapper.hpp"
+#include "NamedColumn.hpp"
 
 namespace sqlite
 {
@@ -22,3 +23,4 @@ namespace sqlite
         return std::make_tuple(sqlite_orm::foreign_key(&StorageWrapper::planetId).references(&PlanetWrapper::planetId));
     }
 }
+template auto makeTable<sqlite::StorageWrapper>(std::string);

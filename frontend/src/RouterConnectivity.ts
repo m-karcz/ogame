@@ -9,6 +9,8 @@ import { BuildingsViewRequest} from "./BuildingsViewRequest"
 import { BuildingsViewResponse} from "./BuildingsViewResponse"
 import { StartBuildingActionRequest } from "./StartBuildingActionRequest"
 import { StartBuildingActionResponse } from "./StartBuildingActionResponse"
+import { TotalProductionViewRequest} from "./TotalProductionViewRequest"
+import { TotalProductionViewResponse} from "./TotalProductionViewResponse"
 import { Building } from "./Building"
 
 function withPayload(payload: any)
@@ -47,6 +49,10 @@ export default class RouterConnectivity implements IRouterConnectivity
     loadBuildingsPage(planet: PlanetLocation) : Promise<BuildingsViewResponse>
     {
         return fetchAs<BuildingsViewResponse>("/game/buildings", {planet: planet} as BuildingsViewRequest);
+    }
+    loadResourcesPage(planet: PlanetLocation) : Promise<TotalProductionViewResponse>
+    {
+        return fetchAs<TotalProductionViewResponse>("/game/resources", {plaet: planet} as TotalProductionViewRequest);
     }
     beginBuilding(planet: PlanetLocation, building: Building) : Promise<StartBuildingActionResponse>
     {

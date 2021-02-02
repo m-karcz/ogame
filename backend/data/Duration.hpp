@@ -2,4 +2,4 @@
 
 #include <chrono>
 
-using Duration = std::chrono::milliseconds;
+using Duration = std::chrono::seconds;

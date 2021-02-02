@@ -12,6 +12,10 @@ struct Time : ITime
         auto now = getNow();
         return now - timeOfReferenceTimeBeingSet + referenceTime;
     }
+    void shiftTimeBy(const Duration& duration) override
+    {
+        setTimeTo(getTimestamp() + duration);
+    }
 private:
     Timestamp getNow()
     {

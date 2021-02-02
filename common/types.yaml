@@ -44,7 +44,6 @@ Researchs:
   intergalactic: int
   graviton: int
 
-
 LoginRequest:
   credentials: UserCredentials
 
@@ -58,9 +57,15 @@ RegisterRequest:
 RegisterResponse:
   status: Status
 
-GeneralRequest: union<LoginRequest,RegisterRequest>
+GeneralRequestData: union<LoginRequest,RegisterRequest>
 
-GeneralResponse: union<LoginResponse,RegisterResponse>
+GeneralRequest:
+  request: GeneralRequestData
+
+GeneralResponseData: union<LoginResponse,RegisterResponse>
+
+GeneralResponse:
+  response: GeneralResponseData
 
 BuildRequest:
   buildingName: Building
@@ -102,7 +107,10 @@ OnPlanetRequest:
   queries: OnPlanetQuery[]
   action: optional<OnPlanetAction>
 
-OnPlanetResponse: union<StorageResponse,BuildingsListResponse,BuildingQueueResponse,BuildResponse>[]
+OnPlanetResponseData: union<StorageResponse,BuildingsListResponse,BuildingQueueResponse,BuildResponse>[]
+
+OnPlanetResponse:
+  response: OnPlanetResponseData
 
 GeneralContext:
   planetList: PlanetLocation[]
@@ -123,9 +131,78 @@ BuildingsViewResponse:
   buildingQueue: BuildingQueueResponse
 
 StartBuildingActionRequest:
-  planet: PlanetLocation
   building: Building
+  planet: PlanetLocation
 
 StartBuildingActionResponse:
   status: Status
   response: BuildingsViewResponse
+
+BuildingGeneration:
+  level: number
+  percentage: number
+
+TotalProductionData:
+  metalMine: BuildingGeneration
+  crystalMine: BuildingGeneration
+  deuterExtractor: BuildingGeneration
+  solarGenerator: BuildingGeneration
+
+TotalProductionViewRequest: {}
+
+TotalProductionViewResponse:
+  context: GeneralContext
+  production: TotalProductionData
+
+ChangePercentageUsageActionRequest:
+  planet: PlanetLocation
+  chosenEntity: string
+  newPercentage: number
+
+ChangePercentageUsageActionResponse:
+  response: TotalProductionViewResponse
+
+TimeForwardRequest:
+  duration: Duration
+
+TimeForwardResponse:
+  status: Status
+
+RnDRequestData: union<TimeForwardRequest>
+
+RnDRequest:
+  request: RnDRequestData
+
+RnDResponseData: union<TimeForwardResponse>
+
+RndResponse:
+  response: RnDResponseData
+
+SerializableRequest:
+  request: union<GeneralRequest,OnPlanetRequest,RnDRequest>
+  transactionId: int
+
+SerializableResponse:
+  response: union<GeneralResponse,OnPlanetResponse,RnDResponse>
+  transactionId: int
+
+Configuration:
+  realTime: bool
+
+CachedProduction:
+  metalMinePercentage: int
+  metalMineGeneration: int
+  metalMineEnergyUsage: int
+  crystalMinePercentage: int
+  crystalMineGeneration: int
+  crystalMineEnergyUsage: int
+  deuterExtractorPercentage: int
+  deuterExtractorGeneration: int
+  deuterExtractorEnergyUsage: int
+  solarPlantPercentage: int
+  solarPlantGeneration: int
+  solarSatelitePercentage: int
+  solarSateliteGeneration: int
+  fusionGeneratorPercentage: int
+  fusionGeneratorGeneration: int
+  fusionGeneratorDeuterUsage: int

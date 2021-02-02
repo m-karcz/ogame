@@ -1,8 +1,8 @@
 #pragma once
+#include "Timestamp.hpp"
 
 struct IPlayerHandle;
 struct IPlanetHandle;
-#include "Timestamp.hpp"
 
 struct SinglePlanetContext
 {

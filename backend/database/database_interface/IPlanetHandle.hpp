@@ -7,6 +7,7 @@
 struct BuildingQueue;
 struct Storage;
 struct Buildings;
+struct CachedProduction;
 
 struct IPlanetHandle
 {
@@ -18,5 +19,7 @@ struct IPlanetHandle
     virtual int getBuildingLevel(const Building&) = 0;
     virtual void queueBuilding(const BuildingQueue&) = 0;
     virtual void dequeueBuilding(const BuildingQueue&) = 0;
+    virtual CachedProduction getCachedProduction() = 0;
+    virtual void setNewCachedProduction(const CachedProduction&) = 0;
     virtual ~IPlanetHandle() = default;
 };

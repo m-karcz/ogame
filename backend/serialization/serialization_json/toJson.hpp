@@ -1,6 +1,5 @@
 #pragma once
 #include <boost/hana/for_each.hpp>
-#include <boost/core/demangle.hpp>
 #include "nlohmann/json.hpp"
 #include <iostream>
 #include "BigNum.hpp"
@@ -10,6 +9,7 @@
 #include <variant>
 #include "SingleEntityFwd.hpp"
 #include "Status.hpp"
+#include "GetTypeName.hpp"
 
 namespace detail
 {
@@ -90,7 +90,7 @@ Json serializeFrom(const U& obj)
     {
         Json j;
         std::visit([&](auto&& elem){
-            j["type"] = boost::core::demangle(typeid(elem).name());
+            j["type"] = getTypeName<std::decay_t<decltype(elem)>>();
             j["data"] = serializeFrom(elem);
         }, obj);
         return j;
@@ -160,11 +160,10 @@ T deserializeTo(const Json& j)
         std::optional<T> deserialized;
         hana::for_each(::detail::pack<T>, [&](auto typeHolder){
             using t = typename decltype(typeHolder)::type;
-            if(j["type"].get<std::string>() == boost::core::demangle(typeid(t).name()))
+            if(j["type"].get<std::string>() == getTypeName<std::decay_t<t>>())
             {
                 try {
-                    t attempt;
-                    attempt = deserializeTo<t>(j["data"]);
+                    t attempt = deserializeTo<t>(j["data"]);
                     deserialized = attempt;
                 }
                 catch (...) {

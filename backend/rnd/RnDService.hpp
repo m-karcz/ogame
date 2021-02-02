@@ -1,17 +1,19 @@
 #pragma once
 
-#include "api/RnDRequestVariant.hpp"
+#include "RnDRequest.hpp"
+#include "RnDResponse.hpp"
 #include "RnDTime.hpp"
+#include "TimeForwardResponse.hpp"
 #include <variant>
 
 struct RnDService
 {
-    bool handleRequest(const RnDRequestVariant& request)
+    RnDResponse handleRequest(const RnDRequest& request)
     {
-        return std::visit([this](auto& req)->bool{return this->handle(req);}, request);
+        return std::visit([this](auto& req)->RnDResponse{return {.response = this->handle(req)};}, request.request);
     }
 
-    bool handle(const TimeForwardRequest&);
+    TimeForwardResponse handle(const TimeForwardRequest&);
 
-    RnDTime& time;
+    ITime& time;
 };

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-add_library(DatabaseSQLite StorageDb.hpp StorageDb.cpp NamedColumn.hpp PlanetWrapper.hpp ColumnOptions.hpp Constraints.hpp)
+add_library(DatabaseSQLite StorageDb.hpp StorageDb.cpp NamedColumn.hpp PlanetWrapper.hpp ColumnOptions.hpp Constraints.hpp BuildingsWrapper.cpp)
 add_library(DatabaseSQLite::DatabaseSQLite ALIAS DatabaseSQLite)
 
 add_subdirectory(sqlite_orm)

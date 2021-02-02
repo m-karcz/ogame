@@ -6,6 +6,7 @@
 #include "ColumnOptions.hpp"
 #include "UserCredentialsWrapper.hpp"
 #include <sqlite_orm.h>
+#include "NamedColumn.hpp"
 
 namespace sqlite
 {
@@ -28,3 +29,4 @@ auto constraints<PlanetWrapper>()
 }
 
 }
+template auto makeTable<sqlite::PlanetWrapper>(std::string);

@@ -17,6 +17,7 @@
 #include "BigNumSerializer.hpp"
 #include "StorageWrapper.hpp"
 #include "IPlanetHandle.hpp"
+#include "CachedProductionWrapper.hpp"
 #include <iostream>
 #include <thread>
 #include "Logger.hpp"
@@ -37,14 +38,16 @@ namespace {
 
 auto makeStorage(std::string_view path)
 {
-    std::string name = getName<&PlanetLocation::position>();
-    std::cout << name << std::endl;
+    const auto buildingsTable = makeTable<sqlite::BuildingQueueWrapper>("buildingQueue");
+    const auto storageTable = makeTable<sqlite::StorageWrapper>("storage");
+    const auto productionTable = makeTable<sqlite::CachedProductionWrapper>("cachedProduction");
     return make_storage(std::string{path},
                                    makeTable<sqlite::UserCredentialsWrapper>("users"),
                                    makeTable<sqlite::PlanetWrapper>("planets"),
                                    makeTable<sqlite::BuildingsWrapper>("buildings"),
-                                   makeTable<sqlite::BuildingQueueWrapper>("buildingQueue"),
-                                   makeTable<sqlite::StorageWrapper>("storage")
+                                   buildingsTable,
+                                   storageTable,
+                                   productionTable
                                );
 }
 
@@ -72,6 +75,27 @@ namespace sqlite
                 logger.error("Error in querying buildings: {}", ex.what());
                 throw;
             }
+        }
+        CachedProduction getCachedProduction() override
+        {
+            try
+            {
+                logger.debug("Querying production");
+                return db.get<CachedProductionWrapper>(planetId);
+            }
+            catch(std::exception& ex)
+            {
+                logger.error("Error in querying production : {}", ex.what());
+                throw;
+            }
+
+        }
+        void setNewCachedProduction(const CachedProduction& production) override
+        {
+            logger.debug("Setting new cachedProduction");
+            CachedProductionWrapper wrapper{production};
+            wrapper.planetId = planetId;
+            db.replace(wrapper);
         }
         void setNewStorage(const Storage& storage) override
         {
@@ -158,6 +182,7 @@ namespace sqlite
                 auto planetId = db.insert(wrapper);
                 createStorage(planetId, createdAt);
                 createBuildings(planetId);
+                createCachedProduction(planetId);
                 return true;
             }
             catch(...)
@@ -180,6 +205,14 @@ namespace sqlite
             auto givenId = db.insert(wrapper);
             logger.debug("Added buildings with id {} and planetId = {}", givenId, planetId);
             db.update_all(set(c(&BuildingsWrapper::planetId) = planetId), where(c(&BuildingsWrapper::planetId) == givenId));
+        }
+        void createCachedProduction(int planetId)
+        {
+            CachedProductionWrapper wrapper{};
+            wrapper.planetId = planetId;
+            auto givenId = db.insert(wrapper);
+            logger.debug("Added empty cachedProduction with id {} and planetId = {}", givenId, planetId);
+            db.update_all(set(c(&CachedProductionWrapper::planetId) = planetId), where(c(&CachedProductionWrapper::planetId) == givenId));
         }
         StorageT& db;
         PlayerId playerId;

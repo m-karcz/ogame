@@ -28,7 +28,8 @@ def mapTypeToTs(typename):
         "int": "number",
         "Timestamp": "number",
         "Duration": "number",
-        "BigNum": "number"
+        "BigNum": "number",
+        "bool": "boolean"
     }
     return mapping.get(typename, typename)
 

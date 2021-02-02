@@ -1,7 +1,8 @@
 import React from "react"
 import {connect} from "react-redux"
-import {Store, OVERVIEW_PAGE, BUILDINGS_PAGE, getIngamePageState} from "./Store"
+import {Store, OVERVIEW_PAGE, BUILDINGS_PAGE, getIngamePageState, RESOURCES_PAGE} from "./Store"
 import BuildingsPage from "./BuildingsPage"
+import ResourcesPage from "./ResourcesPage"
 
 type IngameSwitchPageProps = {
     pageType: string
@@ -21,6 +22,8 @@ class IngameSwitch extends React.Component<IngameSwitchPageProps, never>{
               return <div>overview</div>
           case BUILDINGS_PAGE:
               return <BuildingsPage />
+          case RESOURCES_PAGE:
+              return null //<ResourcesPage />
           default:
               return <div>none</div>
       }

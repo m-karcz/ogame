@@ -2,7 +2,6 @@
 #include "LoginRequest.hpp"
 #include "RegisterRequest.hpp"
 #include "StorageRequest.hpp"
-#include "api/TimeForwardRequest.hpp"
 #include "BuildRequest.hpp"
 #include "PlayerId.hpp"
 #include "IPlayerHandle.hpp"
@@ -72,7 +71,7 @@ void evaluateTimeline(SinglePlanetContext& ctx)
 
 GeneralResponse Service::handleRequest(const GeneralRequest& request)
 {
-    return std::visit([this](auto& req)->GeneralResponse{return this->handle(req);}, request);
+    return std::visit([this](auto& req)->GeneralResponse{return {.response = this->handle(req)};}, request.request);
 }
 
 OnPlanetResponse Service::handleSinglePlanetRequest(const OnPlanetRequest& request)
@@ -89,12 +88,12 @@ OnPlanetResponse Service::handleSinglePlanetRequest(const OnPlanetRequest& reque
 
     if(request.action)
     {
-        std::visit([&](auto&& action){resp.push_back(ActionHandlerType<std::decay_t<decltype(action)>>{ctx}.handleAction(action));}, *request.action);
+        std::visit([&](auto&& action){resp.response.push_back(ActionHandlerType<std::decay_t<decltype(action)>>{ctx}.handleAction(action));}, *request.action);
     }
     for(auto&& query : request.queries)
     {
         std::visit([&](auto&& q){logger.debug("Handling query"); logger.debug(__PRETTY_FUNCTION__);
-            resp.push_back(QueryHandlerType<std::decay_t<decltype(q)>>{ctx}.handleQuery(q));}, query);
+            resp.response.push_back(QueryHandlerType<std::decay_t<decltype(q)>>{ctx}.handleQuery(q));}, query);
     }
     logger.debug("handled all queries");
     return resp;

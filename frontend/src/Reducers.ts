@@ -1,5 +1,5 @@
 import {Reducer, AnyAction} from "redux"
-import {registerRequest, loginSucceeded, loginRequest, registerSuccessful, contextUpdated, buildingsLoaded} from "./Actions"
+import {overviewLoaded, registerRequest, loginSucceeded, loginRequest, registerSuccessful, contextUpdated, buildingsLoaded} from "./Actions"
 import {EMPTY_CONTEXT_DATA, Store, LoginState, RegisterState, DEFAULT_STORE_STATE, getLoginPageState, getLoginFormState, OVERVIEW_PAGE, INGAME_PAGE, getIngamePageState, getChosenPlanet, BUILDINGS_PAGE, getEmptyContextWithChosen} from "./Store";
 
 //type LoginFormAction = LoginSubmitAction | RegisterSubmitAction | LoginSuccessfulAction | RegisterSuccessfulAction;
@@ -27,6 +27,18 @@ const myReducer : Reducer<Store, AnyAction> = (state = DEFAULT_STORE_STATE, acti
         contextData: getEmptyContextWithChosen(action.payload.chosenPlanet)
       }
     }
+  else if(overviewLoaded.match(action))
+  {
+    return {
+      ...state,
+      page : {
+        ...getIngamePageState(state),
+        innerPage : {
+          type: OVERVIEW_PAGE
+        },
+      }
+    }
+  }
   else if(registerRequest.match(action))
     return {
       page : {

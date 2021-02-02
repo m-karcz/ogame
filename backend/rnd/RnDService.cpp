@@ -3,8 +3,8 @@
 //
 #include "RnDService.hpp"
 
-bool RnDService::handle(const TimeForwardRequest& req)
+TimeForwardResponse RnDService::handle(const TimeForwardRequest& req)
 {
-    time.requestShifting(req);
-    return true;
+    time.shiftTimeBy(req.duration);
+    return {.status = Ok{} };
 }

@@ -8,6 +8,6 @@ set (CMAKE_CXX_STANDARD 17)
 set_property(TARGET Data PROPERTY CXX_STANDARD 17)
 
 target_include_directories(Data PUBLIC .)
-target_link_libraries(Data Utils::Utils GenHeaders::GenHeaders)
+target_link_libraries(Data Utils::Utils GenHeaders::GenHeaders hana)
 set_target_properties(Data PROPERTIES LINKER_LANGUAGE CXX)
 
