@@ -2,6 +2,7 @@
 
 #include <variant>
 #include <memory>
+#include <string>
 
 struct IError
 {

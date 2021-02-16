@@ -54,11 +54,18 @@ struct FirstType
     template<typename...>
     struct Helper;
 
-    template<typename T, typename...Rest>
-    struct Helper<Template<T, Rest...>>
+    template<typename T>
+    struct Helper<Template<T>>
     {
         using Type = T;
     };
+
+    /*template<typename T, typename...Rest>
+    struct Helper<Template<T, Rest...>>
+    {
+        using Type = T;
+    };*/
+
 
     using Type = typename Helper<Outer>::Type;
 };
@@ -140,7 +147,8 @@ Json serializeFrom(const U& obj)
 template<typename T>
 T deserializeTo(const Json& j)
 {
-    if constexpr(std::is_integral_v<T> or std::is_same_v<T, std::string>)
+    logger.debug("Deserializing {} to {}", j.dump(), getTypeName<T>());
+    if constexpr(std::is_integral_v<T> or std::is_same_v<T, std::string> or std::is_floating_point_v<T>)
     {
         return j;
     }
@@ -206,6 +214,10 @@ T deserializeTo(const Json& j)
     else if constexpr(std::is_same_v<T, Duration>)
     {
         return Duration{deserializeTo<int>(j)};
+    }
+    else if constexpr(std::is_same_v<T, BigNum>)
+    {
+        return BigNum{deserializeTo<double>(j)};
     }
 
     throw std::runtime_error(__PRETTY_FUNCTION__);

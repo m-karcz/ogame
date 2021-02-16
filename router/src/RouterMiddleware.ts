@@ -1,23 +1,23 @@
-import { BuildingsViewRequest } from "./BuildingsViewRequest";
-import { BuildingsViewResponse } from "./BuildingsViewResponse";
-import { STORAGE_REQUEST } from "./DiscStorageRequest"
-import { STORAGE_RESPONSE } from "./DiscStorageResponse"
-import { BUILDINGS_LIST_REQUEST } from "./DiscBuildingsListRequest"
-import { BUILDING_QUEUE_REQUEST } from "./DiscBuildingQueueRequest"
 import { OnPlanetRequestBuilder } from "./OnPlanetRequestBuilder"
-import { OnPlanetResponseData } from "./OnPlanetResponseData"
-import { BUILDINGS_LIST_RESPONSE} from "./DiscBuildingsListResponse"
-import { BUILDING_QUEUE_RESPONSE} from "./DiscBuildingQueueResponse"
-import { BUILD_REQUEST } from "./DiscBuildRequest"
-import { StorageResponse } from "./StorageResponse"
-import { BuildingsListResponse} from "./BuildingsListResponse"
-import { BuildingQueueResponse} from "./BuildingQueueResponse"
-import { StartBuildingActionRequest } from "./StartBuildingActionRequest"
-import { StartBuildingActionResponse } from "./StartBuildingActionResponse"
-import { PlayerId } from "./PlayerId"
 import {IRouter} from "./IRouter"
-import { OverviewViewRequest } from "./OverviewViewRequest";
-import { OverviewViewResponse } from "./OverviewViewResponse"
+import { BUILDINGS_LIST_RESPONSE,
+         BUILDING_QUEUE_RESPONSE,
+         BUILD_REQUEST,
+         STORAGE_REQUEST,
+         STORAGE_RESPONSE,
+         BUILDINGS_LIST_REQUEST,
+         BUILDING_QUEUE_REQUEST,
+         BuildingsViewRequest,
+         BuildingsViewResponse,
+         OnPlanetResponseData,
+        StorageResponse,
+         BuildingsListResponse,
+         BuildingQueueResponse,
+        StartBuildingActionRequest,
+        StartBuildingActionResponse,
+        PlayerId,
+        OverviewViewRequest,
+        OverviewViewResponse } from "../../build/common/generated/AllGenerated"
 
 
 function pick<T>(typename: string)

@@ -3,6 +3,23 @@ execute_process(COMMAND npm install
 
 set(ROUTER_EXECUTOR ${CMAKE_CURRENT_BINARY_DIR}/run_router)
 
+if(EMSCRIPTEN)
+get_target_property(FRONTEND_SOURCE_DIR frontend SOURCE_DIR)
+add_custom_target(prepare_router
+    BYPRODUCTS ${RUN_ROUTER}
+    DEPENDS
+        wasm_sync
+        frontend
+    COMMAND npm run prestart
+    COMMAND printf \"\#!/bin/bash\\n\" > ${RUN_ROUTER}
+    COMMAND echo "python3 -m http.server 8888 --directory ${FRONTEND_SOURCE_DIR}/build" >> ${RUN_ROUTER}
+    COMMAND chmod +x ${RUN_ROUTER}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_custom_target(run_router
+    DEPENDS prepare_router
+    COMMAND ${RUN_ROUTER})
+else()
 add_custom_target(prepare_router
     BYPRODUCTS ${RUN_ROUTER}
     DEPENDS
@@ -18,3 +35,4 @@ add_custom_target(prepare_router
 add_custom_target(run_router
     DEPENDS prepare_router
     COMMAND ${RUN_ROUTER})
+endif()

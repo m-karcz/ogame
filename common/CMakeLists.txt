@@ -10,8 +10,10 @@ set(OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 execute_process(COMMAND mkdir -p ${OUTDIR})
 
 execute_process(COMMAND python3 generator.py ${OUTDIR}
+                COMMAND cp tsconfig.json ${CMAKE_CURRENT_BINARY_DIR}/generated
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 
+add_subdirectory(knowledge)
 add_subdirectory(${OUTDIR} ${OUTDIR})
 

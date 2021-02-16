@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@generatedApi": ["../build/common/generated/AllGenerated"],
+        "@router": ["../router/src/*"]
+      }
+    }
+  }

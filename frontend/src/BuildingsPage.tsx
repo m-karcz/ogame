@@ -2,9 +2,9 @@ import React from "react"
 import {connect} from "react-redux"
 import { Store } from "./Store"
 import { getBuildings } from "./Store"
-import {Buildings} from "./Buildings"
+import { Building,
+         Buildings } from "../../build/common/generated/AllGenerated"
 import BuildingEntry from "./BuildingEntry"
-import {Building} from "./Building"
 
 
 function mapStateToProps(state: Store) 

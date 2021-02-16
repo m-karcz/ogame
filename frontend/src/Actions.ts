@@ -1,12 +1,14 @@
-import {Storage} from "./Storage"
-import {UserCredentials} from "./UserCredentials"
-import {PlanetLocation} from "./PlanetLocation"
 import {createAction} from "@reduxjs/toolkit"
-import {GeneralContext} from "./GeneralContext"
-import {Buildings} from "./Buildings"
-import {Building} from "./Building"
-import {BuildingQueueResponse} from "./BuildingQueueResponse"
-import {TotalProductionData} from "./TotalProductionData"
+
+import { UserCredentials,
+         Buildings,
+         PlanetLocation,
+         GeneralContext,
+         Building,
+         BuildingQueueResponse } from "../../build/common/generated/AllGenerated"
+
+type TotalProductionData =
+{}
 
 export const LOGIN_SUBMIT = "LOGIN_SUBMIT"
 export const LOGIN_SUCCESSFUL = "LOGIN_SUCCESSFUL"

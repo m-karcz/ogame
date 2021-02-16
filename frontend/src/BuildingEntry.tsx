@@ -1,6 +1,6 @@
 import React from "react"
 import {connect} from "react-redux"
-import {Building} from "./Building"
+import { Building } from "../../build/common/generated/AllGenerated"
 import {startBuilding} from "./Actions"
 import { Store, getBuildingQueue } from "./Store"
 
@@ -54,7 +54,7 @@ class BuildingEntry extends React.Component<PropsFromParent & ReturnType<typeof 
 
     getBuildButton()
     {
-        return <a href="#" onClick={this.startBuilding.bind(this)}>Build</a>;
+        return <a id={"build_" + this.props.buildingName} onClick={this.startBuilding.bind(this)}>Build</a>;
     }
 }
 

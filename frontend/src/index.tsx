@@ -1,18 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Login from './Login';
 import reportWebVitals from './reportWebVitals';
 import {Provider} from 'react-redux'
 import { createStore, applyMiddleware} from 'redux';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route
-} from "react-router-dom";
 import {combinedReducer} from "./Reducers"
 import {DEFAULT_STORE_STATE} from "./Store"
-import Ingame from "./Ingame"
 import Page from "./Page"
 import RouterConnectivity from "./RouterConnectivity"
 import { composeWithDevTools } from 'redux-devtools-extension';

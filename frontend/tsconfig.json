@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "lib": [
       "dom",
       "dom.iterable",
@@ -18,13 +18,20 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "rootDirs" : [
-      "./../build/common/generated",
-      "./src"
-    ]
+    "jsx": "react-jsx"
   },
   "include": [
-    "src"
-  ]
+    "src",
+    "../router/src",
+    "../build/common/generated"
+  ],
+  "references": [
+    {
+      "path": "../router"
+    },
+    {
+      "path": "../build/common/generated"
+    }
+  ],
+  "extends": "./tsconfig.paths.json"
 }

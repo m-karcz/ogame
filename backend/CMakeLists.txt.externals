@@ -23,7 +23,7 @@ FetchContent_declare(
 FetchContent_Populate(spdlog)
 add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR} EXCLUDE_FROM_ALL)
 
-set(BUILD_TESTS OFF)
+set(BUILD_TESTS OFF CACHE INTERNAL "")
 FetchContent_declare(
     libzmq
     GIT_REPOSITORY https://github.com/zeromq/libzmq.git
@@ -31,7 +31,7 @@ FetchContent_declare(
 FetchContent_Populate(libzmq)
 add_subdirectory(${libzmq_SOURCE_DIR} ${libzmq_BINARY_DIR} EXCLUDE_FROM_ALL)
 
-set(CPPZMQ_BUILD_TESTS OFF)
+set(CPPZMQ_BUILD_TESTS OFF CACHE INTERNAL "")
 FetchContent_declare(
     cppzmq
     GIT_REPOSITORY https://github.com/zeromq/cppzmq.git

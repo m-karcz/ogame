@@ -10,6 +10,7 @@
 
 int main()
 {
+    logger.debug("Starting main");
     RnDTime rndTime;
     ITime& time = rndTime;
     inMemory::StorageDbFactory dbFactory;

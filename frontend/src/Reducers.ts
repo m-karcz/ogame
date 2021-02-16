@@ -1,6 +1,6 @@
 import {Reducer, AnyAction} from "redux"
 import {overviewLoaded, registerRequest, loginSucceeded, loginRequest, registerSuccessful, contextUpdated, buildingsLoaded} from "./Actions"
-import {EMPTY_CONTEXT_DATA, Store, LoginState, RegisterState, DEFAULT_STORE_STATE, getLoginPageState, getLoginFormState, OVERVIEW_PAGE, INGAME_PAGE, getIngamePageState, getChosenPlanet, BUILDINGS_PAGE, getEmptyContextWithChosen} from "./Store";
+import {Store, LoginState, RegisterState, DEFAULT_STORE_STATE, getLoginPageState, getLoginFormState, OVERVIEW_PAGE, INGAME_PAGE, getIngamePageState, getChosenPlanet, BUILDINGS_PAGE, getEmptyContextWithChosen} from "./Store";
 
 //type LoginFormAction = LoginSubmitAction | RegisterSubmitAction | LoginSuccessfulAction | RegisterSuccessfulAction;
 

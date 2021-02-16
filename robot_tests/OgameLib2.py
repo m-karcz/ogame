@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver import FirefoxOptions
 
 from webdriver_manager.firefox import GeckoDriverManager
+import time
 
 BASE_URL = "http://localhost:8888/"
 
@@ -25,10 +26,11 @@ class OgameLib2:
         self.driver.find_element_by_name("login-input").send_keys(login)
         self.driver.find_element_by_name("passcode-input").send_keys(passcode)
         self.driver.find_element_by_xpath('//input[@value="Register"]').click()
+        time.sleep(1)
         self.driver.find_element_by_xpath('//input[@value="Login"]').click()
 
     @keyword
     def assert_logged_in(self):
-        if self.driver.current_url != BASE_URL + "ingame":
+        if any(self.driver.find_elements_by_name("login-input")):
             raise RuntimeError("not logged in")
          

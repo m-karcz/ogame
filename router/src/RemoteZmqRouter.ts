@@ -1,20 +1,20 @@
 import {IRouter} from "./IRouter"
 import fetch from "node-fetch"
 import {ChildProcess, spawn} from "child_process"
-import {OnPlanetRequest} from "./OnPlanetRequest"
-import {GeneralRequest} from "./GeneralRequest"
-import {GeneralRequestData} from "./GeneralRequestData"
-import {GeneralResponse} from "./GeneralResponse"
-import {GeneralResponseData} from "./GeneralResponseData"
-import {OnPlanetResponse} from "./OnPlanetResponse"
-import {OnPlanetResponseData} from "./OnPlanetResponseData"
-import {RnDResponseData} from "./RnDResponseData"
-import {RnDResponse} from "./RnDResponse"
-import {SerializableRequest} from "./SerializableRequest"
-import {GENERAL_REQUEST} from "./DiscGeneralRequest"
-import {ON_PLANET_REQUEST} from "./DiscOnPlanetRequest"
-import { RN_D_REQUEST } from "./DiscRnDRequest"
-import { SerializableResponse} from "./SerializableResponse"
+import {OnPlanetRequest,
+        GeneralRequest,
+        GeneralRequestData,
+        GeneralResponse,
+        GeneralResponseData,
+        OnPlanetResponse,
+        OnPlanetResponseData,
+        RnDResponseData,
+        RnDResponse,
+        SerializableRequest,
+        GENERAL_REQUEST,
+        ON_PLANET_REQUEST,
+         RN_D_REQUEST,
+         SerializableResponse} from "../../build/common/generated/AllGenerated"
 import * as zmq from "zeromq"
 
 export class RemoteZmqRouter implements IRouter

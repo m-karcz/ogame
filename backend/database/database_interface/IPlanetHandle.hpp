@@ -8,6 +8,7 @@ struct BuildingQueue;
 struct Storage;
 struct Buildings;
 struct CachedProduction;
+struct ProductionPercentages;
 
 struct IPlanetHandle
 {
@@ -21,5 +22,7 @@ struct IPlanetHandle
     virtual void dequeueBuilding(const BuildingQueue&) = 0;
     virtual CachedProduction getCachedProduction() = 0;
     virtual void setNewCachedProduction(const CachedProduction&) = 0;
+    virtual ProductionPercentages getProductionPercentages() = 0;
+    virtual void setNewProductionPercentages(const ProductionPercentages&) = 0;
     virtual ~IPlanetHandle() = default;
 };

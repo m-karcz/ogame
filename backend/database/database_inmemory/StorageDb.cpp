@@ -11,6 +11,7 @@
 #include "CachedProduction.hpp"
 #include "Building.hpp"
 #include "BuildingQueue.hpp"
+#include "ProductionPercentages.hpp"
 
 
 namespace inMemory
@@ -65,6 +66,14 @@ struct BuildingQueueWrapper : BuildingQueue
     IndexType planetId;
 
     constexpr static auto key = &BuildingQueueWrapper::planetId;
+};
+
+struct ProductionPercentagesWrapper : ProductionPercentages
+{
+    using Base = ProductionPercentages;
+    IndexType planetId;
+
+    constexpr static auto key = &ProductionPercentagesWrapper::planetId;
 };
 
 template<typename RowType>
@@ -147,6 +156,7 @@ struct Database
     IndexedTable<BuildingsWrapper> buildings;
     IndexedTable<BuildingQueueWrapper> buildingQueue;
     IndexedTable<CachedProductionWrapper> cachedProduction;
+    IndexedTable<ProductionPercentagesWrapper> productionPercentages;
 };
 
 static auto makeDb()
@@ -224,7 +234,17 @@ struct StorageDb::PlanetHandle : ::IPlanetHandle
     {
         CachedProductionWrapper wrapper{newCachedProduction};
         wrapper.planetId = planetId;
-        db.cachedProduction.insertAlreadyIndiced(wrapper);
+        db.cachedProduction.replace(wrapper);
+    }
+    ProductionPercentages getProductionPercentages() override
+    {
+        return *db.productionPercentages.query(planetId);
+    }
+    void setNewProductionPercentages(const ProductionPercentages& newProductionPercentages) override
+    {
+        ProductionPercentagesWrapper wrapper{newProductionPercentages};
+        wrapper.planetId = planetId;
+        db.productionPercentages.replace(wrapper);
     }
 private:
     int planetId;
@@ -260,6 +280,7 @@ struct StorageDb::PlayerHandle : ::IPlayerHandle
             createStorage(planetId, createdAt);
             createBuildings(planetId);
             createCachedProduction(planetId);
+            createProductionPercentages(planetId);
             return true;
         }
         catch(...)
@@ -296,6 +317,12 @@ private:
         CachedProductionWrapper wrapper = {};
         wrapper.planetId = planetId;
         db.cachedProduction.insertAlreadyIndiced(wrapper);
+    }
+    void createProductionPercentages(int planetId)
+    {
+        ProductionPercentagesWrapper wrapper = {ProductionPercentages{100, 100, 100, 100, 100, 100}};
+        wrapper.planetId = planetId;
+        db.productionPercentages.insertAlreadyIndiced(wrapper);
     }
     PlayerId playerId;
     Database& db;

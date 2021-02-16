@@ -1,34 +1,34 @@
 import express from "express"
 import {Request as ExpressRequest} from "express"
 import {OnPlanetRequestBuilder} from "./OnPlanetRequestBuilder"
-import {StorageRequest} from "./StorageRequest"
-import {STORAGE_REQUEST} from "./DiscStorageRequest"
 //import {RemoteRouter} from "./RemoteRouter"
 import {RemoteZmqRouter} from "./RemoteZmqRouter"
 import session from "express-session"
 import path from "path"
 import {program} from "commander"
-import {UserCredentials} from "./UserCredentials"
-import {LOGIN_REQUEST} from "./DiscLoginRequest"
-import {REGISTER_REQUEST} from "./DiscRegisterRequest"
-import {PlayerId} from "./PlayerId"
-import {OverviewViewRequest} from "./OverviewViewRequest"
-import {OverviewViewResponse} from "./OverviewViewResponse"
-import {OnPlanetResponse} from "./OnPlanetResponse"
-import {StorageResponse} from "./StorageResponse"
-import {STORAGE_RESPONSE} from "./DiscStorageResponse"
 import bodyParser from "body-parser"
-import { BuildingsViewRequest } from "./BuildingsViewRequest"
-import { BuildingsViewResponse } from "./BuildingsViewResponse"
-import { BUILDINGS_LIST_REQUEST } from "./DiscBuildingsListRequest"
-import { BUILDING_QUEUE_REQUEST } from "./DiscBuildingQueueRequest"
-import { BuildingQueueResponse } from "./BuildingQueueResponse"
-import { BUILDING_QUEUE_RESPONSE } from "./DiscBuildingQueueResponse"
-import { BuildingsListResponse } from "./BuildingsListResponse"
-import { BUILDINGS_LIST_RESPONSE } from "./DiscBuildingsListResponse"
-import { StartBuildingActionRequest} from "./StartBuildingActionRequest"
-import { StartBuildingActionResponse} from "./StartBuildingActionResponse"
-import { BUILD_REQUEST } from "./DiscBuildRequest"
+import {UserCredentials,
+StorageRequest,
+	STORAGE_REQUEST,
+        LOGIN_REQUEST,
+        REGISTER_REQUEST,
+        PlayerId,
+        OverviewViewRequest,
+        OverviewViewResponse,
+        OnPlanetResponse,
+        StorageResponse,
+        STORAGE_RESPONSE,
+         BuildingsViewRequest,
+         BuildingsViewResponse,
+         BUILDINGS_LIST_REQUEST,
+         BUILDING_QUEUE_REQUEST,
+         BuildingQueueResponse,
+         BUILDING_QUEUE_RESPONSE,
+         BuildingsListResponse,
+         BUILDINGS_LIST_RESPONSE, 
+         StartBuildingActionRequest,
+         StartBuildingActionResponse,
+         BUILD_REQUEST } from "../../build/common/generated/AllGenerated"
 import { RouterMiddleware} from "./RouterMiddleware"
 
 const argv = program.option("--binary <path>").parse(process.argv);

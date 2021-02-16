@@ -1,0 +1,30 @@
+#include "ProductionStorageUpdateProcedure.hpp"
+#include "KnowledgeData.hpp"
+#include "CachedProduction.hpp"
+#include "IPlanetHandle.hpp"
+#include "Storage.hpp"
+#include "Logger.hpp"
+
+void productionStorageUpdateProcedure(SinglePlanetContext& ctx, Timestamp until)
+{
+    //CachedProduction prod = ctx.planet.getCachedProduction();
+    Storage storage = ctx.planet.getStorage();
+    //logger.debug("{}", storage.metal.toString());
+    /*BigNum hourlyMetal = knowledgeData.productions.baseMetal + prod.metalMineGeneration;
+    BigNum hourlyCrystal = knowledgeData.productions.baseCrystal + prod.crystalMineGeneration;
+    BigNum hourlyDeuter = prod.deuterExtractorGeneration - prod.fusionGeneratorDeuterUsage;
+    logger.debug("production: metal {} crystal {} deuter {}", hourlyMetal.toString(), hourlyCrystal.toString(), hourlyDeuter.toString());
+    if(hourlyDeuter < 0)
+    {
+        hourlyDeuter = 0;
+    }
+    using HourInFloat = std::chrono::duration<double, std::ratio<3600>>;
+
+    HourInFloat duration = until - storage.lastUpdatedAt;
+    logger.debug("production over {} h", duration.count());
+    storage.metal = storage.metal + duration.count() * hourlyMetal;
+    storage.crystal = storage.crystal + duration.count() * hourlyCrystal;
+    storage.deuter = storage.deuter + duration.count() * hourlyDeuter;*/
+    //storage.lastUpdatedAt = until;
+    //ctx.planet.setNewStorage(storage);
+}

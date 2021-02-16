@@ -8,6 +8,7 @@ namespace cnst
 extern Building metalMine;
 extern Building crystalMine;
 extern Building deuterExtractor;
+extern Building solarGenerator;
 extern Building robots;
 extern Building nanites;
 extern Building shipyard;

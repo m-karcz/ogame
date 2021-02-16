@@ -19,9 +19,8 @@ add_custom_command(
 
 add_custom_target(robot_tests
         COMMAND
-            ${CMAKE_CURRENT_BINARY_DIR}/venv/bin/python -m robot --variable serverFile:$<TARGET_FILE:server> --variable runRouter:${RUN_ROUTER} basic.robot
+            ${CMAKE_CURRENT_BINARY_DIR}/venv/bin/python -m robot --variable runRouter:${RUN_ROUTER} basic.robot
         DEPENDS
             venv.stamp
-            server
             prepare_router
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

@@ -1,0 +1,20 @@
+{
+    "productions": {
+        "baseMetal" : 30,
+        "baseCrystal" : 15,
+        "metalMine" :       { "production" : 30, "cost": 10 },
+        "crystalMine" :     { "production" : 20, "cost": 10 },
+        "deuterExtractor" : { "production" : 20, "cost": 20 },
+        "solarGenerator" :  { "production" : 20, "cost": 0  },
+        "fusionReactor" : { "production" : 30, "cost": 10 }
+    },
+    "buildingCosts": [
+        {"name": "metalMine", "cost":       {"multiplier": 1.5, "metal": 60,      "crystal": 15,     "deuter": 0,      "energy": 0}},
+        {"name": "crystalMine", "cost":     {"multiplier": 1.6, "metal": 48,      "crystal": 24,     "deuter": 0,      "energy": 0}},
+        {"name": "deuterExtractor", "cost": {"multiplier": 1.5, "metal": 225,     "crystal": 75,     "deuter": 0,      "energy": 0}},
+        {"name": "solarGenerator", "cost":  {"multiplier": 1.5, "metal": 75,      "crystal": 30,     "deuter": 0,      "energy": 0}},
+        {"name": "robots", "cost":   {"multiplier": 2,   "metal": 400,     "crystal": 120,    "deuter": 200,    "energy": 0}},
+        {"name": "nanites", "cost":   {"multiplier": 2,   "metal": 1000000, "crystal": 500000, "deuter": 100000, "energy": 0}},
+        {"name": "shipyard", "cost":        {"multiplier": 2,   "metal": 400,     "crystal": 200,    "deuter": 100,    "energy": 0}}
+    ]
+}

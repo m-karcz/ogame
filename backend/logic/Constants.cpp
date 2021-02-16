@@ -7,6 +7,7 @@ namespace cnst
 Building metalMine{&Buildings::metalMine};
 Building crystalMine{&Buildings::crystalMine};
 Building deuterExtractor{&Buildings::deuterExtractor};
+Building solarGenerator{&Buildings::solarGenerator};
 Building robots{&Buildings::robots};
 Building nanites{&Buildings::nanites};
 Building shipyard{&Buildings::shipyard};

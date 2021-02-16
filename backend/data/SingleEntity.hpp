@@ -1,6 +1,7 @@
 #pragma once
 #include "Conversions.hpp"
 #include "SingleEntityFwd.hpp"
+#include <string>
 
 template<typename Parent>
 struct SingleEntity

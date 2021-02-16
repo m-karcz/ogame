@@ -1,10 +1,11 @@
-import {Buildings} from "./Buildings"
-import {Storage} from "./Storage"
-import {PlanetLocation} from "./PlanetLocation"
-import {UserCredentials} from "./UserCredentials"
-import {BuildingQueueResponse} from "./BuildingQueueResponse"
-import {TotalProductionData} from "./TotalProductionData"
+import {Buildings,
+        Storage,
+        PlanetLocation,
+        UserCredentials,
+        BuildingQueueResponse,
+         Building } from "../../build/common/generated/AllGenerated"
 
+type TotalProductionData = any;
 export enum LoginState
 {
     none = 0,

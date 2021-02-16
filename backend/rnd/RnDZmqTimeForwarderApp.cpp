@@ -1,7 +1,7 @@
 #include <zmq.hpp>
 #include <string>
-#include "api/TimeForwardRequest.hpp"
-#include "api/RnDRequestVariant.hpp"
+#include "TimeForwardRequest.hpp"
+#include "SerializableRequest.hpp"
 #include "toJson.hpp"
 
 int main(int argc, char* argv[])
@@ -14,7 +14,9 @@ int main(int argc, char* argv[])
 
     TimeForwardRequest timeReq{.duration = Duration{timeInMilliseconds}};
 
-    RnDRequestVariant req{timeReq};
+    RnDRequest req{RnDRequestData{timeReq}};
+
+    SerializableRequest serializable{req};
 
     zmq::context_t context{1};
 
@@ -22,8 +24,7 @@ int main(int argc, char* argv[])
     socket.connect("tcp://localhost:5555");
 
     Json j;
-    j["data"] = serializeFrom(req);
-    j["type"] = "rnd";
+    j = serializeFrom(serializable);
 
     socket.send(zmq::buffer(j.dump()), zmq::send_flags::none);
 

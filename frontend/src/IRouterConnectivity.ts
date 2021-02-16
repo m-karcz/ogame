@@ -1,12 +1,13 @@
-import {UserCredentials} from "./UserCredentials"
-import {LoginResponse} from "./LoginResponse"
-import {RegisterResponse} from "./RegisterResponse"
-import { PlanetLocation } from "./PlanetLocation"
-import { OverviewViewResponse } from "./OverviewViewResponse"
-import { BuildingsViewResponse} from "./BuildingsViewResponse"
-import { Building } from "./Building"
-import { StartBuildingActionResponse} from "./StartBuildingActionResponse"
-import { TotalProductionViewResponse } from "./TotalProductionViewResponse"
+import {UserCredentials,
+        LoginResponse,
+        RegisterResponse,
+         PlanetLocation,
+         OverviewViewResponse,
+         BuildingsViewResponse,
+         StartBuildingActionResponse,
+         Building } from "../../build/common/generated/AllGenerated"
+
+type TotalProductionViewResponse = {}
 
 export default interface IRouterConnectivity
 {

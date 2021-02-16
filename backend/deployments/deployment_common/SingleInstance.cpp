@@ -4,14 +4,24 @@
 #include "SerializableResponse.hpp"
 #include "SerializableRequest.hpp"
 
-SingleInstance::SingleInstance(const ISerializer& serializer, const Configuration& configuration, ITime& time, IStorageDbFactory& storageDbFactory)
+SingleInstance::SingleInstance(const ISerializer& serializer, const Configuration& configuration, ITime& time, IStorageDbFactory& storageDbFactory) try
     : serializer{serializer}
     , configuration{configuration}
     , storageDb{storageDbFactory.create()}
     , time{time}
     , service{*storageDb,time}
     , rndService{time}
-{}
+{
+
+}
+catch(std::exception& ex)
+{
+
+}
+catch(...)
+{
+
+}
 
 std::vector<uint8_t> SingleInstance::process(const std::vector<uint8_t>& rawData)
 {

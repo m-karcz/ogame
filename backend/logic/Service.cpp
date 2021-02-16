@@ -14,10 +14,14 @@
 #include "handlers/BuildingsListRequestHandler.hpp"
 #include "handlers/BuildingQueueRequestHandler.hpp"
 #include "handlers/StorageRequestHandler.hpp"
+#include "handlers/ProductionPercentagesRequestHandler.hpp"
+#include "handlers/ProductionInformationRequestHandler.hpp"
 #include "OnPlanetRequest.hpp"
 #include "OnPlanetResponse.hpp"
 #include <boost/hana/map.hpp>
 #include <boost/hana/at_key.hpp>
+#include "procedures/ProductionRecalculationProcedure.hpp"
+#include "procedures/ProductionStorageUpdateProcedure.hpp"
 
 namespace hana = boost::hana;
 
@@ -28,7 +32,9 @@ constexpr auto kvPair = hana::make_pair(hana::type_c<Key>, hana::type_c<Value>);
 constexpr auto actionHandlers = hana::make_map(kvPair<BuildRequest,BuildRequestHandler>);
 constexpr auto queryHandlers = hana::make_map(kvPair<BuildingsListRequest,BuildingsListRequestHandler>,
                                               kvPair<BuildingQueueRequest,BuildingQueueRequestHandler>,
-                                              kvPair<StorageRequest      ,StorageRequestHandler>);
+                                              kvPair<StorageRequest      ,StorageRequestHandler>,
+                                              kvPair<ProductionPercentagesRequest,ProductionPercentagesRequestHandler>,
+                                              kvPair<ProductionInformationRequest,ProductionInformationRequestHandler>);
 template<typename Action>
 using ActionHandlerType = typename decltype(+actionHandlers[hana::type_c<Action>])::type;
 template<typename Query>
@@ -39,32 +45,23 @@ void evaluateTimeline(SinglePlanetContext& ctx)
     auto timestamp = ctx.timestamp;
 
     auto& planet = ctx.planet;
-    auto& player = ctx.player;
 
     auto buildingQueue = planet.getBuildingQueue();
-    auto buildings = planet.getBuildings();
-    auto storage = planet.getStorage();
 
     logger.debug("everything queried");
-
-    ProductionCalculator prodCalc;
 
     if(buildingQueue and buildingQueue->finishAt < timestamp)
     {
         logger.debug("Building queue to finish at {} now has {}", buildingQueue->finishAt.time_since_epoch().count(), timestamp.time_since_epoch().count());
         auto finishBuildingTimestamp = buildingQueue->finishAt;
-        prodCalc.updateStorage(storage, finishBuildingTimestamp, buildings);
+        productionStorageUpdateProcedure(ctx, finishBuildingTimestamp);
 
         planet.dequeueBuilding(*buildingQueue);
         planet.incrementBuildingLevel(buildingQueue->building);
-        buildings = planet.getBuildings();
+        productionRecalculationProcedure(ctx);
     }
 
-    logger.debug("attempt to update storage");
-    prodCalc.updateStorage(storage, timestamp, buildings);
-    logger.debug("attempt to setting new storage");
-    planet.setNewStorage(storage);
-    logger.debug("set new storage successful");
+    productionStorageUpdateProcedure(ctx);
 }
 }
 

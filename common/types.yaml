@@ -98,7 +98,7 @@ BuildingQueueRequest: {}
 BuildingQueueResponse:
   queue: optional<BuildingQueueEntry>
 
-OnPlanetQuery: union<StorageRequest,BuildingsListRequest,BuildingQueueRequest>
+OnPlanetQuery: union<StorageRequest,BuildingsListRequest,BuildingQueueRequest,ProductionPercentagesRequest,ProductionInformationRequest>
 OnPlanetAction: union<BuildRequest>
 
 OnPlanetRequest:
@@ -107,7 +107,7 @@ OnPlanetRequest:
   queries: OnPlanetQuery[]
   action: optional<OnPlanetAction>
 
-OnPlanetResponseData: union<StorageResponse,BuildingsListResponse,BuildingQueueResponse,BuildResponse>[]
+OnPlanetResponseData: union<StorageResponse,BuildingsListResponse,BuildingQueueResponse,BuildResponse,ProductionPercentagesResponse,ProductionInformationResponse>[]
 
 OnPlanetResponse:
   response: OnPlanetResponseData
@@ -138,30 +138,6 @@ StartBuildingActionResponse:
   status: Status
   response: BuildingsViewResponse
 
-BuildingGeneration:
-  level: number
-  percentage: number
-
-TotalProductionData:
-  metalMine: BuildingGeneration
-  crystalMine: BuildingGeneration
-  deuterExtractor: BuildingGeneration
-  solarGenerator: BuildingGeneration
-
-TotalProductionViewRequest: {}
-
-TotalProductionViewResponse:
-  context: GeneralContext
-  production: TotalProductionData
-
-ChangePercentageUsageActionRequest:
-  planet: PlanetLocation
-  chosenEntity: string
-  newPercentage: number
-
-ChangePercentageUsageActionResponse:
-  response: TotalProductionViewResponse
-
 TimeForwardRequest:
   duration: Duration
 
@@ -175,8 +151,10 @@ RnDRequest:
 
 RnDResponseData: union<TimeForwardResponse>
 
-RndResponse:
+RnDResponse:
   response: RnDResponseData
+
+Research: string
 
 SerializableRequest:
   request: union<GeneralRequest,OnPlanetRequest,RnDRequest>
@@ -186,23 +164,92 @@ SerializableResponse:
   response: union<GeneralResponse,OnPlanetResponse,RnDResponse>
   transactionId: int
 
+Cost:
+  multiplier: BigNum
+  metal: BigNum
+  crystal: BigNum
+  deuter: BigNum
+  energy: BigNum
+
+BuildingCost:
+  cost: Cost
+  name: Building
+
+BuildingRequirement:
+  name: Building
+  level: int
+
+ResearchRequirement:
+  name: Research
+  level: int
+
+Requirements:
+  buildings: BuildingRequirement[]
+  researchs: ResearchRequirement[]
+
+BaseProduction:
+  production: int
+  cost: int
+
+BaseProductions:
+  baseMetal: int
+  baseCrystal: int
+  metalMine: BaseProduction
+  crystalMine: BaseProduction
+  deuterExtractor: BaseProduction
+  solarGenerator: BaseProduction
+  fusionReactor: BaseProduction
+
+Knowledge:
+  productions: BaseProductions
+  buildingCosts: BuildingCost[]
+
 Configuration:
   realTime: bool
 
+ProductionPercentages:
+  metalMine: int
+  crystalMine: int
+  deuterExtractor: int
+  solarGenerator: int
+  solarSatelites: int
+  fusionReactor: int
+
 CachedProduction:
-  metalMinePercentage: int
   metalMineGeneration: int
   metalMineEnergyUsage: int
-  crystalMinePercentage: int
   crystalMineGeneration: int
   crystalMineEnergyUsage: int
-  deuterExtractorPercentage: int
   deuterExtractorGeneration: int
   deuterExtractorEnergyUsage: int
-  solarPlantPercentage: int
   solarPlantGeneration: int
-  solarSatelitePercentage: int
   solarSateliteGeneration: int
-  fusionGeneratorPercentage: int
   fusionGeneratorGeneration: int
   fusionGeneratorDeuterUsage: int
+
+ProductionInformationViewRequest:
+  planet: PlanetLocation
+
+ProductionInformationViewResponse:
+  context: GeneralContext
+  percentages: ProductionPercentages
+  production: CachedProduction
+  buildings: Buildings
+
+ChangePercentageUsageActionRequest:
+  planet: PlanetLocation
+  chosenEntity: string
+  newPercentage: number
+
+ChangePercentageUsageActionResponse:
+  response: ProductionInformationViewResponse
+
+ProductionInformationRequest: {}
+
+ProductionInformationResponse:
+  production: CachedProduction
+
+ProductionPercentagesRequest: {}
+
+ProductionPercentagesResponse:
+  percentages: ProductionPercentages

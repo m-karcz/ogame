@@ -6,15 +6,15 @@ Library     OgameLib
 Library		OgameLib2
 
 *** Keywords ***
-Start App
-	No Operation
-	${servProcLoc} = 	Start Process	${serverFile}	--rnd 	stdout=noelo.txt 
-	Set Test Variable	${servProc}	${servProcLoc}
-	Sleep	1s
-
-Stop App
-	#No Operation
-	Terminate Process	handle=${servProc}	kill=True
+#Start App
+#	No Operation
+#	${servProcLoc} = 	Start Process	${serverFile}	--rnd 	stdout=noelo.txt 
+#	Set Test Variable	${servProc}	${servProcLoc}
+#	Sleep	1s
+#
+#Stop App
+#	#No Operation
+#	Terminate Process	handle=${servProc}	kill=True
 
 Get Logged
 	Register User
@@ -52,6 +52,7 @@ Test Teardown	Stop Router
 TestNewFramework
 	Log	elo ${runRouter}
 	Open Site
+	Sleep	2s
 	Register And Login On
 	Assert Logged In
 

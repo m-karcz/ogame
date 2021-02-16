@@ -10,4 +10,3 @@ struct SinglePlanetContext
     IPlanetHandle& planet;
     Timestamp timestamp;
 };
-

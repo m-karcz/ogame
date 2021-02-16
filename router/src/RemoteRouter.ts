@@ -1,10 +1,3 @@
-import {IRouter} from "./IRouter"
-import fetch from "node-fetch"
-import {ChildProcess, spawn} from "child_process"
-import {OnPlanetRequest} from "./OnPlanetRequest"
-import {GeneralRequest} from "./GeneralRequest"
-import {GeneralResponse} from "./GeneralResponse"
-import {OnPlanetResponse} from "./OnPlanetResponse"
 /*
 export class RemoteRouter implements IRouter
 {

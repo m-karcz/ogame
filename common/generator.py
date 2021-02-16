@@ -5,6 +5,7 @@ import re
 output_dir = sys.argv[1]
 
 headers_list = []
+ts_list = set()
 
 DISCRIMINATED_PREFIX = "Disc"
 
@@ -48,6 +49,7 @@ def makeIndex(field_type):
     return "_".join([word.upper() for word in camel_case_split(field_type)])
 
 def writeDiscriminatedType(field_type):
+    ts_list.add(DISCRIMINATED_PREFIX + field_type)
     with open(output_dir + "/" + DISCRIMINATED_PREFIX + field_type + ".ts", "w") as fp:
         fp.write("import {" + field_type + '} from "./' + field_type + '"\n\n')
         index = makeIndex(field_type)
@@ -180,17 +182,19 @@ def dumpAliasOnlyToHpp(new_name, name):
         fp.write("\n".join(body))
 
 def dumpAliasOnlyToTs(new_name, name):
+    ts_list.add(new_name)
     with open(output_dir + "/" + new_name + ".ts", "w") as fp:
         [imports, new_field_type] = writeFieldToTs(name)
         body = ["export type {} = {};".format(new_name, new_field_type)]
 
-        fp.write("\n".join(['import {{ {} }} from "./{}"'.format(im, im) for im in imports]))
+        fp.write("\n".join(['import {{ {} }} from "./{}"'.format(im, im) for im in set(imports)]))
         fp.write("\n\n")
         fp.write("\n".join(body))
 
 
 
 def dumpToTs(name, fields):
+    ts_list.add(name)
     with open(output_dir + "/" + name + ".ts", "w") as fp:
         imports = []
         body = ["export type " + name + " = {"]
@@ -201,13 +205,15 @@ def dumpToTs(name, fields):
             imports.extend(new_imports)
         body.append("}")
 
-        fp.write("\n".join(['import {{ {} }} from "./{}"'.format(im, im) for im in imports]))
+        fp.write("\n".join(['import {{ {} }} from "./{}"'.format(im, im) for im in set(imports)]))
         fp.write("\n\n")
         fp.write("\n".join(body))
 
 def defineTsAlias(original, new_name):
+    ts_list.add(new_name)
     with open(output_dir + "/" + new_name + ".ts", "w") as fp:
         fp.write("export type {} = {}".format(new_name, original))
+
 
 with open("types.yaml") as fp:
     y = load(fp)
@@ -223,6 +229,7 @@ with open("types.yaml") as fp:
         else:
             dumpAliasOnlyToHpp(name, fields)
             dumpAliasOnlyToTs(name, fields)
+    
 
 
 with open(output_dir + "/CMakeLists.txt", "w") as fp:
@@ -233,3 +240,7 @@ with open(output_dir + "/CMakeLists.txt", "w") as fp:
     cmake.append("target_include_directories({} PUBLIC {})".format(cmakeTarget, output_dir))
     cmake.append("set_target_properties({} PROPERTIES LINKER_LANGUAGE CXX)".format(cmakeTarget))
     fp.write("\n".join(cmake))
+
+with open(output_dir + "/AllGenerated.ts", "w") as fp:
+    for name in ts_list:
+        fp.write("export * from \"./{}\"\n".format(name))
