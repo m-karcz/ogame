@@ -4,8 +4,8 @@
   "description": "",
   "main": "build/router/src/router.js",
   "scripts": {
-    "build": "tsc",
-    "prestart": "npm run build && cp build/build/common/generated/* build/router/src",
+    "build": "tsc --build",
+    "prestart": "npm run build",
     "start": "node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
