@@ -28,7 +28,8 @@ StorageRequest,
          BUILDINGS_LIST_RESPONSE, 
          StartBuildingActionRequest,
          StartBuildingActionResponse,
-         BUILD_REQUEST } from "../../build/common/generated/AllGenerated"
+         BUILD_REQUEST } from "./generated/AllGenerated"
+         //BUILD_REQUEST } from "../../build/common/generated/AllGenerated"
 import { RouterMiddleware} from "./RouterMiddleware"
 
 const argv = program.option("--binary <path>").parse(process.argv);
@@ -49,7 +50,7 @@ const routerMiddleware = new RouterMiddleware(router);
 
 app.use(session({ secret: 'no elo', cookie: { maxAge: 600000 }}));
 
-app.use(express.static(path.join(__dirname, '/../../../../frontend/build')));
+app.use(express.static(path.join(__dirname, '/../../../frontend/build')));
 app.get('*', (req,res) =>{
     res.sendFile(path.join(__dirname+'../../../../frontend/build/index.html'))
 });

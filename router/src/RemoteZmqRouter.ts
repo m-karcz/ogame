@@ -8,13 +8,13 @@ import {OnPlanetRequest,
         GeneralResponseData,
         OnPlanetResponse,
         OnPlanetResponseData,
-        RnDResponseData,
-        RnDResponse,
+        RndResponseData,
+        RndResponse,
         SerializableRequest,
         GENERAL_REQUEST,
         ON_PLANET_REQUEST,
-         RN_D_REQUEST,
-         SerializableResponse} from "../../build/common/generated/AllGenerated"
+         RND_REQUEST,
+         SerializableResponse} from "./generated/AllGenerated"
 import * as zmq from "zeromq"
 
 export class RemoteZmqRouter implements IRouter
@@ -37,7 +37,7 @@ export class RemoteZmqRouter implements IRouter
     }
 
     async delegateToBinary<Request extends GeneralRequest | OnPlanetRequest,
-                          Response extends GeneralResponse | OnPlanetResponse | RnDResponse>(request: Request, type: typeof GENERAL_REQUEST | typeof ON_PLANET_REQUEST | typeof RN_D_REQUEST) : Promise<Response>
+                          Response extends GeneralResponse | OnPlanetResponse | RndResponse>(request: Request, type: typeof GENERAL_REQUEST | typeof ON_PLANET_REQUEST | typeof RND_REQUEST) : Promise<Response>
     {
         const sock = new zmq.Request;
         sock.connect('tcp://localhost:5555');

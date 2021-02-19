@@ -144,24 +144,24 @@ TimeForwardRequest:
 TimeForwardResponse:
   status: Status
 
-RnDRequestData: union<TimeForwardRequest>
+RndRequestData: union<TimeForwardRequest>
 
-RnDRequest:
-  request: RnDRequestData
+RndRequest:
+  request: RndRequestData
 
-RnDResponseData: union<TimeForwardResponse>
+RndResponseData: union<TimeForwardResponse>
 
-RnDResponse:
-  response: RnDResponseData
+RndResponse:
+  response: RndResponseData
 
 Research: string
 
 SerializableRequest:
-  request: union<GeneralRequest,OnPlanetRequest,RnDRequest>
+  request: union<GeneralRequest,OnPlanetRequest,RndRequest>
   transactionId: int
 
 SerializableResponse:
-  response: union<GeneralResponse,OnPlanetResponse,RnDResponse>
+  response: union<GeneralResponse,OnPlanetResponse,RndResponse>
   transactionId: int
 
 Cost:

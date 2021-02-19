@@ -32,7 +32,7 @@ std::vector<uint8_t> SingleInstance::process(const std::vector<uint8_t>& rawData
     auto resp = std::visit(overloaded{
         [&,this](const OnPlanetRequest& req){return SerializableResponse{this->service.handleSinglePlanetRequest(req), request.transactionId};},
         [&,this](const GeneralRequest& req) {return SerializableResponse{this->service.handleRequest(req), request.transactionId};},
-        [&,this](const RnDRequest& req)     {return SerializableResponse{this->rndService.handleRequest(req), request.transactionId};}
+        [&,this](const RndRequest& req)     {return SerializableResponse{this->rndService.handleRequest(req), request.transactionId};}
     }, request.request);
 
     logger.debug("Serializing");

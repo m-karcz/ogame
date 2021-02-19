@@ -1,6 +1,6 @@
 import React from "react"
 import {connect} from "react-redux"
-import { Building } from "../../build/common/generated/AllGenerated"
+import { Building } from "./generated/AllGenerated"
 import {startBuilding} from "./Actions"
 import { Store, getBuildingQueue } from "./Store"
 

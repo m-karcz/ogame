@@ -2,7 +2,7 @@ import {OnPlanetQuery,
         OnPlanetAction,
         PlayerId,
         PlanetLocation,
-        OnPlanetRequest} from "../../build/common/generated/AllGenerated"
+        OnPlanetRequest} from "./generated/AllGenerated"
 
 
 export class OnPlanetRequestBuilder

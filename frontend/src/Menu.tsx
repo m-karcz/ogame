@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect } from "react-redux"
 import { loadBuildingsPage, loadOverviewPage, loadResourcesPage } from './Actions';
-import { PlanetLocation } from "../../build/common/generated/AllGenerated"
+import { PlanetLocation } from "./generated/AllGenerated"
 import { getChosenPlanet, Store } from './Store';
 
 const mapDispatchToProps = (dispatch: any) => (

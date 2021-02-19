@@ -5,7 +5,7 @@ import {UserCredentials,
          OverviewViewResponse,
          BuildingsViewResponse,
          StartBuildingActionResponse,
-         Building } from "../../build/common/generated/AllGenerated"
+         Building } from "./generated/AllGenerated"
 
 type TotalProductionViewResponse = {}
 

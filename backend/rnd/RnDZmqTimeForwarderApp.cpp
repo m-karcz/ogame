@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
     TimeForwardRequest timeReq{.duration = Duration{timeInMilliseconds}};
 
-    RnDRequest req{RnDRequestData{timeReq}};
+    RndRequest req{RndRequestData{timeReq}};
 
     SerializableRequest serializable{req};
 

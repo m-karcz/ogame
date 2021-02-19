@@ -3,7 +3,7 @@ import {connect} from "react-redux"
 import { Store } from "./Store"
 import { getBuildings } from "./Store"
 import { Building,
-         Buildings } from "../../build/common/generated/AllGenerated"
+         Buildings } from "./generated/AllGenerated"
 import BuildingEntry from "./BuildingEntry"
 
 

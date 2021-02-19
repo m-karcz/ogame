@@ -1,7 +1,7 @@
 import {GeneralRequestData,
         GeneralResponseData,
         OnPlanetResponseData,
-        OnPlanetRequest} from "../../build/common/generated/AllGenerated"
+        OnPlanetRequest} from "./generated/AllGenerated"
 
 export interface IRouter
 {

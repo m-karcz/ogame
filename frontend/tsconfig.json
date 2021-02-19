@@ -21,17 +21,6 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src",
-    "../router/src",
-    "../build/common/generated"
-  ],
-  "references": [
-    {
-      "path": "../router"
-    },
-    {
-      "path": "../build/common/generated"
-    }
-  ],
-  "extends": "./tsconfig.paths.json"
+    "src"
+  ]
 }

@@ -3,7 +3,7 @@ import IRouterConnectivity from "../IRouterConnectivity"
 import {resourcesLoaded, loadResourcesPage, loadOverviewPage, loadBuildingsPage, buildingsLoaded, overviewLoaded, startBuilding, getContextUpdated} from "../Actions"
 import {getChosenPlanet} from "../Store"
 import {GeneralContext,
-        BuildingsViewResponse } from "../../../build/common/generated/AllGenerated"
+        BuildingsViewResponse } from "../generated/AllGenerated"
 
 type TotalProductionViewResponse = any;
 

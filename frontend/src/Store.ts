@@ -3,7 +3,7 @@ import {Buildings,
         PlanetLocation,
         UserCredentials,
         BuildingQueueResponse,
-         Building } from "../../build/common/generated/AllGenerated"
+         Building } from "./generated/AllGenerated"
 
 type TotalProductionData = any;
 export enum LoginState

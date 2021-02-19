@@ -2,7 +2,7 @@ import React from 'react'
 import {connect} from 'react-redux'
 import {loginRequest, registerRequest} from "./Actions"
 import {LoginFormState, LoginState, RegisterState, getLoginFormState, DEFAULT_LOGIN_FIELDS} from "./Store"
-import {UserCredentials } from "../../build/common/generated/AllGenerated"
+import {UserCredentials } from "./generated/AllGenerated"
 
 const mapDispatchToProps = (dispatch: any) => ({
     onLoginClick: (fields: UserCredentials) => dispatch(loginRequest(fields)),

@@ -17,7 +17,7 @@ import { BUILDINGS_LIST_RESPONSE,
         StartBuildingActionResponse,
         PlayerId,
         OverviewViewRequest,
-        OverviewViewResponse } from "../../build/common/generated/AllGenerated"
+        OverviewViewResponse } from "./generated/AllGenerated"
 
 
 function pick<T>(typename: string)

@@ -9,8 +9,9 @@ set(OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 #                        generator.py)
 execute_process(COMMAND mkdir -p ${OUTDIR})
 
-execute_process(COMMAND python3 generator.py ${OUTDIR}
-                COMMAND cp tsconfig.json ${CMAKE_CURRENT_BINARY_DIR}/generated
+set(GENERATED_PATH ${CMAKE_CURRENT_BINARY_DIR}/generated CACHE INTERNAL "")
+execute_process(COMMAND python3 generator.py ${GENERATED_PATH}
+                COMMAND cp tsconfig.json ${GENERATED_PATH}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 

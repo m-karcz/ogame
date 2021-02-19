@@ -1,4 +1,4 @@
-import {RouterMiddleware} from "../../router/src/RouterMiddleware"
+import {RouterMiddleware} from "./RouterMiddleware"
 import IRouterConnectivity from "./IRouterConnectivity"
 import { PlanetLocation,
          OverviewViewResponse,
@@ -21,7 +21,7 @@ import { PlanetLocation,
          PlayerId,
          Building,
          REGISTER_REQUEST,
-         ON_PLANET_REQUEST} from "../../build/common/generated/AllGenerated"
+         ON_PLANET_REQUEST} from "./generated/AllGenerated"
 
 type GeneralRequestDataKey = GeneralRequestData["type"];
 type GeneralRequestDataData = GeneralRequestData["data"];

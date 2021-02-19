@@ -10,7 +10,7 @@ import {UserCredentials,
          OverviewViewRequest,
          OverviewViewResponse,
          Buildings,
-         Building } from "../../build/common/generated/AllGenerated"
+         Building } from "./generated/AllGenerated"
 
 type         TotalProductionViewRequest = {};
          type TotalProductionViewResponse = {};

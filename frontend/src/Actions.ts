@@ -5,7 +5,7 @@ import { UserCredentials,
          PlanetLocation,
          GeneralContext,
          Building,
-         BuildingQueueResponse } from "../../build/common/generated/AllGenerated"
+         BuildingQueueResponse } from "./generated/AllGenerated"
 
 type TotalProductionData =
 {}
