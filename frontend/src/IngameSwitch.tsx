@@ -2,7 +2,7 @@ import React from "react"
 import {connect} from "react-redux"
 import {Store, OVERVIEW_PAGE, BUILDINGS_PAGE, getIngamePageState, RESOURCES_PAGE} from "./Store"
 import BuildingsPage from "./BuildingsPage"
-import ResourcesPage from "./ResourcesPage"
+//import ResourcesPage from "./ResourcesPage"
 
 type IngameSwitchPageProps = {
     pageType: string

@@ -9,7 +9,6 @@ import {UserCredentials,
          PlanetLocation,
          OverviewViewRequest,
          OverviewViewResponse,
-         Buildings,
          Building } from "./generated/AllGenerated"
 
 type         TotalProductionViewRequest = {};

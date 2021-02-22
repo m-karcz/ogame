@@ -1,7 +1,6 @@
 import {Middleware} from "redux"
 import IRouterConnectivity from "../IRouterConnectivity"
 import {loadOverviewPage, loginRequest, registerRequest, registerSuccessful, loginSucceeded} from "../Actions"
-import { getChosenPlanet } from "../Store"
 
 export function getLoginMiddleware(conn: IRouterConnectivity) : Middleware
 {

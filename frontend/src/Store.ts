@@ -2,8 +2,7 @@ import {Buildings,
         Storage,
         PlanetLocation,
         UserCredentials,
-        BuildingQueueResponse,
-         Building } from "./generated/AllGenerated"
+        BuildingQueueResponse } from "./generated/AllGenerated"
 
 type TotalProductionData = any;
 export enum LoginState

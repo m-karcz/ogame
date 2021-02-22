@@ -23,12 +23,11 @@ class Menu extends React.Component<MenuProps, never>{
   {
     return(
       <>
-        <a onClick={this.onOverviewClick}>Overview</a>
-        <a onClick={this.onBuildingsClick}>Buildings</a>
-        <a onClick={this.onResourcesClick}>Resources</a>
+        <button className="link-button" onClick={this.onOverviewClick}>Overview</button>
+        <button className="link-button" onClick={this.onBuildingsClick}>Buildings</button>
+        <button className="link-button" onClick={this.onResourcesClick}>Resources</button>
       </>)
   }
-
   onOverviewClick = () => this.props.onOverviewClick(this.props.planet);
   onBuildingsClick = () => this.props.onBuildingsClick(this.props.planet);
   onResourcesClick = () => this.props.onResourcesClick(this.props.planet);

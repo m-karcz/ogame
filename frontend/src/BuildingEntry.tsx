@@ -54,7 +54,7 @@ class BuildingEntry extends React.Component<PropsFromParent & ReturnType<typeof 
 
     getBuildButton()
     {
-        return <a id={"build_" + this.props.buildingName} onClick={this.startBuilding.bind(this)}>Build</a>;
+        return <button className="link-button" id={"build_" + this.props.buildingName} onClick={this.startBuilding.bind(this)}>Build</button>;
     }
 }
 
