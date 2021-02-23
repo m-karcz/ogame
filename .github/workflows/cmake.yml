@@ -68,7 +68,8 @@ jobs:
       run: emmake make robot_tests -j
 
     - name: Prepare WASM deployment to publish
-      run: sed '1 a\"homepage\" : \"http://m-karcz.github.io/ogame-wasm-deployment\"' frontend/package.json > frontend/package.json
+      shell: bash
+      run: cd frontend && bash prepareGhDeployment.sh && cd -
 
     - name: Build WASM deployment
       working-directory: ${{runner.workspace}}/build-wasm
