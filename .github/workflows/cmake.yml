@@ -54,15 +54,15 @@ jobs:
         version: 1.38.40
 
     - name: Configure Build Environment for WASM
-      run: echo $PWD && rm ${{runner.workspace}}/build/ -rf && mkdir ${{runner.workspace}}/build -p && emcmake cmake -E make_directory ${{runner.workspace}}/build
+      run: emcmake cmake -E make_directory ${{runner.workspace}}/build-wasm
 
     - name: Configure CMake for WASM
       shell: bash
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{runner.workspace}}/build-wasm
       run: emcmake cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 
     - name: Build WASM and Run Regression
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{runner.workspace}}/build-wasm
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: emmake make robot_tests -j
