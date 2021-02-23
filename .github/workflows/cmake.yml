@@ -75,6 +75,7 @@ jobs:
         folder: frontend/build
         repository-name: m-karcz/ogame-wasm-deployment
         single-commit: true
+        token: ${{ secrets.DEPLOY_TOKEN }}
 
 #    - name: Test
 #      working-directory: ${{runner.workspace}}/build
