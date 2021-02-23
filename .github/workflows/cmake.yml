@@ -69,7 +69,7 @@ jobs:
 
     - name: Prepare WASM deployment to publish
       shell: bash
-      run: cd frontend && bash prepareGhDeployment.sh && cd -
+      run: cd frontend && ./prepareGhDeployment.sh > package.json.temp && mv package.json.temp package.json && cd -
 
     - name: Build WASM deployment
       working-directory: ${{runner.workspace}}/build-wasm
