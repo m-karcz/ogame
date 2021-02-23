@@ -65,10 +65,17 @@ jobs:
     - name: Build WASM and Run Regression
       working-directory: ${{runner.workspace}}/build-wasm
       shell: bash
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: emmake make robot_tests -j
 
-    - name: Deploy WASM deployment
+    - name: Prepare WASM deployment to publish
+      run: sed '1 a\"homepage\" : \"http://m-karcz.github.io/ogame-wasm-deployment\"' frontend/package.json > frontend/package.json
+
+    - name: Build WASM deployment
+      working-directory: ${{runner.workspace}}/build-wasm
+      shell: bash
+      run: emmake make frontend -j
+
+    - name: Publsih WASM deployment
       uses: JamesIves/github-pages-deploy-action@4.0.0
       with:
         branch: main
