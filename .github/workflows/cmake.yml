@@ -44,7 +44,8 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config $BUILD_TYPE --target robot_tests
+      #run: cmake --build . --config $BUILD_TYPE --target robot_tests
+      run: cmake --build . --config $BUILD_TYPE && make robot_tests -j
 
     - name: Prepare WASM compiler
       uses: mymindstorm/setup-emsdk@v7
@@ -64,7 +65,7 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: emcmake cmake --build . --config $BUILD_TYPE --target robot_tests
+      run: emcmake cmake --build . --config $BUILD_TYPE && emmake make robot_tests -j
 
 
 #    - name: Test
