@@ -68,6 +68,13 @@ jobs:
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: emmake make robot_tests -j
 
+    - name: Deploy WASM deployment
+      uses: JamesIves/github-pages-deploy-action@4.0.0
+      with:
+        branch: main
+        folder: $GITHUB_WORKSPACE/frontend/build
+        repository-name: m-karcz/ogame-wasm-deployment
+        single-commit: true
 
 #    - name: Test
 #      working-directory: ${{runner.workspace}}/build
