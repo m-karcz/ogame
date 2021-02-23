@@ -24,5 +24,6 @@ void productionStorageUpdateProcedure(SinglePlanetContext& ctx, Timestamp until)
     storage.metal = storage.metal + duration.count() * hourlyMetal;
     storage.crystal = storage.crystal + duration.count() * hourlyCrystal;
     storage.deuter = storage.deuter + duration.count() * hourlyDeuter;
+    storage.lastUpdatedAt = until;
     ctx.planet.setNewStorage(storage);
 }
