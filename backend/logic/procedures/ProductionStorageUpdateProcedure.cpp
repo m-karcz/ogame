@@ -7,10 +7,9 @@
 
 void productionStorageUpdateProcedure(SinglePlanetContext& ctx, Timestamp until)
 {
-    //CachedProduction prod = ctx.planet.getCachedProduction();
+    CachedProduction prod = ctx.planet.getCachedProduction();
     Storage storage = ctx.planet.getStorage();
-    //logger.debug("{}", storage.metal.toString());
-    /*BigNum hourlyMetal = knowledgeData.productions.baseMetal + prod.metalMineGeneration;
+    BigNum hourlyMetal = knowledgeData.productions.baseMetal + prod.metalMineGeneration;
     BigNum hourlyCrystal = knowledgeData.productions.baseCrystal + prod.crystalMineGeneration;
     BigNum hourlyDeuter = prod.deuterExtractorGeneration - prod.fusionGeneratorDeuterUsage;
     logger.debug("production: metal {} crystal {} deuter {}", hourlyMetal.toString(), hourlyCrystal.toString(), hourlyDeuter.toString());
@@ -24,7 +23,6 @@ void productionStorageUpdateProcedure(SinglePlanetContext& ctx, Timestamp until)
     logger.debug("production over {} h", duration.count());
     storage.metal = storage.metal + duration.count() * hourlyMetal;
     storage.crystal = storage.crystal + duration.count() * hourlyCrystal;
-    storage.deuter = storage.deuter + duration.count() * hourlyDeuter;*/
-    //storage.lastUpdatedAt = until;
-    //ctx.planet.setNewStorage(storage);
+    storage.deuter = storage.deuter + duration.count() * hourlyDeuter;
+    ctx.planet.setNewStorage(storage);
 }
