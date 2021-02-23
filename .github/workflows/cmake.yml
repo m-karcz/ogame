@@ -54,7 +54,7 @@ jobs:
         version: 1.38.40
 
     - name: Configure Build Environment for WASM
-      run: rm ${{runner.workspace}}/build/make_directory -rf && emcmake cmake -E make_directory ${{runner.workspace}}/build
+      run: rm ${{runner.workspace}}/build/ -rf && mkdir ${{runner.workspace}}/build -p && emcmake cmake -E make_directory ${{runner.workspace}}/build
 
     - name: Configure CMake for WASM
       shell: bash
