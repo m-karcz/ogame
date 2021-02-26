@@ -9,12 +9,143 @@
         "fusionReactor" : { "production" : 30, "cost": 10 }
     },
     "buildingCosts": [
-        {"name": "metalMine", "cost":       {"multiplier": 1.5, "metal": 60,      "crystal": 15,     "deuter": 0,      "energy": 0}},
-        {"name": "crystalMine", "cost":     {"multiplier": 1.6, "metal": 48,      "crystal": 24,     "deuter": 0,      "energy": 0}},
+        {"name": "metalMine",       "cost": {"multiplier": 1.5, "metal": 60,      "crystal": 15,     "deuter": 0,      "energy": 0}},
+        {"name": "crystalMine",     "cost": {"multiplier": 1.6, "metal": 48,      "crystal": 24,     "deuter": 0,      "energy": 0}},
         {"name": "deuterExtractor", "cost": {"multiplier": 1.5, "metal": 225,     "crystal": 75,     "deuter": 0,      "energy": 0}},
-        {"name": "solarGenerator", "cost":  {"multiplier": 1.5, "metal": 75,      "crystal": 30,     "deuter": 0,      "energy": 0}},
-        {"name": "robots", "cost":   {"multiplier": 2,   "metal": 400,     "crystal": 120,    "deuter": 200,    "energy": 0}},
-        {"name": "nanites", "cost":   {"multiplier": 2,   "metal": 1000000, "crystal": 500000, "deuter": 100000, "energy": 0}},
-        {"name": "shipyard", "cost":        {"multiplier": 2,   "metal": 400,     "crystal": 200,    "deuter": 100,    "energy": 0}}
-    ]
+        {"name": "solarGenerator",  "cost": {"multiplier": 1.5, "metal": 75,      "crystal": 30,     "deuter": 0,      "energy": 0}},
+        {"name": "fusionReactor",   "cost": {"multiplier": 1.8, "metal": 900,     "crystal": 360,    "deuter": 180,    "energy": 0}},
+        {"name": "robots",          "cost": {"multiplier": 2,   "metal": 400,     "crystal": 120,    "deuter": 200,    "energy": 0}},
+        {"name": "nanites",         "cost": {"multiplier": 2,   "metal": 1000000, "crystal": 500000, "deuter": 100000, "energy": 0}},
+        {"name": "shipyard",        "cost": {"multiplier": 2,   "metal": 400,     "crystal": 200,    "deuter": 100,    "energy": 0}},
+        {"name": "metalStorage",    "cost": {"multiplier": 2,   "metal": 1000,    "crystal": 0,      "deuter": 0,      "energy": 0}},
+        {"name": "crystalStorage",  "cost": {"multiplier": 2,   "metal": 1000,    "crystal": 500,    "deuter": 0,      "energy": 0}},
+        {"name": "deuterStorage",   "cost": {"multiplier": 2,   "metal": 1000,    "crystal": 1000,   "deuter": 0,      "energy": 0}},
+        {"name": "researchLab",     "cost": {"multiplier": 2,   "metal": 200,     "crystal": 400,    "deuter": 200,    "energy": 0}},
+        {"name": "alianceDepot",    "cost": {"multiplier": 2,   "metal": 20000,   "crystal": 40000,  "deuter": 0,      "energy": 0}},
+        {"name": "missileSilo",     "cost": {"multiplier": 2,   "metal": 20000,   "crystal": 20000,  "deuter": 1000,   "energy": 0}},
+        {"name": "terraformer",     "cost": {"multiplier": 2,   "metal": 0,       "crystal": 50000,  "deuter": 100000, "energy": 1000}}
+    ],
+    "requirements": {
+        "buildings": [
+            {
+                "name": "metalMine",
+                "requirements": {
+                    "buildings": [],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "crystalMine",
+                "requirements": {
+                    "buildings": [],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "deuterExtractor",
+                "requirements": {
+                    "buildings": [],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "solarGenerator",
+                "requirements": {
+                    "buildings": [],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "fusionReactor",
+                "requirements": {
+                    "buildings": [
+                        {"name": "deuterExtractor", "level": 5}
+                    ],
+                    "researchs": [
+                        {"name": "energy", "level": 3}
+                    ]
+                }
+            },
+            {
+                "name": "robots",
+                "requirements": {
+                    "buildings": [],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "nanites",
+                "requirements": {
+                    "buildings": [
+                        {"name": "robots", "level": 10}
+                    ],
+                    "researchs": [
+                        {"name": "computer", "level": 10}
+                    ]
+                }
+            },
+            {
+                "name": "shipyard",
+                "requirements": {
+                    "buildings": [
+                        {"name": "robots", "level": 2}
+                    ],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "metalStorage",
+                "requirements": {
+                    "buildings": [],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "crystalStorage",
+                "requirements": {
+                    "buildings": [],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "deuterStorage",
+                "requirements": {
+                    "buildings": [],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "researchLab",
+                "requirements": {
+                    "buildings": [],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "alianceDepot",
+                "requirements": {
+                    "buildings": [],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "missileSilo",
+                "requirements": {
+                    "buildings": [],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "terraformer",
+                "requirements": {
+                    "buildings": [
+                        {"name": "nanites", "level": 1}
+                    ],
+                    "researchs": [
+                        {"name": "energy", "level": 12}
+                    ]
+                }
+            }
+        ]
+    }
 }

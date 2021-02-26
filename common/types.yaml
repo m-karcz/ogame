@@ -16,7 +16,7 @@ Buildings:
   crystalStorage: int
   deuterStorage: int
   researchLab: int
-  alainceDepot: int
+  alianceDepot: int
   missileSilo: int
   terraformer: int
 
@@ -154,8 +154,6 @@ RndResponseData: union<TimeForwardResponse>
 RndResponse:
   response: RndResponseData
 
-Research: string
-
 SerializableRequest:
   request: union<GeneralRequest,OnPlanetRequest,RndRequest>
   transactionId: int
@@ -187,6 +185,13 @@ Requirements:
   buildings: BuildingRequirement[]
   researchs: ResearchRequirement[]
 
+RequirementsForBuilding:
+  name: Building
+  requirements: Requirements
+
+AllRequirements:
+  buildings: RequirementsForBuilding[]
+
 BaseProduction:
   production: int
   cost: int
@@ -203,6 +208,7 @@ BaseProductions:
 Knowledge:
   productions: BaseProductions
   buildingCosts: BuildingCost[]
+  requirements: AllRequirements
 
 Configuration:
   realTime: bool

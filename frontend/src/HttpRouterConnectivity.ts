@@ -8,8 +8,8 @@ import {UserCredentials,
          StartBuildingActionResponse,
          PlanetLocation,
          OverviewViewRequest,
-         OverviewViewResponse,
-         Building } from "./generated/AllGenerated"
+         OverviewViewResponse } from "./generated/AllGenerated"
+import {Building} from "./Building"
 
 type         TotalProductionViewRequest = {};
          type TotalProductionViewResponse = {};

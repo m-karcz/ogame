@@ -4,8 +4,8 @@ import {UserCredentials,
          PlanetLocation,
          OverviewViewResponse,
          BuildingsViewResponse,
-         StartBuildingActionResponse,
-         Building } from "./generated/AllGenerated"
+         StartBuildingActionResponse } from "./generated/AllGenerated"
+import {Building} from "./Building"
 
 type TotalProductionViewResponse = {}
 

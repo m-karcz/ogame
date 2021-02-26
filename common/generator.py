@@ -221,7 +221,7 @@ with open("types.yaml") as fp:
     defineTsAlias("number", "BigNum")
     defineTsAlias("number", "Timestaap")
     defineTsAlias("number", "Duration")
-    defineTsAlias("string", "Building")
+    defineTsAlias("string", "Research")
     for name, fields in y.items():
         if isinstance(fields,dict):
             dumpToHpp(name, fields)

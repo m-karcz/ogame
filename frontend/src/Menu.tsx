@@ -23,9 +23,9 @@ class Menu extends React.Component<MenuProps, never>{
   {
     return(
       <>
-        <button className="link-button" onClick={this.onOverviewClick}>Overview</button>
-        <button className="link-button" onClick={this.onBuildingsClick}>Buildings</button>
-        <button className="link-button" onClick={this.onResourcesClick}>Resources</button>
+        <button className="link-button" onClick={this.onOverviewClick} id="goToOverviewButton">Overview</button>
+        <button className="link-button" onClick={this.onBuildingsClick} id="goToBuildingsButton">Buildings</button>
+        <button className="link-button" onClick={this.onResourcesClick} id="goToResourcesButton">Resources</button>
       </>)
   }
   onOverviewClick = () => this.props.onOverviewClick(this.props.planet);

@@ -9,6 +9,7 @@ add_custom_target(frontend
     COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/../router/src/IRouter.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/
     COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/../router/src/RouterMiddleware.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/
     COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/../router/src/OnPlanetRequestBuilder.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/
+    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/../common/knowledge/Knowledge.json ${CMAKE_CURRENT_SOURCE_DIR}/src/
     COMMAND mv -f ${CMAKE_CURRENT_SOURCE_DIR}/src/WasmRouterConnectivity.ts.unused ${CMAKE_CURRENT_SOURCE_DIR}/src/WasmRouterConnectivity.ts || echo " "
     COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/src/WasmRouterConnectivity.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/RouterConnectivity.ts
     COMMAND npm run build --prefix ${CMAKE_CURRENT_SOURCE_DIR}
@@ -20,6 +21,7 @@ add_custom_target(frontend
     COMMAND rm ${CMAKE_CURRENT_SOURCE_DIR}/src/RouterMiddleware.ts -f
     COMMAND rm ${CMAKE_CURRENT_SOURCE_DIR}/src/OnPlanetRequestBuilder.ts -f
     COMMAND cp ${GENERATED_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/src/ -r
+    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/../common/knowledge/Knowledge.json ${CMAKE_CURRENT_SOURCE_DIR}/src/
     COMMAND mv -f ${CMAKE_CURRENT_SOURCE_DIR}/src/WasmRouterConnectivity.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/WasmRouterConnectivity.ts.unused || echo " "
     COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/src/HttpRouterConnectivity.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/RouterConnectivity.ts
     COMMAND npm run build --prefix ${CMAKE_CURRENT_SOURCE_DIR}

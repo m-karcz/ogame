@@ -4,8 +4,8 @@ import { UserCredentials,
          Buildings,
          PlanetLocation,
          GeneralContext,
-         Building,
          BuildingQueueResponse } from "./generated/AllGenerated"
+import {Building} from "./Building"
 
 type TotalProductionData =
 {}
