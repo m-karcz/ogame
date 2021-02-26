@@ -2,6 +2,7 @@ import IRouterConnectivity from "./IRouterConnectivity"
 import {UserCredentials,
         RegisterResponse,
         LoginResponse,
+        Building,
          BuildingsViewRequest,
          BuildingsViewResponse,
          StartBuildingActionRequest,
@@ -9,7 +10,6 @@ import {UserCredentials,
          PlanetLocation,
          OverviewViewRequest,
          OverviewViewResponse } from "./generated/AllGenerated"
-import {Building} from "./Building"
 
 type         TotalProductionViewRequest = {};
          type TotalProductionViewResponse = {};

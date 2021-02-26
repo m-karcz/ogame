@@ -2,9 +2,9 @@ import React from "react"
 import {connect} from "react-redux"
 import { Store } from "./Store"
 import { getBuildings } from "./Store"
-import { Buildings } from "./generated/AllGenerated"
+import { Buildings,
+         Building } from "./generated/AllGenerated"
 import {getKeys} from "./Utility"
-import {Building} from "./Building"
 import BuildingEntry from "./BuildingEntry"
 
 

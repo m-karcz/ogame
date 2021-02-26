@@ -1,11 +1,11 @@
 import React from "react"
 import {connect} from "react-redux"
-import { Knowledge } from "./generated/AllGenerated"
+import { Knowledge,
+         Building } from "./generated/AllGenerated"
 import {startBuilding} from "./Actions"
 import { Store, getBuildingQueue } from "./Store"
-import {Building} from "./Building"
 import rawKnowledge from "./Knowledge.json"
-const knowledge : Knowledge = rawKnowledge;
+const knowledge : Knowledge = rawKnowledge as Knowledge;
 
 type PropsFromParent =
 {

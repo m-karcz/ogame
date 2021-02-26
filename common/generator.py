@@ -209,9 +209,11 @@ def dumpToTs(name, fields):
         fp.write("\n\n")
         fp.write("\n".join(body))
 
-def defineTsAlias(original, new_name):
+def defineTsAlias(original, new_name, dependencies = []):
     ts_list.add(new_name)
     with open(output_dir + "/" + new_name + ".ts", "w") as fp:
+        fp.write("\n".join(['import {{ {} }} from "./{}"'.format(im, im) for im in set(dependencies)]))
+        fp.write("\n\n")
         fp.write("export type {} = {}".format(new_name, original))
 
 
@@ -219,9 +221,10 @@ with open("types.yaml") as fp:
     y = load(fp)
     defineTsAlias("string", "Status")
     defineTsAlias("number", "BigNum")
-    defineTsAlias("number", "Timestaap")
+    defineTsAlias("number", "Timestamp")
     defineTsAlias("number", "Duration")
-    defineTsAlias("string", "Research")
+    defineTsAlias("keyof Researchs", "Research", ["Researchs"])
+    defineTsAlias("keyof Buildings", "Building", ["Buildings"])
     for name, fields in y.items():
         if isinstance(fields,dict):
             dumpToHpp(name, fields)
