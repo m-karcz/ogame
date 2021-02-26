@@ -35,7 +35,7 @@ function calculateCost(name: Building, level: number) : CalculatedCost
     {
         return Math.floor(init * Math.pow(multiplier, level));
     }
-    const know = knowledge.buildingCosts.find((elem)=>elem.name == name)!.cost;
+    const know = knowledge.buildingCosts.find((elem)=>elem.name === name)!.cost;
     return {
         metal: calc(know.metal, know.multiplier, level),
         crystal: calc(know.crystal, know.multiplier, level),
