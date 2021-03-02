@@ -77,7 +77,7 @@ class BuildingEntry extends React.Component<PropsFromParent & ReturnType<typeof 
     {
         if(this.props.queue?.building! === this.props.buildingName)
         {
-            return <div>{this.props.queue?.timeToFinish!}</div>
+            return <div><span id="timeToFinishBuilding">{this.props.queue?.timeToFinish!}</span></div>
         }
         else
         {

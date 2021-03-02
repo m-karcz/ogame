@@ -2,8 +2,8 @@
 Library		Collections
 #Library		RequestsLibrary
 Library		Process
-Library     OgameLib
-Library		OgameLib2
+#Library     OgameLib
+Library		OgameLib2	${testConfiguration}
 
 *** Keywords ***
 #Start App
@@ -16,9 +16,9 @@ Library		OgameLib2
 #	#No Operation
 #	Terminate Process	handle=${servProc}	kill=True
 
-Get Logged
-	Register User
-	Login User
+#Get Logged
+#	Register User
+#	Login User
 
 Start Router
 	No Operation
@@ -56,4 +56,10 @@ TestNewFramework
 	Register And Login On
 	Assert Logged In
 
-
+TestBuilding
+	Get Ready
+	Start Building	Metal Mine
+	Assert That Any Building Is Ongoing
+	Forward Time	120
+	Assert That No Building Is Ongoing
+	Forward Time	120

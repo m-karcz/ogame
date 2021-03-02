@@ -18,7 +18,6 @@ add_subdirectory(database)
 add_subdirectory(rnd)
 add_subdirectory(deployments)
 
-add_executable(server ALIAS zmq_json_1thread)
 
 
 

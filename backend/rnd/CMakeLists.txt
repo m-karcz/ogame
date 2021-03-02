@@ -9,5 +9,5 @@ target_include_directories(RnD PUBLIC .)
 target_link_libraries(RnD Data::Data DatabaseInterface::DatabaseInterface Logic::Logic)
 
 
-add_executable(RnDZmqTimeForwarderApp RnDZmqTimeForwarderApp.cpp)
-target_link_libraries(RnDZmqTimeForwarderApp SerializationJson::SerializationJson cppzmq Data::Data)
+
+

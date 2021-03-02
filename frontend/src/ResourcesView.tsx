@@ -11,9 +11,9 @@ class ResourcesView extends React.Component<ReturnType<typeof mapStateToProps>, 
   {
     return(
       <>
-      <p>metal: {this.props.resources.metal}</p>
-      <p>crystal: {this.props.resources.crystal}</p>
-      <p>deuter: {this.props.resources.deuter}</p>
+      <p>metal: <span id="resources_amount_metal">{this.props.resources.metal}</span></p>
+      <p>crystal: <span id="resources_amount_crystal">{this.props.resources.crystal}</span></p>
+      <p>deuter: <span id="resources_amount_deuter">{this.props.resources.deuter}</span></p>
       </>)
   }
 }

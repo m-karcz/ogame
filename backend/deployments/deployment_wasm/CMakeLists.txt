@@ -9,3 +9,14 @@ target_link_options(wasm_sync PRIVATE "-sEXPORT_NAME=makeBackend")
 target_link_options(wasm_sync PRIVATE "-o wasmtest.html")
 #target_link_options(wasm_sync PRIVATE "-sWASM_ASYNC_COMPILATION=0")
 target_link_libraries(wasm_sync DatabaseInMemory::DatabaseInMemory SerializationJson::SerializationJson RnD::RnD DeploymentCommon::DeploymentCommon)
+
+
+add_custom_command(OUTPUT time_forwarder.py
+                   DEPENDS
+                        time_forwarder_template.py
+                   COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/time_forwarder_template.py ${CMAKE_CURRENT_BINARY_DIR}/time_forwarder.py)
+
+add_custom_target(time_forwarder
+                  DEPENDS time_forwarder.py)
+                  
+set(TIME_FORWARDER_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
