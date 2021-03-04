@@ -5,10 +5,8 @@ import { UserCredentials,
          PlanetLocation,
          GeneralContext,
          Building,
-         BuildingQueueResponse } from "./generated/AllGenerated"
-
-type TotalProductionData =
-{}
+         BuildingQueueResponse,
+        ProductionInformation } from "./generated/AllGenerated"
 
 export const LOGIN_SUBMIT = "LOGIN_SUBMIT"
 export const LOGIN_SUCCESSFUL = "LOGIN_SUCCESSFUL"
@@ -37,7 +35,6 @@ export type ChosenPlanetPayload =
     chosenPlanet: PlanetLocation
 }
 
-
 export const registerRequest = createAction<UserCredentials>("login/registerRequest");
 export const registerSuccessful = createAction("login/registerSuccessful");
 export const loginRequest = createAction<UserCredentials>("login/loginRequest");
@@ -50,7 +47,7 @@ export const startBuilding = createAction<BuildingPayload>("ingame/startBuilding
 export const contextUpdated = createAction<GeneralContext>("ingame/contextUpdated");
 export const overviewLoaded = createAction("ingame/overviewLoaded");
 export const buildingsLoaded = createAction<BuildingsLoadedPayload>("ingame/buildingsLoaded");
-export const resourcesLoaded = createAction<TotalProductionData>("ingame/resourcesLoaded");
+export const resourcesLoaded = createAction<ProductionInformation>("ingame/resourcesLoaded");
 
 interface WithContext
 {

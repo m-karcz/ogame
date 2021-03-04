@@ -7,6 +7,14 @@ import { BUILDINGS_LIST_RESPONSE,
          STORAGE_RESPONSE,
          BUILDINGS_LIST_REQUEST,
          BUILDING_QUEUE_REQUEST,
+         PRODUCTION_PERCENTAGES_REQUEST,
+         PRODUCTION_INFORMATION_REQUEST,
+         PRODUCTION_PERCENTAGES_RESPONSE,
+         PRODUCTION_INFORMATION_RESPONSE,
+         ProductionPercentagesResponse,
+         ProductionInformationResponse,
+         ProductionInformationViewRequest,
+         ProductionInformationViewResponse,
          BuildingsViewRequest,
          BuildingsViewResponse,
          OnPlanetResponseData,
@@ -17,6 +25,8 @@ import { BUILDINGS_LIST_RESPONSE,
         StartBuildingActionResponse,
         PlayerId,
         OverviewViewRequest,
+        PlanetLocation,
+        GeneralContext,
         OverviewViewResponse } from "./generated/AllGenerated"
 
 
@@ -30,6 +40,14 @@ function pick<T>(typename: string)
 		}
 		return elem.data! as unknown as T;
 	}
+}
+
+function pickContext(resp: OnPlanetResponseData, planet: PlanetLocation) : GeneralContext
+{
+    return {
+        storage: pick<StorageResponse>(STORAGE_RESPONSE)(resp).storage,
+        planetList: [planet]
+    }
 }
 
 export class RouterMiddleware
@@ -49,10 +67,7 @@ export class RouterMiddleware
         const resp = await this.backend.onPlanetRequest(onPlanet);
 
         return {
-            context: {
-                storage: pick<StorageResponse>(STORAGE_RESPONSE)(resp).storage,
-                planetList: [req.planet]
-            },
+            context: pickContext(resp, req.planet),
             buildingQueue: pick<BuildingQueueResponse>(BUILDING_QUEUE_RESPONSE)(resp),
             buildings: pick<BuildingsListResponse>(BUILDINGS_LIST_RESPONSE)(resp).buildings
         }
@@ -67,10 +82,7 @@ export class RouterMiddleware
         const resp = await this.backend.onPlanetRequest(onPlanet);
         return {
             response: {
-                context: {
-                    storage: pick<StorageResponse>(STORAGE_RESPONSE)(resp).storage,
-                    planetList: [req.planet]
-                },
+                context: pickContext(resp, req.planet),
                 buildingQueue: pick<BuildingQueueResponse>(BUILDING_QUEUE_RESPONSE)(resp),
                 buildings: pick<BuildingsListResponse>(BUILDINGS_LIST_RESPONSE)(resp).buildings
             },
@@ -82,11 +94,27 @@ export class RouterMiddleware
         const onPlanet = new OnPlanetRequestBuilder(playerId, req.planet).addQuery({type: STORAGE_REQUEST, data:{}}).msg;
         const resp = await this.backend.onPlanetRequest(onPlanet);
 		return {
-			context: {
-				storage: pick<StorageResponse>(STORAGE_RESPONSE)(resp).storage,
-				planetList: [req.planet]
-			}
+			context: pickContext(resp, req.planet)
 		}
+    }
+    async queryProduction(playerId: PlayerId, req: ProductionInformationViewRequest) : Promise<ProductionInformationViewResponse>
+    {
+        const onPlanet = new OnPlanetRequestBuilder(playerId, req.planet)
+                        .addQuery({type: STORAGE_REQUEST, data:{}})
+                        .addQuery({type: BUILDINGS_LIST_REQUEST, data:{}})
+                        .addQuery({type: PRODUCTION_INFORMATION_REQUEST, data:{}})
+                        .addQuery({type: PRODUCTION_PERCENTAGES_REQUEST, data:{}}).msg;
+
+        const resp = await this.backend.onPlanetRequest(onPlanet);
+
+        return {
+            context: pickContext(resp, req.planet),
+            productionInformation: {
+                buildings: pick<BuildingsListResponse>(BUILDINGS_LIST_RESPONSE)(resp).buildings,
+                percentages: pick<ProductionPercentagesResponse>(PRODUCTION_PERCENTAGES_RESPONSE)(resp).percentages,
+                production: pick<ProductionInformationResponse>(PRODUCTION_INFORMATION_RESPONSE)(resp).production
+            }
+        }
     }
     backend: IRouter
 }

@@ -9,10 +9,10 @@ import {UserCredentials,
          StartBuildingActionResponse,
          PlanetLocation,
          OverviewViewRequest,
-         OverviewViewResponse } from "./generated/AllGenerated"
+         OverviewViewResponse,
+        ProductionInformationViewRequest,
+        ProductionInformationViewResponse } from "./generated/AllGenerated"
 
-type         TotalProductionViewRequest = {};
-         type TotalProductionViewResponse = {};
 
 function withPayload(payload: any)
 {
@@ -51,9 +51,9 @@ export default class RouterConnectivity implements IRouterConnectivity
     {
         return fetchAs<BuildingsViewResponse>("/game/buildings", {planet: planet} as BuildingsViewRequest);
     }
-    loadResourcesPage(planet: PlanetLocation) : Promise<TotalProductionViewResponse>
+    loadResourcesPage(planet: PlanetLocation) : Promise<ProductionInformationViewResponse>
     {
-        return fetchAs<TotalProductionViewResponse>("/game/resources", {plaet: planet} as TotalProductionViewRequest);
+        return fetchAs<ProductionInformationViewResponse>("/game/resources", {planet: planet} as ProductionInformationViewRequest);
     }
     beginBuilding(planet: PlanetLocation, building: Building) : Promise<StartBuildingActionResponse>
     {

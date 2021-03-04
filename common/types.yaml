@@ -236,11 +236,14 @@ CachedProduction:
 ProductionInformationViewRequest:
   planet: PlanetLocation
 
-ProductionInformationViewResponse:
-  context: GeneralContext
+ProductionInformation:
   percentages: ProductionPercentages
   production: CachedProduction
   buildings: Buildings
+
+ProductionInformationViewResponse:
+  context: GeneralContext
+  productionInformation: ProductionInformation
 
 ChangePercentageUsageActionRequest:
   planet: PlanetLocation

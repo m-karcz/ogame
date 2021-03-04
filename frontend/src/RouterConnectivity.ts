@@ -1,1 +1,1 @@
-/home/mario/og/ogame/frontend/src/WasmRouterConnectivity.ts
+./HttpRouterConnectivity.ts

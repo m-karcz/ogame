@@ -117,6 +117,12 @@ app.post("/game/overview", async function(req : TypedRequest<OverviewViewRequest
 	res.send(resp);
 });
 
+app.post("/game/resources", async function(req : TypedRequest<ProductionInformationViewRequest>, res)
+{
+	const resp = await routerMiddleware.queryResources(req.session.playerId!, req.body);
+	res.send(resp);
+})
+
 app.post("/login", (req : TypedRequest<UserCredentials>, res) => {
 	console.log(req.session)
 	const pass = {
