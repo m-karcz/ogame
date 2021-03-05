@@ -5,10 +5,15 @@ set(ROUTER_EXECUTOR ${CMAKE_CURRENT_BINARY_DIR}/run_router)
 
 get_target_property(FRONTEND_SOURCE_DIR frontend SOURCE_DIR)
 
+file(GLOB router_src "src/*.ts")
+
 add_custom_command(OUTPUT common_router_built.stamp
                    DEPENDS
+                        ${router_src}
                         frontend
                         server
+                        package.json
+                        tsconfig.json
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                    COMMAND cp ${GENERATED_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/src/ -r
                    COMMAND npm run prestart

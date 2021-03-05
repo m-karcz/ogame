@@ -36,6 +36,8 @@ list(FILTER frontend_src EXCLUDE REGEX ".*src/RouterConnectivity.ts$")
 
 add_custom_command(OUTPUT frontend_cmd
                    DEPENDS ${frontend_src}
+                   DEPENDS package.json
+                   DEPENDS tsconfig.json
                    COMMAND npm run build --prefix ${CMAKE_CURRENT_SOURCE_DIR}
                    COMMAND touch frontend_cmd)
 
