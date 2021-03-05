@@ -39,7 +39,6 @@ export const registerRequest = createAction<UserCredentials>("login/registerRequ
 export const registerSuccessful = createAction("login/registerSuccessful");
 export const loginRequest = createAction<UserCredentials>("login/loginRequest");
 export const loginSucceeded = createAction<ChosenPlanetPayload>("login/succeeded");
-
 export const loadOverviewPage = createAction<PlanetPayload>("ingame/overviewPage");
 export const loadBuildingsPage = createAction<PlanetPayload>("ingame/buildingsPage");
 export const loadResourcesPage = createAction<PlanetPayload>("ingame/resourcesPage");

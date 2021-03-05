@@ -1,6 +1,7 @@
 add_custom_command(OUTPUT frontend_npm.stamp
                    COMMAND npm install
                    COMMAND touch frontend_npm.stamp
+                   COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/frontend_npm.stamp
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_custom_target(frontend_npm_install

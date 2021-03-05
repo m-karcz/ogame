@@ -18,5 +18,7 @@ add_custom_command(OUTPUT time_forwarder.py
 
 add_custom_target(time_forwarder
                   DEPENDS time_forwarder.py)
+
+add_executable(server ALIAS wasm_sync)
                   
 set(TIME_FORWARDER_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")

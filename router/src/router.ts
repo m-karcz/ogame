@@ -20,6 +20,7 @@ StorageRequest,
         STORAGE_RESPONSE,
          BuildingsViewRequest,
          BuildingsViewResponse,
+		 ProductionInformationViewRequest,
          BUILDINGS_LIST_REQUEST,
          BUILDING_QUEUE_REQUEST,
          BuildingQueueResponse,
@@ -119,7 +120,7 @@ app.post("/game/overview", async function(req : TypedRequest<OverviewViewRequest
 
 app.post("/game/resources", async function(req : TypedRequest<ProductionInformationViewRequest>, res)
 {
-	const resp = await routerMiddleware.queryResources(req.session.playerId!, req.body);
+	const resp = await routerMiddleware.queryProduction(req.session.playerId!, req.body);
 	res.send(resp);
 })
 
