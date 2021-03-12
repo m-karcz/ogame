@@ -26,6 +26,10 @@ struct SingleEntity
     {
         ++((levels).*field);
     }
+    int value(const Parent& levels) const
+    {
+        return levels.*field;
+    }
 };
 
 template<typename Parent>

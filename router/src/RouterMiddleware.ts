@@ -41,12 +41,31 @@ function pick<T>(typename: string)
 	}
 }
 
+const NO_RESEARCHS : Researchs =
+{
+    energyTechnology: 0,
+    computerTechnology: 0,
+    espionageTechnology: 0,
+    laserTechnology: 0,
+    hyperspaceDrive: 0,
+    hyperspaceTechnology: 0,
+    ionTechnology: 0,
+    intergalacticResearchNetwork: 0,
+    armourTechnology: 0,
+    shieldingTechnology: 0,
+    combustionDrive: 0,
+    impulseDrive: 0,
+    gravitonTechnology: 0,
+    weaponsTechnology: 0,
+    plasmaTechnology: 0
+}
+
 function pickContext(resp: OnPlanetResponseData, planet: PlanetLocation) : GeneralContext
 {
     return {
         storage: pick<StorageResponse>(STORAGE_RESPONSE)(resp).storage,
         buildings: pick<BuildingsListResponse>(BUILDINGS_LIST_RESPONSE)(resp).buildings,
-        researchs: undefined as unknown as Researchs,
+        researchs: NO_RESEARCHS,
         planetList: [planet]
     }
 }

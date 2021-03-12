@@ -9,7 +9,6 @@ import knowledge from "./Knowledge"
 import {prettyName} from "./Utility"
 
 
-
 function mapStateToProps(state: Store)
 {
     return {

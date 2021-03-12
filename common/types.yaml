@@ -217,6 +217,7 @@ Knowledge:
 
 Configuration:
   realTime: bool
+  buildingSpeed: int
 
 ProductionPercentages:
   metalMine: int

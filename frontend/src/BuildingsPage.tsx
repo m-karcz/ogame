@@ -1,17 +1,19 @@
 import React from "react"
 import {connect} from "react-redux"
-import { Store } from "./Store"
+import { getResearchs, Store } from "./Store"
 import { getBuildings } from "./Store"
 import { Buildings,
          Building } from "./generated/AllGenerated"
-import {getKeys} from "./Utility"
+import {getKeys, isSatisfied, findRequirements} from "./Utility"
 import BuildingEntry from "./BuildingEntry"
+import knowledge from "./Knowledge"
 
 
 function mapStateToProps(state: Store) 
 {
     return {
-        buildings: getBuildings(state)
+        buildings: getBuildings(state),
+        researchs: getResearchs(state)
     }
 }
 
@@ -45,7 +47,9 @@ class BuildingsPage extends React.Component<BuildingsPageProps, never>
     render(){
         return <div>
             <table className="entity-list">
-            {getKeys(this.props.buildings).sort(buildingsOrderPred).map(this.getBuildingEntry.bind(this))}
+            {getKeys(this.props.buildings).sort(buildingsOrderPred)
+                                          .filter(this.areRequirementsSatisfied.bind(this))
+                                          .map(this.getBuildingEntry.bind(this))}
             </table>
         </div>
     }
@@ -53,6 +57,13 @@ class BuildingsPage extends React.Component<BuildingsPageProps, never>
     getBuildingEntry(buildingName: Building)
     {
         return <BuildingEntry buildingName={buildingName} level={this.props.buildings[buildingName]}/>;
+    }
+
+    areRequirementsSatisfied(buildingName: Building) : Boolean
+    {
+        return isSatisfied(findRequirements(buildingName, knowledge.requirements.buildings),
+                           this.props.buildings,
+                           this.props.researchs);
     }
 }
 

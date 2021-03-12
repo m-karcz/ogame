@@ -47,7 +47,6 @@ add_custom_command(OUTPUT frontend_cmd
                    COMMAND touch frontend_cmd)
 
 add_custom_target(frontend
-                  DEPENDS frontend_npm.stamp
                   DEPENDS frontend_cmd)
 
 if(EMSCRIPTEN)
