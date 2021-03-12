@@ -10,24 +10,27 @@ add_custom_target(frontend_npm_install
 
 if(EMSCRIPTEN)
     execute_process(
+        COMMAND bash unhideWasm.sh 
+        COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/src/WasmRouterConnectivity.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/RouterConnectivity.ts
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    execute_process(
         COMMAND cp ${GENERATED_PATH}                       ./src/ -r
         COMMAND cp ../router/src/IRouter.ts                ./src/
         COMMAND cp ../router/src/RouterMiddleware.ts       ./src/
         COMMAND cp ../router/src/OnPlanetRequestBuilder.ts ./src/
         COMMAND cp ../common/knowledge/Knowledge.json      ./src/
-        COMMAND mv -f ./src/WasmRouterConnectivity.ts.unused ./src/WasmRouterConnectivity.ts || echo " "
-        COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/src/WasmRouterConnectivity.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/RouterConnectivity.ts
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    
 else()
+    execute_process(
+        COMMAND bash hideWasm.sh 
+        COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/src/HttpRouterConnectivity.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/RouterConnectivity.ts
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     execute_process(
         COMMAND cp ${GENERATED_PATH} ./src/ -r
         COMMAND cp ../common/knowledge/Knowledge.json ./src/
         COMMAND rm ./src/IRouter.ts -f
         COMMAND rm ./src/RouterMiddleware.ts -f
         COMMAND rm ./src/OnPlanetRequestBuilder.ts -f
-        COMMAND mv -f ./src/WasmRouterConnectivity.ts ./src/WasmRouterConnectivity.ts.unused || echo " "
-        COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/src/HttpRouterConnectivity.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/RouterConnectivity.ts
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     
 endif()
