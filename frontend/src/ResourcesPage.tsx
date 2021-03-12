@@ -1,6 +1,5 @@
 import React from "react"
-import {ProductionInformation,
-        Building, 
+import {Building, 
         ProductionPercentages} from "./generated/AllGenerated"
 import { Store, getTotalProduction, getBuildings } from "./Store"
 import {connect} from "react-redux"
@@ -78,9 +77,9 @@ class ProductionEntry extends React.Component<ProductionEntryData,{}>
     formatProduction(prod: Production)
     {
         //return <>{prod < 0 ? "-" : Math.floor(prod)}</>
-        if(prod.ideal == prod.actual)
+        if(prod.ideal === prod.actual)
         {
-            if(prod.actual == -1)
+            if(prod.actual === -1)
             {
                 return <>-</>
             }

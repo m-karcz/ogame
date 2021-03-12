@@ -1,12 +1,10 @@
 import {createAction} from "@reduxjs/toolkit"
 
 import { UserCredentials,
-         Buildings,
          PlanetLocation,
          GeneralContext,
          Building,
          BuildingQueueResponse,
-         Researchs,
         ProductionInformation } from "./generated/AllGenerated"
 
 export const LOGIN_SUBMIT = "LOGIN_SUBMIT"

@@ -1,10 +1,7 @@
 import React from "react"
 import {connect} from "react-redux"
 import {getBuildings, getResearchs, Store } from "./Store"
-import { Buildings,
-         Building, 
-         Requirements,
-         RequirementsForBuilding,
+import { RequirementsForBuilding,
          RequirementsForResearch,
          BuildingRequirement,
          ResearchRequirement} from "./generated/AllGenerated"

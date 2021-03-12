@@ -1,7 +1,6 @@
 import React from "react"
 import {connect} from "react-redux"
-import { Knowledge,
-         Building } from "./generated/AllGenerated"
+import { Building } from "./generated/AllGenerated"
 import {startBuilding} from "./Actions"
 import { Store, getBuildingQueue } from "./Store"
 import knowledge from "./Knowledge"
