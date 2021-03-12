@@ -1,4 +1,3 @@
-import { sortAndDeduplicateDiagnostics } from "typescript";
 import { Requirements,
          Buildings,
          Researchs } from "./generated/AllGenerated"
