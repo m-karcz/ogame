@@ -1,5 +1,11 @@
-execute_process(COMMAND npm install
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_custom_command(OUTPUT router_npm.stamp
+        COMMAND npm install
+        COMMAND touch router_npm.stamp
+        COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/router_npm.stamp
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_custom_target(router_npm_install
+                  DEPENDS router_npm.stamp)
 
 set(ROUTER_EXECUTOR ${CMAKE_CURRENT_BINARY_DIR}/run_router)
 
@@ -9,6 +15,7 @@ file(GLOB router_src "src/*.ts")
 
 add_custom_command(OUTPUT common_router_built.stamp
                    DEPENDS
+                        router_npm.stamp
                         ${router_src}
                         frontend
                         server

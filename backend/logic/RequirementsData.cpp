@@ -15,22 +15,22 @@ RequirementsData::RequirementsData()
 {
     buildings[cnst::metalMine] = {};
     buildings[cnst::crystalMine] = {};
-    buildings[cnst::deuterExtractor] = {};
-    buildings[cnst::robots] = {};
-    buildings[cnst::shipyard] = {{{2, cnst::robots}}, {{}}};
-    buildings[cnst::nanites] = {{{10, cnst::robots}},
-                                {{10, cnst::computer}}};
+    buildings[cnst::deuteriumSynthesizer] = {};
+    buildings[cnst::roboticsFactory] = {};
+    buildings[cnst::shipyard] = {{{2, cnst::roboticsFactory}}, {{}}};
+    buildings[cnst::naniteFactory] = {{{10, cnst::roboticsFactory}},
+                                {{10, cnst::computerTechnology}}};
     buildings[cnst::metalStorage] = {};
     buildings[cnst::crystalStorage] = {};
-    buildings[cnst::deuterStorage] = {};
+    buildings[cnst::deuteriumTank] = {};
     buildings[cnst::researchLab] = {};
     buildings[cnst::alianceDepot] = {};
     buildings[cnst::missileSilo] = {{{1, cnst::shipyard}}, {{}}};
-    buildings[cnst::terraformer] = {{{1, cnst::nanites}},
+    buildings[cnst::terraformer] = {{{1, cnst::naniteFactory}},
                                     {{12, cnst::energy}}};
 
     researchs[cnst::espionage] = onLab<3>();
-    researchs[cnst::computer] = onLab<1>();
+    researchs[cnst::computerTechnology] = onLab<1>();
     researchs[cnst::weapons] = onLab<4>();
     researchs[cnst::shielding] = onLab<6>({{3, cnst::energy}});
     researchs[cnst::armour] = onLab<2>();
@@ -46,7 +46,7 @@ RequirementsData::RequirementsData()
     researchs[cnst::plasma] = onLab<5>({{8, cnst::energy},
                                         {10, cnst::laser},
                                         {5, cnst::ion}});
-    researchs[cnst::intergalactic] = onLab<10>({{8, cnst::computer},
+    researchs[cnst::intergalactic] = onLab<10>({{8, cnst::computerTechnology},
                                                 {8, cnst::hyperspace}});
     researchs[cnst::graviton] = onLab<12>();
 

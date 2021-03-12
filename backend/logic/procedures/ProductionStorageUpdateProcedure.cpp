@@ -11,7 +11,7 @@ void productionStorageUpdateProcedure(SinglePlanetContext& ctx, Timestamp until)
     Storage storage = ctx.planet.getStorage();
     BigNum hourlyMetal = knowledgeData.productions.baseMetal + prod.metalMineGeneration;
     BigNum hourlyCrystal = knowledgeData.productions.baseCrystal + prod.crystalMineGeneration;
-    BigNum hourlyDeuter = prod.deuterExtractorGeneration - prod.fusionGeneratorDeuterUsage;
+    BigNum hourlyDeuter = prod.deuteriumSynthesizerGeneration - prod.fusionReactorDeuterUsage;
     logger.debug("production: metal {} crystal {} deuter {}", hourlyMetal.toString(), hourlyCrystal.toString(), hourlyDeuter.toString());
     if(hourlyDeuter < 0)
     {

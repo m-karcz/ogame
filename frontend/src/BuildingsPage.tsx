@@ -18,15 +18,15 @@ function mapStateToProps(state: Store)
 const buildingsOrder : Buildings = {
     metalMine:       1,
     crystalMine:     2,
-    deuterExtractor: 3,
-    solarGenerator:  4,
+    deuteriumSynthesizer: 3,
+    solarPlant:  4,
     fusionReactor:   5,
-    robots:          6,
-    nanites:         7,
+    roboticsFactory:          6,
+    naniteFactory:         7,
     shipyard:        8,
     metalStorage:    9,
     crystalStorage:  10,
-    deuterStorage:   11,
+    deuteriumTank:   11,
     researchLab:     12,
     terraformer:     13,
     alianceDepot:    14,
@@ -44,7 +44,7 @@ class BuildingsPage extends React.Component<BuildingsPageProps, never>
 {
     render(){
         return <div>
-            <table>
+            <table className="entity-list">
             {getKeys(this.props.buildings).sort(buildingsOrderPred).map(this.getBuildingEntry.bind(this))}
             </table>
         </div>

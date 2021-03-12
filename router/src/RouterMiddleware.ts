@@ -26,6 +26,7 @@ import { BUILDINGS_LIST_RESPONSE,
         PlayerId,
         OverviewViewRequest,
         PlanetLocation,
+        Researchs,
         GeneralContext,
         OverviewViewResponse } from "./generated/AllGenerated"
 
@@ -46,6 +47,8 @@ function pickContext(resp: OnPlanetResponseData, planet: PlanetLocation) : Gener
 {
     return {
         storage: pick<StorageResponse>(STORAGE_RESPONSE)(resp).storage,
+        buildings: pick<BuildingsListResponse>(BUILDINGS_LIST_RESPONSE)(resp).buildings,
+        researchs: undefined as unknown as Researchs,
         planetList: [planet]
     }
 }
@@ -60,38 +63,34 @@ export class RouterMiddleware
     async buildingsView(playerId: PlayerId, req: BuildingsViewRequest) : Promise<BuildingsViewResponse>
     {
         const onPlanet = new OnPlanetRequestBuilder(playerId, req.planet)
-                       .addQuery({type: STORAGE_REQUEST, data:{}})
-                       .addQuery({type: BUILDINGS_LIST_REQUEST, data:{}})
+                       .addContext()
                        .addQuery({type: BUILDING_QUEUE_REQUEST, data:{}}).msg
         
         const resp = await this.backend.onPlanetRequest(onPlanet);
 
         return {
             context: pickContext(resp, req.planet),
-            buildingQueue: pick<BuildingQueueResponse>(BUILDING_QUEUE_RESPONSE)(resp),
-            buildings: pick<BuildingsListResponse>(BUILDINGS_LIST_RESPONSE)(resp).buildings
+            buildingQueue: pick<BuildingQueueResponse>(BUILDING_QUEUE_RESPONSE)(resp)
         }
     }
 
     async startBuilding(playerId: PlayerId, req: StartBuildingActionRequest) : Promise<StartBuildingActionResponse>
     {
         const onPlanet = new OnPlanetRequestBuilder(playerId, req.planet, {type: BUILD_REQUEST, data: {buildingName: req.building}})
-                       .addQuery({type: STORAGE_REQUEST, data:{}})
-                       .addQuery({type: BUILDINGS_LIST_REQUEST, data:{}})
+                       .addContext()
                        .addQuery({type: BUILDING_QUEUE_REQUEST, data:{}}).msg
         const resp = await this.backend.onPlanetRequest(onPlanet);
         return {
             response: {
                 context: pickContext(resp, req.planet),
-                buildingQueue: pick<BuildingQueueResponse>(BUILDING_QUEUE_RESPONSE)(resp),
-                buildings: pick<BuildingsListResponse>(BUILDINGS_LIST_RESPONSE)(resp).buildings
+                buildingQueue: pick<BuildingQueueResponse>(BUILDING_QUEUE_RESPONSE)(resp)
             },
             status: "ok"
         }
     }
     async overview(playerId: PlayerId, req: OverviewViewRequest) : Promise<OverviewViewResponse>
     {
-        const onPlanet = new OnPlanetRequestBuilder(playerId, req.planet).addQuery({type: STORAGE_REQUEST, data:{}}).msg;
+        const onPlanet = new OnPlanetRequestBuilder(playerId, req.planet).addContext().msg;
         const resp = await this.backend.onPlanetRequest(onPlanet);
 		return {
 			context: pickContext(resp, req.planet)
@@ -100,8 +99,7 @@ export class RouterMiddleware
     async queryProduction(playerId: PlayerId, req: ProductionInformationViewRequest) : Promise<ProductionInformationViewResponse>
     {
         const onPlanet = new OnPlanetRequestBuilder(playerId, req.planet)
-                        .addQuery({type: STORAGE_REQUEST, data:{}})
-                        .addQuery({type: BUILDINGS_LIST_REQUEST, data:{}})
+                        .addContext()
                         .addQuery({type: PRODUCTION_INFORMATION_REQUEST, data:{}})
                         .addQuery({type: PRODUCTION_PERCENTAGES_REQUEST, data:{}}).msg;
 
@@ -110,7 +108,6 @@ export class RouterMiddleware
         return {
             context: pickContext(resp, req.planet),
             productionInformation: {
-                buildings: pick<BuildingsListResponse>(BUILDINGS_LIST_RESPONSE)(resp).buildings,
                 percentages: pick<ProductionPercentagesResponse>(PRODUCTION_PERCENTAGES_RESPONSE)(resp).percentages,
                 production: pick<ProductionInformationResponse>(PRODUCTION_INFORMATION_RESPONSE)(resp).production
             }

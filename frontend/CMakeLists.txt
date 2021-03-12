@@ -2,10 +2,11 @@ add_custom_command(OUTPUT frontend_npm.stamp
                    COMMAND npm install
                    COMMAND touch frontend_npm.stamp
                    COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/frontend_npm.stamp
+                   DEPENDS package.json
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_custom_target(frontend_npm_install
-                  DEPENDS frontend_npm_install_command)
+                  DEPENDS frontend_npm.stamp)
 
 if(EMSCRIPTEN)
     execute_process(
@@ -31,13 +32,14 @@ else()
     
 endif()
 
-file(GLOB frontend_src "src/*.ts" "src/*.tsx" "src/*.css")
+file(GLOB frontend_src "src/*.ts" "src/*.tsx" "src/*.css" "src/*.scss")
 list(FILTER frontend_src EXCLUDE REGEX ".*src/RouterConnectivity.ts$")
 
 add_custom_command(OUTPUT frontend_cmd
                    DEPENDS ${frontend_src}
                    DEPENDS package.json
                    DEPENDS tsconfig.json
+                   DEPENDS frontend_npm.stamp
                    COMMAND npm run build --prefix ${CMAKE_CURRENT_SOURCE_DIR}
                    COMMAND touch frontend_cmd)
 

@@ -7,21 +7,21 @@ namespace cnst
 {
 extern Building metalMine;
 extern Building crystalMine;
-extern Building deuterExtractor;
-extern Building solarGenerator;
-extern Building robots;
-extern Building nanites;
+extern Building deuteriumSynthesizer;
+extern Building solarPlant;
+extern Building roboticsFactory;
+extern Building naniteFactory;
 extern Building shipyard;
 extern Building metalStorage;
 extern Building crystalStorage;
-extern Building deuterStorage;
+extern Building deuteriumTank;
 extern Building researchLab;
 extern Building alianceDepot;
 extern Building missileSilo;
 extern Building terraformer;
 
 extern Research espionage;
-extern Research computer;
+extern Research computerTechnology;
 extern Research weapons;
 extern Research shielding;
 extern Research armour;

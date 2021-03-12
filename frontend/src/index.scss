@@ -1,0 +1,51 @@
+$default-font-color: SeaShell;
+$default-font: Tahoma, sans-serif;
+$default-background-color: #000033;//MidnightBlue;
+$table-background-color: #111144;
+
+body {
+    font: 12px $default-font;
+    color: $default-font-color;
+    background-color: $default-background-color;
+}
+
+table {
+//    border-spacing: 2px;
+    //border: 0;
+    //margin: 1em;
+    border-collapse: collapse;
+
+}
+
+table, th, td .entity-list {
+    font-weight: normal;
+    background-color: $table-background-color;
+    border: 3px solid $default-background-color;
+    padding: 5px;
+}
+
+//td .entity-list{
+  //padding: 5px;
+//}
+
+
+.link-button {
+  background-color: transparent;
+  border: none;
+  color: $default-font-color;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+.link-button:hover,
+.link-button:focus {
+  text-decoration: none;
+}
+
+.building-name {
+  font-weight: bold;
+}

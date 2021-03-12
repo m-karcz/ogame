@@ -2,7 +2,9 @@ import {OnPlanetQuery,
         OnPlanetAction,
         PlayerId,
         PlanetLocation,
-        OnPlanetRequest} from "./generated/AllGenerated"
+        OnPlanetRequest,
+        STORAGE_REQUEST,
+        BUILDINGS_LIST_REQUEST} from "./generated/AllGenerated"
 
 
 export class OnPlanetRequestBuilder
@@ -21,6 +23,13 @@ export class OnPlanetRequestBuilder
     addQuery(query: OnPlanetQuery) : OnPlanetRequestBuilder
     {
         this.msg.queries.push(query)
+        return this;
+    }
+
+    addContext() : OnPlanetRequestBuilder
+    {
+        this.msg.queries.push({type: STORAGE_REQUEST, data: {}});
+        this.msg.queries.push({type: BUILDINGS_LIST_REQUEST, data: {}});
         return this;
     }
 

@@ -1,6 +1,6 @@
 import {Middleware} from "redux"
 import IRouterConnectivity from "../IRouterConnectivity"
-import {resourcesLoaded, loadResourcesPage, loadOverviewPage, loadBuildingsPage, buildingsLoaded, overviewLoaded, startBuilding, getContextUpdated} from "../Actions"
+import {resourcesLoaded, loadResourcesPage, loadOverviewPage, loadBuildingsPage, buildingsLoaded, overviewLoaded, startBuilding, getContextUpdated, loadDependencyTreePage, dependencyTreeLoaded} from "../Actions"
 import {getChosenPlanet} from "../Store"
 import {GeneralContext,
         BuildingsViewResponse,
@@ -12,8 +12,7 @@ export function getIngameMiddleware(conn: IRouterConnectivity) : Middleware
     return store => next => action => {
         const {dispatch} = store;
         const updateContext = (msg: {context: GeneralContext}) => dispatch(getContextUpdated(msg));
-        const updateBuildings = (msg: BuildingsViewResponse) => dispatch(buildingsLoaded({buildings: msg.buildings,
-                                                                                          queue: msg.buildingQueue.queue}));
+        const updateBuildings = (msg: BuildingsViewResponse) => dispatch(buildingsLoaded({queue: msg.buildingQueue.queue}));
         const updateResources = (msg: ProductionInformationViewResponse) => dispatch(resourcesLoaded(msg.productionInformation))
         const getPlanet = () => getChosenPlanet(store.getState());
         if(loadOverviewPage.match(action))
@@ -36,6 +35,10 @@ export function getIngameMiddleware(conn: IRouterConnectivity) : Middleware
             conn.loadResourcesPage(getPlanet()).then(resp => {updateContext(resp);
                                                               updateResources(resp);});
 
+        }
+        else if(loadDependencyTreePage.match(action))
+        {
+            dispatch(dependencyTreeLoaded({}));
         }
 
         next(action);

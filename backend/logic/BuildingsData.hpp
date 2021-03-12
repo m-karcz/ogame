@@ -22,15 +22,15 @@ inline auto makeBuildingDataMap() {
     AAA(metalMine, 60, 15, 0, 1.5);
     //map[Building{&Buildings::metalMine}]    = {.cost = Materials{.metal = 60, .crystal = 15, .deuter = 0}, .costMultiplier = 1.5};
     map[Building{&Buildings::crystalMine}] = {.cost = Materials{.metal = 48, .crystal = 24, .deuter = 0}, .costMultiplier = 1.5};
-    map[Building{&Buildings::deuterExtractor}] = {.cost = Materials{.metal = 225, .crystal = 75, .deuter = 0}, .costMultiplier = 1.5};
-    map[Building{&Buildings::solarGenerator}] = {.cost = Materials{.metal = 75, .crystal = 30, .deuter = 0}, .costMultiplier = 1.5};
+    map[Building{&Buildings::deuteriumSynthesizer}] = {.cost = Materials{.metal = 225, .crystal = 75, .deuter = 0}, .costMultiplier = 1.5};
+    map[Building{&Buildings::solarPlant}] = {.cost = Materials{.metal = 75, .crystal = 30, .deuter = 0}, .costMultiplier = 1.5};
     map[Building{&Buildings::fusionReactor}] = {.cost = Materials{.metal = 900, .crystal = 360, .deuter = 180}, .costMultiplier = 1.8};
-    map[Building{&Buildings::robots}] = {.cost = Materials{.metal = 400, .crystal = 120, .deuter = 200}, .costMultiplier = 2.0};
+    map[Building{&Buildings::roboticsFactory}] = {.cost = Materials{.metal = 400, .crystal = 120, .deuter = 200}, .costMultiplier = 2.0};
     map[Building{&Buildings::shipyard}] = {.cost = Materials{.metal = 400, .crystal = 200, .deuter = 100}, .costMultiplier = 2.0};
-    map[Building{&Buildings::nanites}] = {.cost = Materials{.metal = 1'000'000, .crystal = 500'000, .deuter = 100'000}, .costMultiplier = 2.0};
+    map[Building{&Buildings::naniteFactory}] = {.cost = Materials{.metal = 1'000'000, .crystal = 500'000, .deuter = 100'000}, .costMultiplier = 2.0};
     map[Building{&Buildings::metalStorage}] = {.cost = Materials{.metal = 1000, .crystal = 0, .deuter = 0}, .costMultiplier = 2.0};
     map[Building{&Buildings::crystalStorage}] = {.cost = Materials{.metal = 1000, .crystal = 500, .deuter = 0}, .costMultiplier = 2.0};
-    map[Building{&Buildings::deuterStorage}] = {.cost = Materials{.metal = 1000, .crystal = 1000, .deuter = 0}, .costMultiplier = 2.0};
+    map[Building{&Buildings::deuteriumTank}] = {.cost = Materials{.metal = 1000, .crystal = 1000, .deuter = 0}, .costMultiplier = 2.0};
 #undef AAA
     return map;
 }

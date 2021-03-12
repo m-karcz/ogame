@@ -6,11 +6,11 @@ namespace cnst
 {
 Building metalMine{&Buildings::metalMine};
 Building crystalMine{&Buildings::crystalMine};
-Building deuterExtractor{&Buildings::deuterExtractor};
-Building solarGenerator{&Buildings::solarGenerator};
-Building robots{&Buildings::robots};
-Building nanites{&Buildings::nanites};
+Building deuteriumSynthesizer{&Buildings::deuteriumSynthesizer};
+Building solarPlant{&Buildings::solarPlant};
+Building roboticsFactory{&Buildings::roboticsFactory};
+Building naniteFactory{&Buildings::naniteFactory};
 Building shipyard{&Buildings::shipyard};
 
-Research computer{&Researchs::computer};
+Research computerTechnology{&Researchs::computerTechnology};
 }

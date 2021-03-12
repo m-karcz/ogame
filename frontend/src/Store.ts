@@ -2,9 +2,10 @@ import {Buildings,
         Storage,
         PlanetLocation,
         UserCredentials,
-        BuildingQueueResponse } from "./generated/AllGenerated"
+        BuildingQueueResponse,
+        ProductionInformation,
+        Researchs } from "./generated/AllGenerated"
 
-type TotalProductionData = any;
 export enum LoginState
 {
     none = 0,
@@ -40,21 +41,27 @@ export const DEFAULT_LOGIN_FORM_STATE : LoginFormState = {
 export const OVERVIEW_PAGE = "OVERVIEW_PAGE";
 export const BUILDINGS_PAGE = "BUILDINGS_PAGE";
 export const RESOURCES_PAGE = "RESOURCES_PAGE";
+export const DEPENDENCY_TREE_PAGE = "DEPENDENCY_TREE_PAGE";
 export const LOGIN_PAGE = "LOGIN_PAGE";
 export const INGAME_PAGE = "INGAME_PAGE";
+
 
 export type ContextData = 
 {
     planetList: Array<PlanetLocation>,
     chosenPlanet: PlanetLocation,
-    actualPlanetStorage: Storage
+    actualPlanetStorage: Storage,
+    buildings: Buildings,
+    researchs: Researchs
 }
 
 export const EMPTY_CONTEXT_DATA : ContextData = 
 {
     planetList: [],
     chosenPlanet: { position: 0, galaxy: 0, solar: 0 },
-    actualPlanetStorage: { metal: 0, crystal: 0, deuter: 0, lastUpdatedAt: 0}
+    actualPlanetStorage: { metal: 0, crystal: 0, deuter: 0, lastUpdatedAt: 0},
+    buildings: undefined as unknown as Buildings,
+    researchs: undefined as unknown as Researchs
 }
 
 export function getEmptyContextWithChosen(chosenPlanet: PlanetLocation) : ContextData
@@ -62,7 +69,9 @@ export function getEmptyContextWithChosen(chosenPlanet: PlanetLocation) : Contex
     return {
         planetList: [chosenPlanet],
         chosenPlanet: chosenPlanet,
-        actualPlanetStorage: {metal: 0, crystal: 0, deuter: 0, lastUpdatedAt: 0}
+        actualPlanetStorage: {metal: 0, crystal: 0, deuter: 0, lastUpdatedAt: 0},
+        buildings: undefined as unknown as Buildings,
+        researchs: undefined as unknown as Researchs
     }
 }
 
@@ -74,17 +83,21 @@ export type OverviewPageState =
 export type BuildingsPageState =
 {
     type: typeof BUILDINGS_PAGE
-    buildings: Buildings
     queue: BuildingQueueResponse["queue"]
 }
 
 export type ResourcesPageState =
 {
     type: typeof RESOURCES_PAGE
-    production: TotalProductionData
+    production: ProductionInformation
 }
 
-export type IngameInnerPageState = OverviewPageState | BuildingsPageState | ResourcesPageState;
+export type DependencyTreePageState =
+{
+    type: typeof DEPENDENCY_TREE_PAGE
+}
+
+export type IngameInnerPageState = OverviewPageState | BuildingsPageState | ResourcesPageState | DependencyTreePageState;
 
 export type LoginPageState =
 {
@@ -160,7 +173,12 @@ export function getChosenPlanet(store: Store) : PlanetLocation
 
 export function getBuildings(store: Store) : Buildings
 {
-    return (getIngamePageState(store).innerPage as BuildingsPageState).buildings;
+    return getIngamePageState(store).contextData.buildings;
+}
+
+export function getResearchs(store: Store) : Researchs
+{
+    return getIngamePageState(store).contextData.researchs;
 }
 
 export function getBuildingQueue(store: Store)

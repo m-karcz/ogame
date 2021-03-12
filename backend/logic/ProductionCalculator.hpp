@@ -41,8 +41,8 @@ struct ProductionCalculator
         logger.debug("elo2");
         BigNum rawMetal = rawProduction(buildings.metalMine, metalData);
         BigNum rawCrystal = rawProduction(buildings.crystalMine, crystalData);
-        BigNum rawDeuter = rawProduction(buildings.deuterExtractor, deuterData);
-        BigNum rawSolar = rawProduction(buildings.solarGenerator, solarData);
+        BigNum rawDeuter = rawProduction(buildings.deuteriumSynthesizer, deuterData);
+        BigNum rawSolar = rawProduction(buildings.solarPlant, solarData);
 
         logger.debug("elo3");
         BigNum producedEnergy = rawSolar;
@@ -51,7 +51,7 @@ struct ProductionCalculator
         logger.debug("elo32");
         BigNum crystalEnergyUsage = energyUsage(buildings.crystalMine, crystalData);
         logger.debug("elo33");
-        BigNum deuterEnergyUsage = energyUsage(buildings.deuterExtractor, deuterData);
+        BigNum deuterEnergyUsage = energyUsage(buildings.deuteriumSynthesizer, deuterData);
         logger.debug("elo34");
         BigNum takenEnergy = metalEnergyUsage + crystalEnergyUsage + deuterEnergyUsage;
         logger.debug("elo4");

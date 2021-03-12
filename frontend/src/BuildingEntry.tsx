@@ -4,8 +4,8 @@ import { Knowledge,
          Building } from "./generated/AllGenerated"
 import {startBuilding} from "./Actions"
 import { Store, getBuildingQueue } from "./Store"
-import rawKnowledge from "./Knowledge.json"
-const knowledge : Knowledge = rawKnowledge as Knowledge;
+import knowledge from "./Knowledge"
+import {prettyName} from "./Utility"
 
 type PropsFromParent =
 {
@@ -39,7 +39,7 @@ function calculateCost(name: Building, level: number) : CalculatedCost
     return {
         metal: calc(know.metal, know.multiplier, level),
         crystal: calc(know.crystal, know.multiplier, level),
-        deuter: calc(know.crystal, know.multiplier, level),
+        deuter: calc(know.deuter, know.multiplier, level),
         energy: know.energy > 0.1 ? calc(know.energy, know.multiplier, level) : null
     }
 }
@@ -57,9 +57,12 @@ class BuildingEntry extends React.Component<PropsFromParent & ReturnType<typeof 
     buildingInfo() {
         const cost = calculateCost(this.props.buildingName, this.props.level);
         return <>
-            <span>{this.prettyName()}</span> (Level <span>{this.props.level}</span>)<br/>
-            Cost: <br/>
-            Metal: <span>{cost.metal}</span> Crystal: <span>{cost.crystal}</span> Deuter: <span>{cost.deuter}</span> {cost.energy ? <>Energy: <span>{cost.energy}</span></> : <></>}
+            <span className="building-name">{this.prettyName()}</span> (Level <span>{this.props.level}</span>)<br/>
+            Cost: 
+            {cost.metal > 0 ? <>Metal: <span>{cost.metal}</span> </> : null} 
+            {cost.crystal > 0 ? <>Crystal: <span>{cost.crystal}</span> </> : null} 
+            {cost.deuter > 0 ? <>Deuter: <span>{cost.deuter}</span> </> : null} 
+            {cost.energy ? <>Energy: <span>{cost.energy}</span></> : <></>}
         </>
     }
 
@@ -102,8 +105,7 @@ class BuildingEntry extends React.Component<PropsFromParent & ReturnType<typeof 
 
     prettyName()
     {
-        const camelCaseName = this.props.buildingName[0].toUpperCase() + this.props.buildingName.substring(1);
-        return camelCaseName.match(/[A-Z][^A-Z]*/g)?.join(" ");
+        return prettyName(this.props.buildingName);
     }
 }
 

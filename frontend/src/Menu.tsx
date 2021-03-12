@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect } from "react-redux"
-import { loadBuildingsPage, loadOverviewPage, loadResourcesPage } from './Actions';
+import { loadBuildingsPage, loadDependencyTreePage, loadOverviewPage, loadResourcesPage } from './Actions';
 import { PlanetLocation } from "./generated/AllGenerated"
 import { getChosenPlanet, Store } from './Store';
 
@@ -8,7 +8,8 @@ const mapDispatchToProps = (dispatch: any) => (
 {
   onOverviewClick: (planet: PlanetLocation) => dispatch(loadOverviewPage({planet: planet})),
   onBuildingsClick: (planet: PlanetLocation) => dispatch(loadBuildingsPage({planet: planet})),
-  onResourcesClick: (planet: PlanetLocation) => dispatch(loadResourcesPage({planet: planet}))
+  onResourcesClick: (planet: PlanetLocation) => dispatch(loadResourcesPage({planet: planet})),
+  onDependencyTreeClick: () => dispatch(loadDependencyTreePage())
 })
 
 const mapStateToProps = (state: Store) =>
@@ -23,14 +24,16 @@ class Menu extends React.Component<MenuProps, never>{
   {
     return(
       <>
-        <button className="link-button" onClick={this.onOverviewClick} id="goToOverviewButton">Overview</button>
-        <button className="link-button" onClick={this.onBuildingsClick} id="goToBuildingsButton">Buildings</button>
-        <button className="link-button" onClick={this.onResourcesClick} id="goToResourcesButton">Resources</button>
+        <button className="link-button" onClick={this.onOverviewClick} id="goToOverviewButton">Overview</button><br/>
+        <button className="link-button" onClick={this.onBuildingsClick} id="goToBuildingsButton">Buildings</button><br/>
+        <button className="link-button" onClick={this.onResourcesClick} id="goToResourcesButton">Resources</button><br/>
+        <button className="link-button" onClick={this.onDependencyTreeClick} id="goToDependencyTreeButton">Dependency Tree</button><br/>
       </>)
   }
   onOverviewClick = () => this.props.onOverviewClick(this.props.planet);
   onBuildingsClick = () => this.props.onBuildingsClick(this.props.planet);
   onResourcesClick = () => this.props.onResourcesClick(this.props.planet);
+  onDependencyTreeClick = () => this.props.onDependencyTreeClick();
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Menu)

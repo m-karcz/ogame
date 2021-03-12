@@ -1,10 +1,12 @@
 import {Reducer, AnyAction} from "redux"
-import {overviewLoaded, registerRequest, loginSucceeded, loginRequest, registerSuccessful, contextUpdated, buildingsLoaded} from "./Actions"
-import {Store, LoginState, RegisterState, DEFAULT_STORE_STATE, getLoginPageState, getLoginFormState, OVERVIEW_PAGE, INGAME_PAGE, getIngamePageState, getChosenPlanet, BUILDINGS_PAGE, getEmptyContextWithChosen} from "./Store";
+import {overviewLoaded, registerRequest, loginSucceeded, loginRequest, registerSuccessful, contextUpdated, buildingsLoaded, resourcesLoaded, dependencyTreeLoaded} from "./Actions"
+import {Store, LoginState, RegisterState, DEFAULT_STORE_STATE, getLoginPageState, getLoginFormState, OVERVIEW_PAGE, INGAME_PAGE, getIngamePageState, getChosenPlanet, BUILDINGS_PAGE, getEmptyContextWithChosen, RESOURCES_PAGE, DEPENDENCY_TREE_PAGE} from "./Store";
 
 //type LoginFormAction = LoginSubmitAction | RegisterSubmitAction | LoginSuccessfulAction | RegisterSuccessfulAction;
 
 const myReducer : Reducer<Store, AnyAction> = (state = DEFAULT_STORE_STATE, action) => {
+
+
   if(loginRequest.match(action))
     return {
       ...state,
@@ -68,7 +70,9 @@ const myReducer : Reducer<Store, AnyAction> = (state = DEFAULT_STORE_STATE, acti
         contextData: {
           actualPlanetStorage: action.payload.storage,
           planetList: action.payload.planetList,
-          chosenPlanet: getChosenPlanet(state)
+          chosenPlanet: getChosenPlanet(state),
+          buildings: action.payload.buildings,
+          researchs: action.payload.researchs
         }
       }
     }
@@ -79,11 +83,32 @@ const myReducer : Reducer<Store, AnyAction> = (state = DEFAULT_STORE_STATE, acti
         ...getIngamePageState(state),
         innerPage: {
           type: BUILDINGS_PAGE,
-          buildings: action.payload.buildings,
           queue: action.payload.queue
         }
       }
     }
+  else if(resourcesLoaded.match(action))
+    return {
+      ...state,
+      page : {
+        ...getIngamePageState(state),
+        innerPage : {
+          type: RESOURCES_PAGE,
+          production: action.payload
+        }
+      }
+    }
+  else if(dependencyTreeLoaded.match(action))
+    return {
+      ...state,
+      page : {
+        ...getIngamePageState(state),
+        innerPage : {
+          type: DEPENDENCY_TREE_PAGE
+        }
+      }
+    }
+
   else
     return state
 }

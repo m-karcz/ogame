@@ -6,15 +6,15 @@ PlanetLocation:
 Buildings:
   metalMine: int
   crystalMine: int
-  deuterExtractor: int
-  solarGenerator: int
+  deuteriumSynthesizer: int
+  solarPlant: int
   fusionReactor: int
-  robots: int
-  nanites: int
+  roboticsFactory: int
+  naniteFactory: int
   shipyard: int
   metalStorage: int
   crystalStorage: int
-  deuterStorage: int
+  deuteriumTank: int
   researchLab: int
   alianceDepot: int
   missileSilo: int
@@ -28,21 +28,21 @@ PlayerId:
   id: int
 
 Researchs:
-  espionage: int
-  computer: int
-  weapons: int
-  shielding: int
-  armour: int
-  energy: int
-  hyperspace: int
+  espionageTechnology: int
+  computerTechnology: int
+  weaponsTechnology: int
+  shieldingTechnology: int
+  armourTechnology: int
+  energyTechnology: int
+  hyperspaceTechnology: int
   combustionDrive: int
   impulseDrive: int
   hyperspaceDrive: int
-  laser: int
-  ion: int
-  plasma: int
-  intergalactic: int
-  graviton: int
+  laserTechnology: int
+  ionTechnology: int
+  plasmaTechnology: int
+  intergalacticResearchNetwork: int
+  gravitonTechnology: int
 
 LoginRequest:
   credentials: UserCredentials
@@ -115,6 +115,8 @@ OnPlanetResponse:
 GeneralContext:
   planetList: PlanetLocation[]
   storage: Storage
+  buildings: Buildings
+  researchs: Researchs
 
 OverviewViewRequest:
   planet: PlanetLocation
@@ -127,7 +129,6 @@ BuildingsViewRequest:
 
 BuildingsViewResponse:
   context: GeneralContext
-  buildings: Buildings
   buildingQueue: BuildingQueueResponse
 
 StartBuildingActionRequest:
@@ -189,6 +190,10 @@ RequirementsForBuilding:
   name: Building
   requirements: Requirements
 
+RequirementsForResearch:
+  name: Research
+  requirements: Requirements
+
 AllRequirements:
   buildings: RequirementsForBuilding[]
 
@@ -201,8 +206,8 @@ BaseProductions:
   baseCrystal: int
   metalMine: BaseProduction
   crystalMine: BaseProduction
-  deuterExtractor: BaseProduction
-  solarGenerator: BaseProduction
+  deuteriumSynthesizer: BaseProduction
+  solarPlant: BaseProduction
   fusionReactor: BaseProduction
 
 Knowledge:
@@ -216,22 +221,26 @@ Configuration:
 ProductionPercentages:
   metalMine: int
   crystalMine: int
-  deuterExtractor: int
-  solarGenerator: int
-  solarSatelites: int
+  deuteriumSynthesizer: int
+  solarPlant: int
+  solarSatelite: int
   fusionReactor: int
 
 CachedProduction:
   metalMineGeneration: int
+  metalMineIdealGeneration: int
   metalMineEnergyUsage: int
   crystalMineGeneration: int
+  crystalMineIdealGeneration: int
   crystalMineEnergyUsage: int
-  deuterExtractorGeneration: int
-  deuterExtractorEnergyUsage: int
+  deuteriumSynthesizerGeneration: int
+  deuteriumSynthesizerIdealGeneration: int
+  deuteriumSynthesizerEnergyUsage: int
   solarPlantGeneration: int
   solarSateliteGeneration: int
-  fusionGeneratorGeneration: int
-  fusionGeneratorDeuterUsage: int
+  fusionReactorGeneration: int
+  fusionReactorIdealGeneration: int
+  fusionReactorDeuterUsage: int
 
 ProductionInformationViewRequest:
   planet: PlanetLocation
@@ -239,7 +248,6 @@ ProductionInformationViewRequest:
 ProductionInformation:
   percentages: ProductionPercentages
   production: CachedProduction
-  buildings: Buildings
 
 ProductionInformationViewResponse:
   context: GeneralContext

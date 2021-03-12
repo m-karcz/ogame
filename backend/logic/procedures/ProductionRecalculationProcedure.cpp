@@ -19,9 +19,9 @@ struct TheoreticalProduction
 {
     PartialProduction metalMine;
     PartialProduction crystalMine;
-    PartialProduction deuterExtractor;
-    PartialProduction solarGenerator;
-    PartialProduction solarSatelites;
+    PartialProduction deuteriumSynthesizer;
+    PartialProduction solarPlant;
+    PartialProduction solarSatelite;
     PartialProduction fusionReactor;
 };
 
@@ -60,20 +60,20 @@ struct ProductionRecalculationProcedure : SinglePlanetContext
             .cost = data.cost * level * std::pow(1.1, level)
         };
     }
-    PartialProduction theoreticalDeuterExtractor()
+    PartialProduction theoreticalDeuteriumSynthesizer()
     {
         auto averageTemp = 0;
-        auto level = planet.getBuildingLevel(cnst::deuterExtractor);
-        auto data = knowledgeData.productions.crystalMine;
+        auto level = planet.getBuildingLevel(cnst::deuteriumSynthesizer);
+        auto data = knowledgeData.productions.deuteriumSynthesizer;
         return {
             .producing = data.production * level * std::pow(1.1, level) * (0.68 - 0.002 * averageTemp),
             .cost = data.cost * level * std::pow(1.1, level)
         };
     }
-    PartialProduction theoreticalSolarGenerator()
+    PartialProduction theoreticalSolarPlant()
     {
-        auto level = planet.getBuildingLevel(cnst::solarGenerator);
-        auto data = knowledgeData.productions.solarGenerator;
+        auto level = planet.getBuildingLevel(cnst::solarPlant);
+        auto data = knowledgeData.productions.solarPlant;
         return {
             .producing = data.production * level * std::pow(1.1, level),
             .cost = 0.0
@@ -84,9 +84,9 @@ struct ProductionRecalculationProcedure : SinglePlanetContext
         return {
             .metalMine = theoreticalMetalMine(),
             .crystalMine = theoreticalCrystalMine(),
-            .deuterExtractor = theoreticalDeuterExtractor(),
-            .solarGenerator = theoreticalSolarGenerator(),
-            .solarSatelites = {0.0, 0.0},
+            .deuteriumSynthesizer = theoreticalDeuteriumSynthesizer(),
+            .solarPlant = theoreticalSolarPlant(),
+            .solarSatelite = {0.0, 0.0},
             .fusionReactor = {0.0, 0.0}
         };
     }
@@ -97,9 +97,9 @@ struct ProductionRecalculationProcedure : SinglePlanetContext
         return {
             .metalMine = applyPercentage(th.metalMine, percentage.metalMine),
             .crystalMine = applyPercentage(th.crystalMine, percentage.crystalMine),
-            .deuterExtractor = applyPercentage(th.deuterExtractor, percentage.deuterExtractor),
-            .solarGenerator = applyPercentage(th.solarGenerator, percentage.solarGenerator),
-            .solarSatelites = applyPercentage(th.solarSatelites, percentage.solarSatelites),
+            .deuteriumSynthesizer = applyPercentage(th.deuteriumSynthesizer, percentage.deuteriumSynthesizer),
+            .solarPlant = applyPercentage(th.solarPlant, percentage.solarPlant),
+            .solarSatelite = applyPercentage(th.solarSatelite, percentage.solarSatelite),
             .fusionReactor = applyPercentage(th.fusionReactor, percentage.fusionReactor)
         };
     }
@@ -107,6 +107,10 @@ struct ProductionRecalculationProcedure : SinglePlanetContext
     Efficiency evaluateEfficiency(const TheoreticalProduction& prod)
     {
         const auto safeDiv = [](double x, double y)->double{
+            if(x < 0.01 and x > -0.01)
+            {
+                return 0.0;
+            }
             if(y < 0.01 and y > -0.01)
             {
                 return 1.0;
@@ -114,15 +118,15 @@ struct ProductionRecalculationProcedure : SinglePlanetContext
             return x / y;
         };
         Efficiency eff{0.5, 0.5};
-        auto deuProd = prod.deuterExtractor.producing;
+        auto deuProd = prod.deuteriumSynthesizer.producing;
         auto fusionDeuCost = prod.fusionReactor.cost;
         auto fusionEnProd = prod.fusionReactor.producing;
-        auto mineEnCost = prod.metalMine.cost + prod.crystalMine.cost + prod.deuterExtractor.cost;
-        if(mineEnCost)
+        auto mineEnCost = prod.metalMine.cost + prod.crystalMine.cost + prod.deuteriumSynthesizer.cost;
+        if(mineEnCost < 0.1)
         {
             return {1.0, 1.0};
         }
-        auto solarEnProd = prod.solarGenerator.producing + prod.solarSatelites.producing;
+        auto solarEnProd = prod.solarPlant.producing + prod.solarSatelite.producing;
 
         for(size_t i = 0; i < 5; i++)
         {
@@ -144,15 +148,19 @@ struct ProductionRecalculationProcedure : SinglePlanetContext
 
         return {
             .metalMineGeneration = toInt(prod.metalMine.producing * eff.energy),
+            .metalMineIdealGeneration = toInt(prod.metalMine.producing),
             .metalMineEnergyUsage = toInt(prod.metalMine.cost),
             .crystalMineGeneration = toInt(prod.crystalMine.producing * eff.energy),
+            .crystalMineIdealGeneration = toInt(prod.crystalMine.producing),
             .crystalMineEnergyUsage = toInt(prod.crystalMine.cost),
-            .deuterExtractorGeneration = toInt(prod.deuterExtractor.producing * eff.energy),
-            .deuterExtractorEnergyUsage = toInt(prod.deuterExtractor.cost),
-            .solarPlantGeneration = toInt(prod.solarGenerator.producing),
-            .solarSateliteGeneration = toInt(prod.solarSatelites.producing),
-            .fusionGeneratorGeneration = toInt(prod.fusionReactor.producing * eff.deuter),
-            .fusionGeneratorDeuterUsage = toInt(prod.fusionReactor.cost)
+            .deuteriumSynthesizerGeneration = toInt(prod.deuteriumSynthesizer.producing * eff.energy),
+            .deuteriumSynthesizerIdealGeneration = toInt(prod.deuteriumSynthesizer.producing),
+            .deuteriumSynthesizerEnergyUsage = toInt(prod.deuteriumSynthesizer.cost),
+            .solarPlantGeneration = toInt(prod.solarPlant.producing),
+            .solarSateliteGeneration = toInt(prod.solarSatelite.producing),
+            .fusionReactorGeneration = toInt(prod.fusionReactor.producing * eff.deuter),
+            .fusionReactorIdealGeneration = toInt(prod.fusionReactor.producing),
+            .fusionReactorDeuterUsage = toInt(prod.fusionReactor.cost)
         };
     }
     ProductionRecalculationProcedure(const SinglePlanetContext& ctx) : SinglePlanetContext{ctx}
