@@ -6,12 +6,12 @@ import IngameSwitch from "./IngameSwitch"
 class Ingame extends React.Component<any, any>{
   render() 
   {
-    return(
-      <>
-        <Menu />
-        <ResourcesView />
-        <IngameSwitch />
-      </>)
+    return (
+        <div className="ingame">
+          <div><Menu /></div>
+          <div><ResourcesView />
+               <IngameSwitch /></div>
+        </div>);
   }
 }
 

@@ -9,6 +9,11 @@ body {
     background-color: $default-background-color;
 }
 
+.ingame {
+  display: grid;
+  grid-template-columns: 200px auto;
+}
+
 table {
 //    border-spacing: 2px;
     //border: 0;
