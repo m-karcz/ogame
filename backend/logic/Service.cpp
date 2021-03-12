@@ -7,7 +7,6 @@
 #include "IPlayerHandle.hpp"
 #include "IPlanetHandle.hpp"
 #include "ProductionCalculator.hpp"
-#include "BuildingsData.hpp"
 #include "BuildingQueue.hpp"
 #include "Logger.hpp"
 #include "handlers/BuildRequestHandler.hpp"

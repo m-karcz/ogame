@@ -130,6 +130,6 @@ export default class RouterConnectivity implements IRouterConnectivity
     }
     loadResourcesPage(planet: PlanetLocation) : Promise<ProductionInformationViewResponse>
     {
-        return middleware.queryResources({id: 0} as PlayerId, {planet: planet} as ProductionInformationViewRequest);
+        return middleware.queryProduction({id: 0} as PlayerId, {planet: planet} as ProductionInformationViewRequest);
     }
 }

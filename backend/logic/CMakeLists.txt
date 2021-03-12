@@ -19,8 +19,6 @@ add_library(Logic
             procedures/ProductionRecalculationProcedure.cpp
             procedures/ProductionStorageUpdateProcedure.hpp
             procedures/ProductionStorageUpdateProcedure.cpp
-            RequirementsData.hpp
-            RequirementsData.cpp
             Constants.hpp
             Constants.cpp)
 
