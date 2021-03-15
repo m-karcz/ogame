@@ -24,20 +24,32 @@ function renderRequirement(req: RequirementsForBuilding | RequirementsForResearc
     const renderSingleReq = (r: BuildingRequirement | ResearchRequirement) => {
         return <div>{prettyName(r.name)}(Level {r.level})</div>
     }
-    return <tr>
+    /*return <tr>
         <th>{prettyName(req.name)}</th>
         <th>{req.requirements.buildings.map(renderSingleReq)}
             {req.requirements.researchs.map(renderSingleReq)}</th>
-    </tr>
+    </tr>*/
+
+    return <><div className={"entity-entry"}>
+        {prettyName(req.name)}
+    </div>
+    <div className={"entity-entry"}>
+        {req.requirements.buildings.map(renderSingleReq)}
+        {req.requirements.researchs.map(renderSingleReq)}
+    </div></>
 }
 
 class DependencyTreePage extends React.Component<DependencyTreePageProps, never>
 {
     render()
     {
-        return <table className="entity-list">
+        /*return <table className="entity-list">
             {knowledge.requirements.buildings.map(renderRequirement)}
-        </table>
+        </table>*/
+
+        return <div className="requirements-list">
+            {knowledge.requirements.buildings.map(renderRequirement)}
+        </div>
     }
 }
 

@@ -1,9 +1,6 @@
 #pragma once
 
 #include <spdlog/spdlog.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/null_sink.h>
 
 struct Logger
 {
@@ -12,7 +9,8 @@ struct Logger
         loggerPtr->set_level(spdlog::level::debug);
         loggerPtr->flush_on(spdlog::level::debug);
     }
-    std::shared_ptr<spdlog::logger> loggerPtr = spdlog::basic_logger_st("basic","eloelo.txt");
+    std::shared_ptr<spdlog::logger> loggerPtr = chooseLogger();
+    static std::shared_ptr<spdlog::logger> chooseLogger();
 };
 
 inline Logger loggerInstance;

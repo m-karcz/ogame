@@ -14,10 +14,19 @@ body {
   grid-template-columns: 200px auto;
 }
 
+.requirements-list {
+  display: grid;
+  grid-template-columns: 400px 400px;
+  grid-auto-rows: auto;
+  grid-gap: 10px;
+}
+
+.entity-entry {
+  background-color: $table-background-color;
+  padding: 10px;
+}
+
 table {
-//    border-spacing: 2px;
-    //border: 0;
-    //margin: 1em;
     border-collapse: collapse;
 
 }

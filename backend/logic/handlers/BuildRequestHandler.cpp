@@ -9,7 +9,8 @@
 #include "BuildingsData.hpp"
 #include "BuildingQueue.hpp"
 #include "KnowledgeData.hpp"
-
+#include <range/v3/algorithm/all_of.hpp>
+#include <range/v3/algorithm/find_if.hpp>
 
 namespace
 {
@@ -29,20 +30,17 @@ unsigned calculateTimeToBuild(const Materials& cost)
 }
 bool areRequirementsSatisfied(const Building& buidlingToCheck, const Buildings& buildings, const Researchs& researchs)
 {
-    auto reqs = std::find_if(knowledgeData.requirements.buildings.begin(),
-                             knowledgeData.requirements.buildings.end(),
-                             [&](auto& req){return req.name == buidlingToCheck;});
+    auto reqs = ranges::find_if(knowledgeData.requirements.buildings, 
+                                [&](auto& req){return req.name == buidlingToCheck;});
     if(reqs == knowledgeData.requirements.buildings.end())
     {
         throw "no elo 123";
     }
-    return std::all_of(reqs->requirements.buildings.begin(),
-                       reqs->requirements.buildings.end(),
-                       [&](auto& req){return req.name.value(buildings) >= req.level;})
+    return ranges::all_of(reqs->requirements.buildings,
+                         [&](auto& req){return req.name.value(buildings) >= req.level;})
            and
-           std::all_of(reqs->requirements.researchs.begin(),
-                       reqs->requirements.researchs.end(),
-                       [&](auto& req){return req.name.value(researchs) >= req.level;});
+           ranges::all_of(reqs->requirements.researchs,
+                          [&](auto& req){return req.name.value(researchs) >= req.level;});
 }
 }
 

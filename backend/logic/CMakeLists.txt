@@ -27,5 +27,5 @@ add_library(Logic::Logic ALIAS Logic)
 set (CMAKE_CXX_STANDARD 17)
 set_property(TARGET Logic PROPERTY CXX_STANDARD 17)
 target_include_directories(Logic PUBLIC .)
-target_link_libraries(Logic Data::Data DatabaseInterface::DatabaseInterface Knowledge::Knowledge)
+target_link_libraries(Logic Data::Data DatabaseInterface::DatabaseInterface Knowledge::Knowledge range-v3::range-v3)
 

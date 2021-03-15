@@ -50,6 +50,11 @@ EMSCRIPTEN_BINDINGS(elo){
     function("forwardTime", +[](int seconds){processor.ttime.shiftTimeBy(Duration{seconds});});
 }
 
+int main()
+{
+    emscripten_set_main_loop(+[]{}, 0, 0);
+}
+
 /*EMSCRIPTEN_BINDINGS(elo){
     class_<Processor>("Processor")
     .constructor<>()

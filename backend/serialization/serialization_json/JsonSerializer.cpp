@@ -10,9 +10,7 @@ std::vector<uint8_t> JsonSerializer::serialize(const SerializableResponse& resp)
 }
 SerializableRequest JsonSerializer::deserialize(const std::vector<uint8_t>& stream) const
 {
-    logger.debug("Making json");
     Json j = Json::parse(stream.begin(), stream.end());
-    logger.debug("Made json");
-    logger.debug(j.dump());
+    logger.trace(j.dump());
     return deserializeTo<SerializableRequest>(j);
 }

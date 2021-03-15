@@ -45,3 +45,10 @@ FetchContent_declare(
     GIT_TAG v1.7.0)
 FetchContent_Populate(hana)
 add_subdirectory(${hana_SOURCE_DIR} ${hana_BINARY_DIR} EXCLUDE_FROM_ALL)
+
+FetchContent_declare(
+   rangev3 
+    GIT_REPOSITORY  https://github.com/ericniebler/range-v3.git
+    GIT_TAG 0.11.0)
+FetchContent_Populate(rangev3)
+add_subdirectory(${rangev3_SOURCE_DIR} ${rangev3_BINARY_DIR} EXCLUDE_FROM_ALL)
