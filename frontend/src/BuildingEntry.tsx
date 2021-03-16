@@ -57,8 +57,6 @@ function fillZeros(num: number) : string
 
 function formatTimeLeft(timeLeft : TimeLeft) : string
 {
-    let ret = "";
-
     return fillZeros(timeLeft.hours)
          + ":"
          + fillZeros(timeLeft.minutes)
