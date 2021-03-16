@@ -175,7 +175,7 @@ def dumpToHpp(name, fields):
 
 def dumpAliasOnlyToHpp(new_name, name):
     headers_list.append(new_name + ".hpp")
-    origPath = output_dir + "/" + name  + ".hpp"
+    origPath = output_dir + "/" + new_name  + ".hpp"
     tempPath = origPath + ".temp"
     with open(tempPath, "w") as fp:
         headers = []
