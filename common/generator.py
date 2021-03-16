@@ -148,8 +148,8 @@ def writeFieldToTs(field_type):
 
 def dumpToHpp(name, fields):
     headers_list.append(name + ".hpp")
-    origpath = output_dir + "/" + name  + ".hpp"
-    temppath = origpath + ".temp"
+    origPath = output_dir + "/" + name  + ".hpp"
+    tempPath = origPath + ".temp"
     with open(tempPath, "w") as fp:
         headers = ['<boost/hana/define_struct.hpp>']
         body = ["struct " + name,
@@ -175,8 +175,8 @@ def dumpToHpp(name, fields):
 
 def dumpAliasOnlyToHpp(new_name, name):
     headers_list.append(new_name + ".hpp")
-    origpath = output_dir + "/" + name  + ".hpp"
-    temppath = origpath + ".temp"
+    origPath = output_dir + "/" + name  + ".hpp"
+    tempPath = origPath + ".temp"
     with open(temppath, "w") as fp:
         headers = []
         [new_headers, new_field_type] = writeFieldToHpp(name)
