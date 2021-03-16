@@ -11,11 +11,20 @@ import RouterConnectivity from "./RouterConnectivity"
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { getIngameMiddleware } from "./middlewares/InGamePageProcedures"
 import { getLoginMiddleware } from "./middlewares/LoginPageProcedures"
+import configuration from "./Configuration"
+import {secondElapsed} from "./Actions"
 
 const conn = new RouterConnectivity();
 
 
 const store = createStore(combinedReducer, DEFAULT_STORE_STATE, composeWithDevTools(applyMiddleware(getIngameMiddleware(conn), getLoginMiddleware(conn))));
+
+if(configuration.realTime)
+{
+    window.setInterval(()=>{
+      store.dispatch(secondElapsed());
+    }, 1000);
+}
 
 ReactDOM.render(
 

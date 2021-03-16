@@ -45,6 +45,7 @@ type BuildingsPageProps = ReturnType<typeof mapStateToProps>;
 class BuildingsPage extends React.Component<BuildingsPageProps, never>
 {
     render(){
+        console.log("rendering BuildingsPage")
         return <div>
             <table className="entity-list">
             {getKeys(this.props.buildings).sort(buildingsOrderPred)

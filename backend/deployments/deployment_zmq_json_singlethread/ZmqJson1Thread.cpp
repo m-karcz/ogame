@@ -1,4 +1,3 @@
-
 #include <zmq.hpp>
 #include "RnDTime.hpp"
 #include "Logger.hpp"
@@ -7,6 +6,7 @@
 #include "Configuration.hpp"
 #include "JsonSerializer.hpp"
 #include "SingleInstance.hpp"
+#include "LoadConfiguration.hpp"
 
 int main()
 {
@@ -15,7 +15,7 @@ int main()
     ITime& time = rndTime;
     inMemory::StorageDbFactory dbFactory;
 
-    Configuration configuration{};
+    Configuration configuration = loadConfiguration("Configuration.json");
 
     JsonSerializer serializer;
 

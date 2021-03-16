@@ -9,25 +9,13 @@
 #include "BuildingsData.hpp"
 #include "BuildingQueue.hpp"
 #include "KnowledgeData.hpp"
+#include "Constants.hpp"
+#include "Configuration.hpp"
 #include <range/v3/algorithm/all_of.hpp>
 #include <range/v3/algorithm/find_if.hpp>
 
 namespace
 {
-unsigned calculateTimeToBuild(const Materials& cost)
-{
-    logger.debug("{} + {} = {}", cost.metal.toString(), cost.crystal.toString(), (cost.metal + cost.crystal).toString());
-    double costF = std::stod((cost.metal + cost.crystal).toString());
-
-    logger.debug("costF: {}", costF);
-
-    int robotics = 0;
-    int nanits = 0;
-
-    auto resp = 3600 * costF / (2500 * (1 + robotics) * std::pow(2, nanits));
-    logger.debug("calculated time to build: {}", resp);
-    return resp;
-}
 bool areRequirementsSatisfied(const Building& buidlingToCheck, const Buildings& buildings, const Researchs& researchs)
 {
     auto reqs = ranges::find_if(knowledgeData.requirements.buildings, 
@@ -73,7 +61,7 @@ BuildResponse BuildRequestHandler::handleAction(const BuildRequest& req)
 
         BuildingQueue queue{
                 .building = building,
-                .finishAt = timestamp + Duration{calculateTimeToBuild(cost)}
+                .finishAt = timestamp + Duration{timeToBuild(cost)}
         };
         planet.queueBuilding(queue);
         return {};
@@ -84,3 +72,17 @@ BuildResponse BuildRequestHandler::handleAction(const BuildRequest& req)
     return {};
 }
 
+Duration BuildRequestHandler::timeToBuild(const Materials& cost) const
+{
+    logger.debug("{} + {} = {}", cost.metal.toString(), cost.crystal.toString(), (cost.metal + cost.crystal).toString());
+    double costF = std::stod((cost.metal + cost.crystal).toString());
+
+    logger.debug("costF: {}", costF);
+
+    int robotics = planet.getBuildingLevel(cnst::roboticsFactory);
+    int nanits = planet.getBuildingLevel(cnst::naniteFactory);
+
+    auto resp = (int)std::max(3600 * costF / (2500 * (1 + robotics) * std::pow(2, nanits) * configuration.buildingSpeed), 1.0);
+    logger.debug("calculated time to build: {}", resp);
+    return Duration{resp};
+}

@@ -10,6 +10,7 @@ find_package(Boost 1.65 COMPONENTS program_options OPTIONAL)
 
 add_subdirectory(utils)
 add_subdirectory(data)
+add_subdirectory(configuration)
 add_subdirectory(knowledge)
 add_subdirectory(serialization)
 add_subdirectory(tests)

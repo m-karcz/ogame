@@ -10,12 +10,6 @@ endfunction(make_includable)
 
 set(INCLUDABLE_KNOWLEDGE_PATH ${CMAKE_CURRENT_BINARY_DIR}/Knowledge.json.wrapped)
 
-#get_property(KNOWLEDGE_PATH_PROPERTY GLOBAL PROPERTY KNOWLEDGE_PATH)
-
-message(STATUS "no elo")
-message(STATUS ${KNOWLEDGE_PATH})
-message(STATUS ${INCLUDABLE_KNOWLEDGE_PATH})
-
 make_includable(${KNOWLEDGE_PATH} ${INCLUDABLE_KNOWLEDGE_PATH})
 
 add_library(Knowledge KnowledgeData.hpp KnowledgeData.cpp)

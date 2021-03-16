@@ -6,9 +6,10 @@ target_link_options(wasm_sync PRIVATE "-sMODULARIZE=1")
 target_link_options(wasm_sync PRIVATE "-sASSERTIONS=2")
 target_link_options(wasm_sync PRIVATE "-sEXTRA_EXPORTED_RUNTIME_METHODS=[writeAsciiToMemory,AsciiToString]")
 target_link_options(wasm_sync PRIVATE "-sEXPORT_NAME=makeBackend")
+target_link_options(wasm_sync PRIVATE --embed-file ${CONFIGURATION_PATH}@Configuration.json)
 target_link_options(wasm_sync PRIVATE "-o wasmtest.html")
 #target_link_options(wasm_sync PRIVATE "-sWASM_ASYNC_COMPILATION=0")
-target_link_libraries(wasm_sync DatabaseInMemory::DatabaseInMemory SerializationJson::SerializationJson RnD::RnD DeploymentCommon::DeploymentCommon)
+target_link_libraries(wasm_sync DatabaseInMemory::DatabaseInMemory SerializationJson::SerializationJson RnD::RnD DeploymentCommon::DeploymentCommon Configuration::Configuration)
 
 
 add_custom_command(OUTPUT time_forwarder.py

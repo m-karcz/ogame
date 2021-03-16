@@ -3,27 +3,24 @@
 #include "StorageDbFactory.hpp"
 #include <iostream>
 #include "Configuration.hpp"
+#include "Time.hpp"
 #include "JsonSerializer.hpp"
 #include "SingleInstance.hpp"
 #include <emscripten.h>
 #include <emscripten/bind.h>
 #include "Logger.hpp"
-
-const auto test = [](){
-    EM_ASM({console.log("global initialized")});
-    return 5;
-}();
-
+#include "LoadConfiguration.hpp"
 
 struct Processor
 {
-    RnDTime rndTime{};
-    ITime& ttime = rndTime;
     inMemory::StorageDbFactory dbFactory{};
-    Configuration configuration{};
+    Configuration configuration = loadConfiguration("/Configuration.json");
+    RnDTime rndTime{};
+    Time time;
+    ITime& ttime = configuration.realTime ? (ITime&)time : (ITime&)rndTime;
     JsonSerializer serializer{};
     std::shared_ptr<IStorageDb> db = dbFactory.create();
-    Service service{*db, ttime};
+    Service service{*db, ttime, configuration};
     RnDService rndService{ttime};
     SingleInstance instanceee{serializer, configuration, ttime, dbFactory};
 

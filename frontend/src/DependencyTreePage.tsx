@@ -24,11 +24,6 @@ function renderRequirement(req: RequirementsForBuilding | RequirementsForResearc
     const renderSingleReq = (r: BuildingRequirement | ResearchRequirement) => {
         return <div>{prettyName(r.name)}(Level {r.level})</div>
     }
-    /*return <tr>
-        <th>{prettyName(req.name)}</th>
-        <th>{req.requirements.buildings.map(renderSingleReq)}
-            {req.requirements.researchs.map(renderSingleReq)}</th>
-    </tr>*/
 
     return <><div className={"entity-entry"}>
         {prettyName(req.name)}

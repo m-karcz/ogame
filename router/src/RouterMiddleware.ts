@@ -19,6 +19,8 @@ import { BUILDINGS_LIST_RESPONSE,
         StorageResponse,
          BuildingsListResponse,
          BuildingQueueResponse,
+         RefreshContextRequest,
+         RefreshContextResponse,
         StartBuildingActionRequest,
         StartBuildingActionResponse,
         PlayerId,
@@ -128,6 +130,15 @@ export class RouterMiddleware
                 percentages: pick<ProductionPercentagesResponse>(PRODUCTION_PERCENTAGES_RESPONSE)(resp).percentages,
                 production: pick<ProductionInformationResponse>(PRODUCTION_INFORMATION_RESPONSE)(resp).production
             }
+        }
+    }
+    async refreshContext(playerId: PlayerId, req: RefreshContextRequest) : Promise<RefreshContextResponse>
+    {
+        const onPlanet = new OnPlanetRequestBuilder(playerId, req.planet).addContext().msg;
+        const resp = await this.backend.onPlanetRequest(onPlanet);
+
+        return {
+            context: pickContext(resp, req.planet),
         }
     }
     backend: IRouter

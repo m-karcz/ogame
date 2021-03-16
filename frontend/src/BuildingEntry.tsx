@@ -28,6 +28,45 @@ const mapStateToProps = (state: Store) => ({
     queue: getBuildingQueue(state)
 })
 
+type TimeLeft = {
+    hours : number,
+    minutes : number,
+    seconds : number
+}
+
+function secondsToTimeLeft(rawSeconds: number) : TimeLeft
+{
+    const seconds = rawSeconds % 60;
+    const minutes = (rawSeconds - seconds) / 60;
+    const hours = (rawSeconds - minutes * 60 - seconds) / 3600;
+    return {
+        hours : hours,
+        minutes : minutes,
+        seconds : seconds
+    }
+}
+
+function fillZeros(num: number) : string
+{
+    if(num < 10)
+    {
+        return "0" + num;
+    }
+    return "" + num;
+}
+
+function formatTimeLeft(timeLeft : TimeLeft) : string
+{
+    let ret = "";
+
+    return fillZeros(timeLeft.hours)
+         + ":"
+         + fillZeros(timeLeft.minutes)
+         + ":"
+         + fillZeros(timeLeft.seconds);
+}
+
+
 function calculateCost(name: Building, level: number) : CalculatedCost
 {
     function calc(init: number, multiplier: number, level: number) : number
@@ -79,7 +118,7 @@ class BuildingEntry extends React.Component<PropsFromParent & ReturnType<typeof 
     {
         if(this.props.queue?.building! === this.props.buildingName)
         {
-            return <div><span id="timeToFinishBuilding">{this.props.queue?.timeToFinish!}</span></div>
+            return <div><span id="timeToFinishBuilding">{formatTimeLeft(secondsToTimeLeft(this.props.queue?.timeToFinish!))}</span></div>
         }
         else
         {

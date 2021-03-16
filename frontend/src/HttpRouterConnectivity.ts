@@ -10,6 +10,8 @@ import {UserCredentials,
          PlanetLocation,
          OverviewViewRequest,
          OverviewViewResponse,
+         RefreshContextRequest,
+         RefreshContextResponse,
         ProductionInformationViewRequest,
         ProductionInformationViewResponse } from "./generated/AllGenerated"
 
@@ -58,5 +60,9 @@ export default class RouterConnectivity implements IRouterConnectivity
     beginBuilding(planet: PlanetLocation, building: Building) : Promise<StartBuildingActionResponse>
     {
         return fetchAs<StartBuildingActionResponse>("/game/startBuilding", {planet: planet, building: building} as StartBuildingActionRequest);
+    }
+    refreshContext(planet: PlanetLocation) : Promise<RefreshContextResponse>
+    {
+        return fetchAs<RefreshContextResponse>("/game/context", {planet: planet} as RefreshContextRequest);
     }
 }

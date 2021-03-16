@@ -44,13 +44,15 @@ export const loginSucceeded = createAction<ChosenPlanetPayload>("login/succeeded
 export const loadOverviewPage = createAction<PlanetPayload>("ingame/overviewPage");
 export const loadBuildingsPage = createAction<PlanetPayload>("ingame/buildingsPage");
 export const loadResourcesPage = createAction<PlanetPayload>("ingame/resourcesPage");
-export const loadDependencyTreePage = createAction("ingame/dependencyTreePage");
+export const loadDependencyTreePage = createAction<PlanetPayload>("ingame/dependencyTreePage");
 export const startBuilding = createAction<BuildingPayload>("ingame/startBuilding");
 export const contextUpdated = createAction<GeneralContext>("ingame/contextUpdated");
 export const overviewLoaded = createAction("ingame/overviewLoaded");
 export const dependencyTreeLoaded = createAction<DependenciesPayload>("ingame/dependencyTreeLoaded");
 export const buildingsLoaded = createAction<BuildingsLoadedPayload>("ingame/buildingsLoaded");
 export const resourcesLoaded = createAction<ProductionInformation>("ingame/resourcesLoaded");
+export const refreshPage = createAction("ingame/refresh");
+export const secondElapsed = createAction("ingame/secondElapsed");
 
 interface WithContext
 {

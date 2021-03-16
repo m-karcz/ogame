@@ -19,6 +19,7 @@ if(EMSCRIPTEN)
         COMMAND cp ../router/src/RouterMiddleware.ts       ./src/
         COMMAND cp ../router/src/OnPlanetRequestBuilder.ts ./src/
         COMMAND cp ../common/knowledge/Knowledge.json      ./src/
+        COMMAND cp ../common/configuration/Configuration.json ./src/
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 else()
     execute_process(
@@ -28,6 +29,7 @@ else()
     execute_process(
         COMMAND cp ${GENERATED_PATH} ./src/ -r
         COMMAND cp ../common/knowledge/Knowledge.json ./src/
+        COMMAND cp ../common/configuration/Configuration.json ./src/
         COMMAND rm ./src/IRouter.ts -f
         COMMAND rm ./src/RouterMiddleware.ts -f
         COMMAND rm ./src/OnPlanetRequestBuilder.ts -f

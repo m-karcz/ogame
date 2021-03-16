@@ -1,11 +1,20 @@
 add_executable(zmq_json_1thread ZmqJson1Thread.cpp)
 target_compile_features(zmq_json_1thread PRIVATE cxx_std_17)
-target_link_libraries(zmq_json_1thread DatabaseInMemory::DatabaseInMemory SerializationJson::SerializationJson RnD::RnD cppzmq DeploymentCommon::DeploymentCommon)
+target_link_libraries(zmq_json_1thread DatabaseInMemory::DatabaseInMemory SerializationJson::SerializationJson RnD::RnD cppzmq DeploymentCommon::DeploymentCommon Configuration::Configuration)
 
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Configuration.json
+                   COMMAND ln -sf ${CONFIGURATION_PATH} ${CMAKE_CURRENT_BINARY_DIR}/Configuration.json 
+                   DEPENDS ${CONFIGURATION_PATH})
+
+add_custom_target(put_configuration
+                  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Configuration.json)
+
+add_dependencies(zmq_json_1thread put_configuration)
 
 add_executable(RnDZmqTimeForwarderApp RnDZmqTimeForwarderApp.cpp)
 target_compile_features(RnDZmqTimeForwarderApp PRIVATE cxx_std_17)
 target_link_libraries(RnDZmqTimeForwarderApp SerializationJson::SerializationJson cppzmq Data::Data)
+
 
 
 add_custom_command(OUTPUT time_forwarder.py

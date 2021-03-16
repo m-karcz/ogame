@@ -12,6 +12,8 @@ import { PlanetLocation,
          OnPlanetResponseData,
          OnPlanetRequest,
          LoginResponse,
+         RefreshContextResponse,
+         RefreshContextRequest,
          SerializableRequest,
          SerializableResponse,
          RegisterResponse,
@@ -131,5 +133,9 @@ export default class RouterConnectivity implements IRouterConnectivity
     loadResourcesPage(planet: PlanetLocation) : Promise<ProductionInformationViewResponse>
     {
         return middleware.queryProduction({id: 0} as PlayerId, {planet: planet} as ProductionInformationViewRequest);
+    }
+    refreshContext(planet: PlanetLocation) : Promise<RefreshContextResponse>
+    {
+        return middleware.refreshContext({id: 0} as PlayerId, {planet: planet} as RefreshContextRequest);
     }
 }

@@ -6,6 +6,7 @@ import {Buildings,
         ProductionInformation,
         Researchs } from "./generated/AllGenerated"
 
+
 export enum LoginState
 {
     none = 0,
@@ -189,4 +190,22 @@ export function getBuildingQueue(store: Store)
 export function getTotalProduction(store: Store)
 {
     return (getIngamePageState(store).innerPage as ResourcesPageState).production;
+}
+
+export function shouldRefreshDueToDone(store: Store)
+{
+  if(store.page.type === INGAME_PAGE)
+  {
+    if(store.page.innerPage.type === BUILDINGS_PAGE)
+    {
+      if(store.page.innerPage.queue)
+      {
+        if(store.page.innerPage.queue.timeToFinish < 1)
+        {
+            return true;
+        }
+      }
+    }
+  }
+  return false;
 }

@@ -7,11 +7,12 @@
 #include "OnPlanetRequest.hpp"
 #include "OnPlanetResponse.hpp"
 
+struct Configuration;
 
 
 struct Service
 {
-    Service(IStorageDb& storageDb, ITime& time) : storageDb{storageDb}, time{time}
+    Service(IStorageDb& storageDb, ITime& time, const Configuration& configuration) : storageDb{storageDb}, time{time}, configuration{configuration}
     {}
     GeneralResponse handleRequest(const GeneralRequest&);
     OnPlanetResponse handleSinglePlanetRequest(const OnPlanetRequest&);
@@ -20,4 +21,5 @@ private:
     RegisterResponse handle(const RegisterRequest&);
     IStorageDb& storageDb;
     ITime& time;
+    const Configuration& configuration;
 };

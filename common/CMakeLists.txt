@@ -16,5 +16,6 @@ execute_process(COMMAND python3 generator.py ${GENERATED_PATH}
 
 
 add_subdirectory(knowledge)
+add_subdirectory(configuration)
 add_subdirectory(${OUTDIR} ${OUTDIR})
 

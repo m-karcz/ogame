@@ -1,8 +1,42 @@
 import {Reducer, AnyAction} from "redux"
-import {overviewLoaded, registerRequest, loginSucceeded, loginRequest, registerSuccessful, contextUpdated, buildingsLoaded, resourcesLoaded, dependencyTreeLoaded} from "./Actions"
-import {Store, LoginState, RegisterState, DEFAULT_STORE_STATE, getLoginPageState, getLoginFormState, OVERVIEW_PAGE, INGAME_PAGE, getIngamePageState, getChosenPlanet, BUILDINGS_PAGE, getEmptyContextWithChosen, RESOURCES_PAGE, DEPENDENCY_TREE_PAGE} from "./Store";
+import {overviewLoaded, registerRequest, loginSucceeded, loginRequest, registerSuccessful, contextUpdated, buildingsLoaded, resourcesLoaded, dependencyTreeLoaded, secondElapsed} from "./Actions"
+import {Store, LoginState, RegisterState, DEFAULT_STORE_STATE, getLoginPageState, getLoginFormState, OVERVIEW_PAGE, INGAME_PAGE, getIngamePageState, getChosenPlanet, BUILDINGS_PAGE, getEmptyContextWithChosen, RESOURCES_PAGE, DEPENDENCY_TREE_PAGE, getBuildingQueue} from "./Store";
 
 //type LoginFormAction = LoginSubmitAction | RegisterSubmitAction | LoginSuccessfulAction | RegisterSuccessfulAction;
+
+function reduceIfInitialized(queue: ReturnType<typeof getBuildingQueue>)
+{
+  if(queue)
+  {
+    return {
+      ...queue,
+      timeToFinish: queue.timeToFinish - 1,
+    }
+  }
+  return queue;
+}
+
+
+function reduceSecond(state: Store)
+{
+  if(state.page.type === INGAME_PAGE)
+  {
+    if(state.page.innerPage.type === BUILDINGS_PAGE)
+    {
+      return {
+        ...state,
+        page : {
+          ...getIngamePageState(state),
+          innerPage: {
+            ...getIngamePageState(state).innerPage,
+            queue: reduceIfInitialized(getBuildingQueue(state))
+          }
+        }
+      }
+    }
+  }
+  return state;
+}
 
 const myReducer : Reducer<Store, AnyAction> = (state = DEFAULT_STORE_STATE, action) => {
 
@@ -108,7 +142,10 @@ const myReducer : Reducer<Store, AnyAction> = (state = DEFAULT_STORE_STATE, acti
         }
       }
     }
-
+  else if(secondElapsed.match(action))
+  {
+    return reduceSecond(state);
+  }
   else
     return state
 }

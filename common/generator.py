@@ -1,6 +1,7 @@
 from yaml import load
 import sys
 import re
+import subprocess
 
 output_dir = sys.argv[1]
 
@@ -147,7 +148,9 @@ def writeFieldToTs(field_type):
 
 def dumpToHpp(name, fields):
     headers_list.append(name + ".hpp")
-    with open(output_dir + "/" + name + ".hpp", "w") as fp:
+    origpath = output_dir + "/" + name  + ".hpp"
+    temppath = origpath + ".temp"
+    with open(tempPath, "w") as fp:
         headers = ['<boost/hana/define_struct.hpp>']
         body = ["struct " + name,
                 "{",
@@ -167,10 +170,14 @@ def dumpToHpp(name, fields):
         fp.write("\n".join(["#include " + header for header in headers]))
         fp.write("\n\n")
         fp.write("\n".join(body))
+    
+    subprocess.run(["./moveIfDiffers.sh", tempPath, origPath])
 
 def dumpAliasOnlyToHpp(new_name, name):
     headers_list.append(new_name + ".hpp")
-    with open(output_dir + "/" + new_name + ".hpp", "w") as fp:
+    origpath = output_dir + "/" + name  + ".hpp"
+    temppath = origpath + ".temp"
+    with open(temppath, "w") as fp:
         headers = []
         [new_headers, new_field_type] = writeFieldToHpp(name)
         headers.extend(new_headers)
@@ -180,6 +187,8 @@ def dumpAliasOnlyToHpp(new_name, name):
         fp.write("\n".join(["#include " + header for header in headers]))
         fp.write("\n\n")
         fp.write("\n".join(body))
+
+    subprocess.run(["./moveIfDiffers.sh", tempPath, origPath])
 
 def dumpAliasOnlyToTs(new_name, name):
     ts_list.add(new_name)

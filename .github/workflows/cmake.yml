@@ -74,7 +74,7 @@ jobs:
     - name: Build WASM deployment
       working-directory: ${{runner.workspace}}/build-wasm
       shell: bash
-      run: emmake make frontend -j
+      run: emcmake cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DDEMO=1 && emmake make frontend -j
 
     - name: Publsih WASM deployment
       uses: JamesIves/github-pages-deploy-action@4.0.0

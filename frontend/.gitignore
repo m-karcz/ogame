@@ -28,3 +28,4 @@ src/IRouter.ts
 src/RouterMiddleware.ts
 src/OnPlanetRequestBuilder.ts
 src/Knowledge.json
+src/Configuration.json

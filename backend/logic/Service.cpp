@@ -78,7 +78,7 @@ OnPlanetResponse Service::handleSinglePlanetRequest(const OnPlanetRequest& reque
     auto playerHandle = storageDb.queryPlayer(request.playerId);
     auto planetHandle = playerHandle->getPlanet(request.planet);
 
-    SinglePlanetContext ctx{*playerHandle, *planetHandle, time.getTimestamp()};
+    SinglePlanetContext ctx{*playerHandle, *planetHandle, time.getTimestamp(), configuration};
 
     evaluateTimeline(ctx);
 

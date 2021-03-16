@@ -9,7 +9,7 @@ const mapDispatchToProps = (dispatch: any) => (
   onOverviewClick: (planet: PlanetLocation) => dispatch(loadOverviewPage({planet: planet})),
   onBuildingsClick: (planet: PlanetLocation) => dispatch(loadBuildingsPage({planet: planet})),
   onResourcesClick: (planet: PlanetLocation) => dispatch(loadResourcesPage({planet: planet})),
-  onDependencyTreeClick: () => dispatch(loadDependencyTreePage())
+  onDependencyTreeClick: (planet: PlanetLocation) => dispatch(loadDependencyTreePage({planet: planet}))
 })
 
 const mapStateToProps = (state: Store) =>
@@ -33,7 +33,7 @@ class Menu extends React.Component<MenuProps, never>{
   onOverviewClick = () => this.props.onOverviewClick(this.props.planet);
   onBuildingsClick = () => this.props.onBuildingsClick(this.props.planet);
   onResourcesClick = () => this.props.onResourcesClick(this.props.planet);
-  onDependencyTreeClick = () => this.props.onDependencyTreeClick();
+  onDependencyTreeClick = () => this.props.onDependencyTreeClick(this.props.planet);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Menu)

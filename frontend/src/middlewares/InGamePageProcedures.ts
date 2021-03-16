@@ -1,11 +1,32 @@
 import {Middleware} from "redux"
 import IRouterConnectivity from "../IRouterConnectivity"
-import {resourcesLoaded, loadResourcesPage, loadOverviewPage, loadBuildingsPage, buildingsLoaded, overviewLoaded, startBuilding, getContextUpdated, loadDependencyTreePage, dependencyTreeLoaded} from "../Actions"
-import {getChosenPlanet} from "../Store"
+import {resourcesLoaded, loadResourcesPage, loadOverviewPage, loadBuildingsPage, buildingsLoaded, overviewLoaded, startBuilding, getContextUpdated, loadDependencyTreePage, dependencyTreeLoaded, refreshPage, secondElapsed} from "../Actions"
+import {DEPENDENCY_TREE_PAGE, getChosenPlanet, getIngamePageState, OVERVIEW_PAGE, RESOURCES_PAGE, BUILDINGS_PAGE, Store, shouldRefreshDueToDone} from "../Store"
 import {GeneralContext,
         BuildingsViewResponse,
+        PlanetLocation,
         ProductionInformationViewResponse } from "../generated/AllGenerated"
 
+
+function chooseRefreshAction(store: Store, planet: PlanetLocation | null = null)
+{
+    if(planet === null)
+    {
+        planet = getChosenPlanet(store);
+    }
+    const payload = {planet: planet};
+    switch(getIngamePageState(store).innerPage.type)
+    {
+        case OVERVIEW_PAGE:
+            return loadOverviewPage(payload);
+        case BUILDINGS_PAGE:
+            return loadBuildingsPage(payload);
+        case RESOURCES_PAGE:
+            return loadResourcesPage(payload);
+        case DEPENDENCY_TREE_PAGE:
+            return loadDependencyTreePage(payload);
+    }
+}
 
 export function getIngameMiddleware(conn: IRouterConnectivity) : Middleware
 {
@@ -38,7 +59,19 @@ export function getIngameMiddleware(conn: IRouterConnectivity) : Middleware
         }
         else if(loadDependencyTreePage.match(action))
         {
-            dispatch(dependencyTreeLoaded({}));
+            conn.refreshContext(getPlanet()).then(resp => {updateContext(resp);
+                                                           dependencyTreeLoaded({})});
+        }
+        else if(refreshPage.match(action))
+        {
+            dispatch(chooseRefreshAction(store.getState()));
+        }
+        else if(secondElapsed.match(action))
+        {
+            if(shouldRefreshDueToDone(store.getState()))
+            {
+                dispatch(refreshPage());
+            }
         }
 
         next(action);
