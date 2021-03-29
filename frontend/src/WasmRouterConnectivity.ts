@@ -20,6 +20,7 @@ import { PlanetLocation,
          UserCredentials,
          GENERAL_REQUEST,
          LOGIN_REQUEST,
+         LOGIN_RESPONSE,
          PlayerId,
          Building,
          REGISTER_REQUEST,
@@ -44,7 +45,9 @@ interface WasmModule
     _free(ptr: number) : void
     processRequest(str: number) : number
     forwardTime(duration: number) : void
+    clearDb() : void
     writeAsciiToMemory(str: string, mem: number) : void
+    FileSystem : any
     AsciiToString(mem: number) : string
 }
 
@@ -54,6 +57,7 @@ declare global
 {
     interface Window {
         __forwardTime : (duration: number)=>void
+        __clearDb : ()=>void
     }
 }
 
@@ -64,6 +68,7 @@ class WasmBackend
         this.module = makeBackend()
         this.module.then((module)=>{
             window.__forwardTime = (duration: number)=>module.forwardTime(duration);
+            window.__clearDb = ()=>module.clearDb();
         })
     }
     async generalRequest(request: GeneralRequestData) : Promise<GeneralResponseData>
@@ -98,6 +103,12 @@ class WasmBackend
         const outputMem = module.processRequest(inputMem);
         const outputStr = module.AsciiToString(outputMem);
         module._free(outputMem);
+        await new Promise<void>(function(resolve){
+            module.FileSystem.syncfs(false, function(err: any){
+                console.log(err);
+                resolve();
+            })
+        });
         return JSON.parse(outputStr) as SerializableResponse;
     }
     module: Promise<WasmModule>
@@ -111,6 +122,10 @@ export default class RouterConnectivity implements IRouterConnectivity
     async tryLogin(credentials: UserCredentials) : Promise<LoginResponse>
     {
         const resp = await backend.generalRequest(asGeneralRequest({credentials: credentials}, LOGIN_REQUEST));
+        if(resp.type === LOGIN_RESPONSE)
+        {
+            this.playerId = resp.data.playerId;
+        }
         return resp.data as LoginResponse;
     }
     async tryRegister(credentials: UserCredentials) : Promise<RegisterResponse>
@@ -120,22 +135,24 @@ export default class RouterConnectivity implements IRouterConnectivity
     }
     loadOverviewPage(planet: PlanetLocation) : Promise<OverviewViewResponse>
     {
-        return middleware.overview({id: 0} as PlayerId, {planet: planet} as OverviewViewRequest);
+        return middleware.overview(this.playerId!, {planet: planet} as OverviewViewRequest);
     }
     loadBuildingsPage(planet: PlanetLocation) : Promise<BuildingsViewResponse>
     {
-        return middleware.buildingsView({id: 0} as PlayerId, {planet: planet} as BuildingsViewRequest);
+        return middleware.buildingsView(this.playerId!, {planet: planet} as BuildingsViewRequest);
     }
     beginBuilding(planet: PlanetLocation, building: Building) : Promise<StartBuildingActionResponse>
     {
-        return middleware.startBuilding({id: 0} as PlayerId, {planet: planet, building: building} as StartBuildingActionRequest);
+        return middleware.startBuilding(this.playerId!, {planet: planet, building: building} as StartBuildingActionRequest);
     }
     loadResourcesPage(planet: PlanetLocation) : Promise<ProductionInformationViewResponse>
     {
-        return middleware.queryProduction({id: 0} as PlayerId, {planet: planet} as ProductionInformationViewRequest);
+        return middleware.queryProduction(this.playerId!, {planet: planet} as ProductionInformationViewRequest);
     }
     refreshContext(planet: PlanetLocation) : Promise<RefreshContextResponse>
     {
-        return middleware.refreshContext({id: 0} as PlayerId, {planet: planet} as RefreshContextRequest);
+        return middleware.refreshContext(this.playerId!, {planet: planet} as RefreshContextRequest);
     }
+    playerId : PlayerId | null = null;
 }
+

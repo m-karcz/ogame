@@ -23,6 +23,7 @@ add_custom_command(
 add_custom_target(robot_tests
         COMMAND
             ${CMAKE_CURRENT_BINARY_DIR}/venv/bin/python -m robot --variable runRouter:${RUN_ROUTER} --variable testConfiguration:${TEST_CONFIGURATION_PATH}/test_configuration.json basic.robot
+        COMMAND pkill firefox
         DEPENDS
             venv.stamp
             prepare_router

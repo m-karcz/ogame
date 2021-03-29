@@ -4,7 +4,11 @@
 #include "RndResponse.hpp"
 #include "RnDTime.hpp"
 #include "TimeForwardResponse.hpp"
+#include "ClearDatabaseRequest.hpp"
+#include "ClearDatabaseResponse.hpp"
 #include <variant>
+
+struct IStorageDb;
 
 struct RnDService
 {
@@ -14,6 +18,8 @@ struct RnDService
     }
 
     TimeForwardResponse handle(const TimeForwardRequest&);
+    ClearDatabaseResponse handle(const ClearDatabaseRequest&);
 
     ITime& time;
+    IStorageDb& storageDb;
 };

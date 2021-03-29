@@ -8,5 +8,5 @@ add_library(DatabaseInMemory::DatabaseInMemory ALIAS DatabaseInMemory)
 set (CMAKE_CXX_STANDARD 17)
 set_property(TARGET DatabaseInMemory PROPERTY CXX_STANDARD 17)
 target_include_directories(DatabaseInMemory PUBLIC .)
-target_link_libraries(DatabaseInMemory DatabaseInterface::DatabaseInterface Utils::Utils)
+target_link_libraries(DatabaseInMemory DatabaseInterface::DatabaseInterface Utils::Utils DatabaseSQLite::DatabaseSQLite)
 

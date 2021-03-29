@@ -145,12 +145,16 @@ TimeForwardRequest:
 TimeForwardResponse:
   status: Status
 
-RndRequestData: union<TimeForwardRequest>
+ClearDatabaseRequest: {}
+
+ClearDatabaseResponse: {}
+
+RndRequestData: union<TimeForwardRequest,ClearDatabaseRequest>
 
 RndRequest:
   request: RndRequestData
 
-RndResponseData: union<TimeForwardResponse>
+RndResponseData: union<TimeForwardResponse,ClearDatabaseResponse>
 
 RndResponse:
   response: RndResponseData

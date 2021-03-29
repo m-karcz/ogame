@@ -19,5 +19,6 @@ struct IStorageDb
     virtual std::shared_ptr<IPlayerHandle> queryPlayer(const UserCredentials&) = 0;
     virtual std::shared_ptr<IPlayerHandle> queryPlayer(PlayerId) = 0;
     virtual bool registerPlayer(const UserCredentials&) = 0;
+    virtual void simulateVersionBreak() = 0;
     virtual ~IStorageDb() = default;
 };

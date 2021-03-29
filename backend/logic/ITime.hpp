@@ -2,9 +2,8 @@
 
 #include <chrono>
 #include "Timestamp.hpp"
+#include "Duration.hpp"
 
-using Timepoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::seconds>;
-using Duration = std::chrono::seconds;
 
 struct ITime
 {

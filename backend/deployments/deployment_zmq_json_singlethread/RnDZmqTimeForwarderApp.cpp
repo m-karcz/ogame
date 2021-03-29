@@ -1,8 +1,27 @@
 #include <zmq.hpp>
 #include <string>
 #include "TimeForwardRequest.hpp"
+#include "ClearDatabaseRequest.hpp"
 #include "SerializableRequest.hpp"
 #include "toJson.hpp"
+
+RndRequest parseReq(int argc, char* argv[])
+{
+    if(argc < 2)
+    {
+        throw std::logic_error{"empty parameters"};
+    }
+    std::string type = argv[1];
+    if(type == "forwardTime" and argc > 2)
+    {
+        return {TimeForwardRequest{.duration = Duration{std::stoi(argv[2])}}};
+    }
+    if(type == "clearDb")
+    {
+        return {ClearDatabaseRequest{}};
+    }
+    throw std::logic_error{"wrong parameters"};
+}
 
 int main(int argc, char* argv[])
 {
@@ -10,11 +29,8 @@ int main(int argc, char* argv[])
     {
         return -1;
     }
-    int timeInMilliseconds = std::stoi(argv[1]);
 
-    TimeForwardRequest timeReq{.duration = Duration{timeInMilliseconds}};
-
-    RndRequest req{RndRequestData{timeReq}};
+    RndRequest req{parseReq(argc, argv)};
 
     SerializableRequest serializable{req};
 

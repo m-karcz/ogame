@@ -1,4 +1,5 @@
 #include "ITime.hpp"
+#include "Logger.hpp"
 
 struct Time : ITime
 {
@@ -19,7 +20,7 @@ struct Time : ITime
 private:
     Timestamp getNow()
     {
-        return std::chrono::time_point_cast<Duration>(std::chrono::steady_clock::now());
+        return std::chrono::time_point_cast<Duration>(std::chrono::system_clock::now());
     }
     Timestamp referenceTime{};
     Timestamp timeOfReferenceTimeBeingSet{};

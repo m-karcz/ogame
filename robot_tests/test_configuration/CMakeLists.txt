@@ -2,9 +2,9 @@ add_custom_command(
     OUTPUT test_configuration.json
     DEPENDS
         test_configuration_template.json
-        time_forwarder
+        rnd_caller 
     COMMAND
-        sed \"s@TIME_FORWARDER_PATH@${TIME_FORWARDER_PATH}@g\" ${CMAKE_CURRENT_SOURCE_DIR}/test_configuration_template.json > ${CMAKE_CURRENT_BINARY_DIR}/test_configuration.json
+        sed \"s@RND_CALLER_PATH@${RND_CALLER_PATH}@g\" ${CMAKE_CURRENT_SOURCE_DIR}/test_configuration_template.json > ${CMAKE_CURRENT_BINARY_DIR}/test_configuration.json
 )
 
 set(TEST_CONFIGURATION_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")

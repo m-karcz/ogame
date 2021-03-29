@@ -111,8 +111,8 @@ RegisterResponse Service::handle(const RegisterRequest& req)
     auto res = storageDb.registerPlayer(req.credentials);
     if(res)
     {
-        PlanetLocation planetLoc = {.galaxy = 1, .solar = 1, .position = 7};
         auto player = storageDb.queryPlayer(req.credentials);
+        PlanetLocation planetLoc = {.galaxy = 1, .solar = player->getId().id, .position = 7};
         player->createPlanet(planetLoc, time.getTimestamp());
     }
     return RegisterResponse{.status = Ok{}/*res ? "ok" : "not ok"*/};

@@ -26,14 +26,29 @@ class OgameLib2:
         with open(testConf) as testConfFp:
             self.testConf = json.load(testConfFp)
 
+    def open_buildings(self):
+        self.click_id("goToBuildingsButton")
+
+    def click_id(self, name):
+        self.driver.find_element_by_id(name).click()
+        time.sleep(0.1)
+
 
     @keyword
     def open_site(self):
         self.driver.get(BASE_URL)
+        time.sleep(3)
+
+    @keyword
+    def close_site(self):
+        self.driver.close()
+        self.driver.quit()
 
     @keyword
     def get_ready(self):
-        self.open_site()
+        #self.open_site()
+        #self.clear_database()
+        #time.sleep(0.1)
         self.register_and_login_on()
         self.assert_logged_in()
 
@@ -45,6 +60,7 @@ class OgameLib2:
         self.driver.find_element_by_xpath('//input[@value="Register"]').click()
         time.sleep(0.1)
         self.driver.find_element_by_xpath('//input[@value="Login"]').click()
+        time.sleep(0.1)
 
     @keyword
     def assert_logged_in(self):
@@ -53,29 +69,35 @@ class OgameLib2:
 
     @keyword
     def assert_that_any_building_is_ongoing(self):
+        self.open_buildings()
         if not any(self.driver.find_elements_by_id("timeToFinishBuilding")):
             raise RuntimeError("no ongoing building")
 
     @keyword
     def assert_that_no_building_is_ongoing(self):
-        self.driver.find_element_by_id("goToBuildingsButton").click()
-        time.sleep(0.1)
+        self.open_buildings()
         if any(self.driver.find_elements_by_id("timeToFinishBuilding")):
             raise RuntimeError("ongoing building")
 
     @keyword
     def forward_time(self, amount):
-        time_forwarder_path = self.testConf["time_forwarder_path"]
-        if time_forwarder_path not in sys.path:
-            sys.path.append(os.path.abspath(time_forwarder_path))
-        from time_forwarder import forward_time
+        rnd_caller_path = self.testConf["rnd_caller_path"]
+        if rnd_caller_path not in sys.path:
+            sys.path.append(os.path.abspath(rnd_caller_path))
+        from rnd_caller import forward_time
         forward_time(int(amount), self.driver)
 
     @keyword
+    def clear_database(self):
+        rnd_caller_path = self.testConf["rnd_caller_path"]
+        if rnd_caller_path not in sys.path:
+            sys.path.append(os.path.abspath(rnd_caller_path))
+        from rnd_caller import clear_database
+        clear_database(self.driver)
+
+    @keyword
     def start_building(self, building):
-        self.driver.find_element_by_id("goToBuildingsButton").click()
-        time.sleep(0.1)
-        self.driver.find_element_by_id("build_" + human2pascal(building)).click()
-        time.sleep(0.1)
+        self.open_buildings()
+        self.click_id("build_" + human2pascal(building))
 
          

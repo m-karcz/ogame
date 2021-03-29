@@ -25,9 +25,12 @@ Start Router
 	${servProcLoc} = 	Start Process 	${runRouter}
 	Set Test Variable	${servProc}	${servProcLoc}
 	Sleep	1s
+	Open Site
 
 Stop Router
 	#No Operation
+	Clear Database
+	Close Site
 	Terminate Process	handle=${servProc}	kill=True
 
 *** Settings ***
@@ -51,8 +54,7 @@ Test Teardown	Stop Router
 
 TestNewFramework
 	Log	elo ${runRouter}
-	Open Site
-	Sleep	2s
+	Sleep	1s
 	Register And Login On
 	Assert Logged In
 

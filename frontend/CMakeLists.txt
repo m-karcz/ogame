@@ -1,17 +1,17 @@
-add_custom_command(OUTPUT frontend_npm.stamp
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/frontend_npm.stamp
                    COMMAND npm install
-                   COMMAND touch frontend_npm.stamp
                    COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/frontend_npm.stamp
                    DEPENDS package.json
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_custom_target(frontend_npm_install
-                  DEPENDS frontend_npm.stamp)
+		 DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/frontend_npm.stamp)
 
 if(EMSCRIPTEN)
     execute_process(
         COMMAND bash unhideWasm.sh 
         COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/src/WasmRouterConnectivity.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/RouterConnectivity.ts
+        COMMAND rm -f ${CMAKE_CURRENT_BINARY_DIR}/frontend_cmd
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     execute_process(
         COMMAND cp ${GENERATED_PATH}                       ./src/ -r
@@ -25,6 +25,7 @@ else()
     execute_process(
         COMMAND bash hideWasm.sh 
         COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/src/HttpRouterConnectivity.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/RouterConnectivity.ts
+        COMMAND rm -f ${CMAKE_CURRENT_BINARY_DIR}/frontend_cmd
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     execute_process(
         COMMAND cp ${GENERATED_PATH} ./src/ -r
@@ -44,7 +45,7 @@ add_custom_command(OUTPUT frontend_cmd
                    DEPENDS ${frontend_src}
                    DEPENDS package.json
                    DEPENDS tsconfig.json
-                   DEPENDS frontend_npm.stamp
+                   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/frontend_npm.stamp
                    COMMAND npm run build --prefix ${CMAKE_CURRENT_SOURCE_DIR}
                    COMMAND touch frontend_cmd)
 

@@ -10,7 +10,7 @@ SingleInstance::SingleInstance(const ISerializer& serializer, const Configuratio
     , storageDb{storageDbFactory.create()}
     , time{time}
     , service{*storageDb,time,configuration}
-    , rndService{time}
+    , rndService{time,*storageDb}
 {
 
 }

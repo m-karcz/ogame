@@ -13,11 +13,19 @@ int main()
     logger.debug("Starting main");
     RnDTime rndTime;
     ITime& time = rndTime;
-    inMemory::StorageDbFactory dbFactory;
+    sqlitedb::StorageDbFactory dbFactory{"testtest.db"};
 
-    Configuration configuration = loadConfiguration("Configuration.json");
+    logger.debug("Loading configuration");
+
+    Configuration configuration = loadConfiguration(CONFIGURATION_FILE_DIR "Configuration.json");
+
+    logger.debug("Loaded configuration");
 
     JsonSerializer serializer;
+
+    logger.debug("Starting instance");
+
+    dbFactory.cleanIfNeeded();
 
     SingleInstance instance{serializer, configuration, time, dbFactory};
 

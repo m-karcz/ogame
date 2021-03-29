@@ -9,19 +9,21 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 #include "Logger.hpp"
+#include "RndRequest.hpp"
 #include "LoadConfiguration.hpp"
 
 struct Processor
 {
-    inMemory::StorageDbFactory dbFactory{};
+    sqlitedb::StorageDbFactory dbFactory{"/sqlite/testtest.db"};
     Configuration configuration = loadConfiguration("/Configuration.json");
     RnDTime rndTime{};
     Time time;
     ITime& ttime = configuration.realTime ? (ITime&)time : (ITime&)rndTime;
     JsonSerializer serializer{};
+    int dbCheck = (dbFactory.cleanIfNeeded(), 0);
     std::shared_ptr<IStorageDb> db = dbFactory.create();
     Service service{*db, ttime, configuration};
-    RnDService rndService{ttime};
+    RnDService rndService{ttime, *db};
     SingleInstance instanceee{serializer, configuration, ttime, dbFactory};
 
 int processRequest(int rawRequest)
@@ -36,19 +38,45 @@ int processRequest(int rawRequest)
 }
 };
 
-Processor processor;
+std::unique_ptr<Processor> processor;
 
 
 
 using namespace emscripten;
 
 EMSCRIPTEN_BINDINGS(elo){
-    function("processRequest", +[](int ptr)->int{return processor.processRequest(ptr);});
-    function("forwardTime", +[](int seconds){processor.ttime.shiftTimeBy(Duration{seconds});});
+    function("init", +[](void)->void{processor = std::make_unique<Processor>();});
+    function("processRequest", +[](int ptr)->int{return processor->processRequest(ptr);});
+    function("forwardTime", +[](int seconds){processor->ttime.shiftTimeBy(Duration{seconds});});
+    //function("clearDb", +[](){processor->instanceee.storageDb->clearAndRecreate();});
+    function("clearDb", +[](){processor->rndService.handleRequest(RndRequest{.request = ClearDatabaseRequest{}});
+        EM_ASM({
+            FS.syncfs(false, function(err){
+                console.log(err);
+                window.location.reload(true);
+            });
+        });
+        /*EM_ASM({
+            window.indexedDB.deleteDatabase("/sqlite");
+            window.location.reload(true);
+        });*/
+
+        //EM_ASM({})
+    
+    });
 }
 
 int main()
 {
+    EM_ASM({
+        Module.FileSystem = FS;
+        FS.mkdir("/sqlite");
+        FS.mount(IDBFS, {}, '/sqlite');
+        FS.syncfs(true, function(err){
+            console.log(err);
+            Module.init();
+        });
+    });
     emscripten_set_main_loop(+[]{}, 0, 0);
 }
 
