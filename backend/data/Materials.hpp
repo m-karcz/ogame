@@ -2,15 +2,10 @@
 
 #include "BigNum.hpp"
 #include "Storage.hpp"
+#include "Cost.hpp"
 
-struct Materials
-{
-    BigNum metal;
-    BigNum crystal;
-    BigNum deuter;
-};
 
-inline bool hasEnoughToPay(const Materials& required, const Storage& storage)
+inline bool hasEnoughToPay(const Cost& required, const Storage& storage)
 {
     return not(storage.metal < required.metal)
        and not(storage.crystal < required.crystal)

@@ -79,6 +79,12 @@ Storage:
   crystal: BigNum
   deuter: BigNum
 
+Materials:
+  metal: BigNum
+  crystal: BigNum
+  deuter: BigNum
+  energy: BigNum
+
 StorageRequest: {}
 
 StorageResponse:
@@ -168,14 +174,17 @@ SerializableResponse:
   transactionId: int
 
 Cost:
-  multiplier: BigNum
   metal: BigNum
   crystal: BigNum
   deuter: BigNum
   energy: BigNum
 
+CostWithMultiplier:
+  multiplier: BigNum
+  baseCost: Cost
+
 BuildingCost:
-  cost: Cost
+  cost: CostWithMultiplier
   name: Building
 
 BuildingRequirement:
@@ -200,6 +209,7 @@ RequirementsForResearch:
 
 AllRequirements:
   buildings: RequirementsForBuilding[]
+  researchs: RequirementsForResearch[]
 
 BaseProduction:
   production: int

@@ -5,11 +5,11 @@
 
 struct BuildRequest;
 struct BuildResponse;
-struct Materials;
+struct Cost;
 
 struct BuildRequestHandler : SinglePlanetContext
 {
     BuildResponse handleAction(const BuildRequest&);
 private:
-    Duration timeToBuild(const Materials&) const;
+    Duration timeToBuild(const Cost&) const;
 };

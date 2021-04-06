@@ -37,7 +37,7 @@ function pick<T>(typename: string)
 		const elem = resp.find((elem) => elem.type === typename);
 		if(elem === undefined)
 		{
-			throw new Error("no elo");
+			throw new Error("Could not find " + typename + " in " + JSON.stringify(resp));
 		}
 		return elem.data! as unknown as T;
 	}

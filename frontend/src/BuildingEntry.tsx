@@ -73,10 +73,10 @@ function calculateCost(name: Building, level: number) : CalculatedCost
     }
     const know = knowledge.buildingCosts.find((elem)=>elem.name === name)!.cost;
     return {
-        metal: calc(know.metal, know.multiplier, level),
-        crystal: calc(know.crystal, know.multiplier, level),
-        deuter: calc(know.deuter, know.multiplier, level),
-        energy: know.energy > 0.1 ? calc(know.energy, know.multiplier, level) : null
+        metal: calc(know.baseCost.metal, know.multiplier, level),
+        crystal: calc(know.baseCost.crystal, know.multiplier, level),
+        deuter: calc(know.baseCost.deuter, know.multiplier, level),
+        energy: know.baseCost.energy > 0.1 ? calc(know.baseCost.energy, know.multiplier, level) : null
     }
 }
 

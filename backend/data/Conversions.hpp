@@ -66,7 +66,7 @@ std::string_view field2str(Field field)
     auto it = map.find(field);
     if(it == map.end())
     {
-        throw "no elo";
+        throw std::logic_error{"Should never happen, could not find field2str conversion"};
     }
     return it->second;
 }
@@ -77,7 +77,7 @@ Field str2field(std::string_view str)
     auto it = map.find(str);
     if(it == map.end())
     {
-        throw "no elo";
+        throw std::logic_error{"Should never happen, could not find str2field conversion for " + std::string{str}};
     }
     return it->second;
 }

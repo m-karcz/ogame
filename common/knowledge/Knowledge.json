@@ -9,21 +9,37 @@
         "fusionReactor" :        { "production" : 30, "cost": 10 }
     },
     "buildingCosts": [
-        {"name": "metalMine",            "cost": {"multiplier": 1.5, "metal": 60,      "crystal": 15,     "deuter": 0,      "energy": 0}},
-        {"name": "crystalMine",          "cost": {"multiplier": 1.6, "metal": 48,      "crystal": 24,     "deuter": 0,      "energy": 0}},
-        {"name": "deuteriumSynthesizer", "cost": {"multiplier": 1.5, "metal": 225,     "crystal": 75,     "deuter": 0,      "energy": 0}},
-        {"name": "solarPlant",           "cost": {"multiplier": 1.5, "metal": 75,      "crystal": 30,     "deuter": 0,      "energy": 0}},
-        {"name": "fusionReactor",        "cost": {"multiplier": 1.8, "metal": 900,     "crystal": 360,    "deuter": 180,    "energy": 0}},
-        {"name": "roboticsFactory",      "cost": {"multiplier": 2,   "metal": 400,     "crystal": 120,    "deuter": 200,    "energy": 0}},
-        {"name": "naniteFactory",        "cost": {"multiplier": 2,   "metal": 1000000, "crystal": 500000, "deuter": 100000, "energy": 0}},
-        {"name": "shipyard",             "cost": {"multiplier": 2,   "metal": 400,     "crystal": 200,    "deuter": 100,    "energy": 0}},
-        {"name": "metalStorage",         "cost": {"multiplier": 2,   "metal": 1000,    "crystal": 0,      "deuter": 0,      "energy": 0}},
-        {"name": "crystalStorage",       "cost": {"multiplier": 2,   "metal": 1000,    "crystal": 500,    "deuter": 0,      "energy": 0}},
-        {"name": "deuteriumTank",        "cost": {"multiplier": 2,   "metal": 1000,    "crystal": 1000,   "deuter": 0,      "energy": 0}},
-        {"name": "researchLab",          "cost": {"multiplier": 2,   "metal": 200,     "crystal": 400,    "deuter": 200,    "energy": 0}},
-        {"name": "alianceDepot",         "cost": {"multiplier": 2,   "metal": 20000,   "crystal": 40000,  "deuter": 0,      "energy": 0}},
-        {"name": "missileSilo",          "cost": {"multiplier": 2,   "metal": 20000,   "crystal": 20000,  "deuter": 1000,   "energy": 0}},
-        {"name": "terraformer",          "cost": {"multiplier": 2,   "metal": 0,       "crystal": 50000,  "deuter": 100000, "energy": 1000}}
+        {"name": "metalMine",            "cost": {"multiplier": 1.5, "baseCost": { "metal": 60,      "crystal": 15,     "deuter": 0,      "energy": 0}}},
+        {"name": "crystalMine",          "cost": {"multiplier": 1.6, "baseCost": { "metal": 48,      "crystal": 24,     "deuter": 0,      "energy": 0}}},
+        {"name": "deuteriumSynthesizer", "cost": {"multiplier": 1.5, "baseCost": { "metal": 225,     "crystal": 75,     "deuter": 0,      "energy": 0}}},
+        {"name": "solarPlant",           "cost": {"multiplier": 1.5, "baseCost": { "metal": 75,      "crystal": 30,     "deuter": 0,      "energy": 0}}},
+        {"name": "fusionReactor",        "cost": {"multiplier": 1.8, "baseCost": { "metal": 900,     "crystal": 360,    "deuter": 180,    "energy": 0}}},
+        {"name": "roboticsFactory",      "cost": {"multiplier": 2,   "baseCost": { "metal": 400,     "crystal": 120,    "deuter": 200,    "energy": 0}}},
+        {"name": "naniteFactory",        "cost": {"multiplier": 2,   "baseCost": { "metal": 1000000, "crystal": 500000, "deuter": 100000, "energy": 0}}},
+        {"name": "shipyard",             "cost": {"multiplier": 2,   "baseCost": { "metal": 400,     "crystal": 200,    "deuter": 100,    "energy": 0}}},
+        {"name": "metalStorage",         "cost": {"multiplier": 2,   "baseCost": { "metal": 1000,    "crystal": 0,      "deuter": 0,      "energy": 0}}},
+        {"name": "crystalStorage",       "cost": {"multiplier": 2,   "baseCost": { "metal": 1000,    "crystal": 500,    "deuter": 0,      "energy": 0}}},
+        {"name": "deuteriumTank",        "cost": {"multiplier": 2,   "baseCost": { "metal": 1000,    "crystal": 1000,   "deuter": 0,      "energy": 0}}},
+        {"name": "researchLab",          "cost": {"multiplier": 2,   "baseCost": { "metal": 200,     "crystal": 400,    "deuter": 200,    "energy": 0}}},
+        {"name": "alianceDepot",         "cost": {"multiplier": 2,   "baseCost": { "metal": 20000,   "crystal": 40000,  "deuter": 0,      "energy": 0}}},
+        {"name": "missileSilo",          "cost": {"multiplier": 2,   "baseCost": { "metal": 20000,   "crystal": 20000,  "deuter": 1000,   "energy": 0}}},
+        {"name": "terraformer",          "cost": {"multiplier": 2,   "baseCost": { "metal": 0,       "crystal": 50000,  "deuter": 100000, "energy": 1000}}}
+    ],
+    "researchsCosts": [
+        {"name": "espionageTechnology",          "cost": {"multiplier": 2, "baseCost": { "metal": 200,     "crystal": 1000,   "deuter": 200,    "energy": 0}}},
+        {"name": "computerTechnology",           "cost": {"multiplier": 2, "baseCost": { "metal": 0,       "crystal": 400,    "deuter": 600,    "energy": 0}}},
+        {"name": "weaponsTechnology",             "cost": {"multiplier": 2, "baseCost": { "metal": 800,     "crystal": 200,    "deuter": 0,      "energy": 0}}},
+        {"name": "shieldingTechnology",          "cost": {"multiplier": 2, "baseCost": { "metal": 200,     "crystal": 600,    "deuter": 0,      "energy": 0}}},
+        {"name": "armourTechnology",             "cost": {"multiplier": 2, "baseCost": { "metal": 1000,    "crystal": 0,      "deuter": 0,      "energy": 0}}},
+        {"name": "combustionDrive",              "cost": {"multiplier": 2, "baseCost": { "metal": 400,     "crystal": 0,      "deuter": 600,    "energy": 0}}},
+        {"name": "impulseDrive",                 "cost": {"multiplier": 2, "baseCost": { "metal": 2000,    "crystal": 4000,   "deuter": 600,    "energy": 0}}},
+        {"name": "hyperspaceDrive",              "cost": {"multiplier": 2, "baseCost": { "metal": 10000,   "crystal": 20000,  "deuter": 6000,   "energy": 0}}},
+        {"name": "hyperspaceTechnology",         "cost": {"multiplier": 2, "baseCost": { "metal": 0,       "crystal": 4000,   "deuter": 2000,   "energy": 0}}},
+        {"name": "laserTechnology",              "cost": {"multiplier": 2, "baseCost": { "metal": 200,     "crystal": 100,    "deuter": 0,      "energy": 0}}},
+        {"name": "ionTechnology",                "cost": {"multiplier": 2, "baseCost": { "metal": 1000,    "crystal": 300,    "deuter": 100,    "energy": 0}}},
+        {"name": "plasmaTechnology",             "cost": {"multiplier": 2, "baseCost": { "metal": 2000,    "crystal": 4000,   "deuter": 1000,   "energy": 0}}},
+        {"name": "intergalacticResearchNetwork", "cost": {"multiplier": 2, "baseCost": { "metal": 240000,  "crystal": 400000, "deuter": 160000, "energy": 0}}},
+        {"name": "gravitonTechnology",           "cost": {"multiplier": 3, "baseCost": { "metal": 0,       "crystal": 0,      "deuter": 0,      "energy": 300000}}}
     ],
     "requirements": {
         "buildings": [
@@ -58,12 +74,8 @@
             {
                 "name": "fusionReactor",
                 "requirements": {
-                    "buildings": [
-                        {"name": "deuteriumSynthesizer", "level": 5}
-                    ],
-                    "researchs": [
-                        {"name": "energyTechnology", "level": 3}
-                    ]
+                    "buildings": [ {"name": "deuteriumSynthesizer", "level": 5} ],
+                    "researchs": [ {"name": "energyTechnology",     "level": 3} ]
                 }
             },
             {
@@ -76,20 +88,14 @@
             {
                 "name": "naniteFactory",
                 "requirements": {
-                    "buildings": [
-                        {"name": "roboticsFactory", "level": 10}
-                    ],
-                    "researchs": [
-                        {"name": "computerTechnology", "level": 10}
-                    ]
+                    "buildings": [ {"name": "roboticsFactory",    "level": 10} ],
+                    "researchs": [ {"name": "computerTechnology", "level": 10} ]
                 }
             },
             {
                 "name": "shipyard",
                 "requirements": {
-                    "buildings": [
-                        {"name": "roboticsFactory", "level": 2}
-                    ],
+                    "buildings": [ {"name": "roboticsFactory", "level": 2} ],
                     "researchs": []
                 }
             },
@@ -138,12 +144,120 @@
             {
                 "name": "terraformer",
                 "requirements": {
-                    "buildings": [
-                        {"name": "naniteFactory", "level": 1}
-                    ],
-                    "researchs": [
-                        {"name": "energyTechnology", "level": 12}
-                    ]
+                    "buildings": [ {"name": "naniteFactory",    "level": 1} ],
+                    "researchs": [ {"name": "energyTechnology", "level": 12} ]
+                }
+            }
+        ],
+        "researchs": [
+            {
+                "name": "espionageTechnology",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab", "level": 3} ],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "computerTechnology",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab", "level": 1} ],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "weaponsTechnology",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab", "level": 4} ],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "shieldingTechnology",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab",      "level": 6} ],
+                    "researchs": [ {"name": "energyTechnology", "level": 3}]
+                }
+            },
+            {
+                "name": "armourTechnology",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab", "level": 2} ],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "energyTechnology",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab", "level": 1} ],
+                    "researchs": []
+                }
+            },
+            {
+                "name": "combustionDrive",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab",      "level": 1} ],
+                    "researchs": [ {"name": "energyTechnology", "level": 1}]
+                }
+            },
+            {
+                "name": "impulseDrive",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab",      "level": 2} ],
+                    "researchs": [ {"name": "energyTechnology", "level": 1}]
+                }
+            },
+            {
+                "name": "hyperspaceDrive",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab",          "level": 7} ],
+                    "researchs": [ {"name": "hyperspaceTechnology", "level": 3}]
+                }
+            },
+            {
+                "name": "hyperspaceTechnology",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab",         "level": 7} ],
+                    "researchs": [ {"name": "energyTechnology",    "level": 5},
+                                   {"name": "shieldingTechnology", "level": 5}]
+                }
+            },
+            {
+                "name": "laserTechnology",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab",      "level": 1} ],
+                    "researchs": [ {"name": "energyTechnology", "level": 2}]
+                }
+            },
+            {
+                "name": "ionTechnology",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab",      "level": 4} ],
+                    "researchs": [ {"name": "laserTechnology",  "level": 5},
+                                   {"name": "energyTechnology", "level": 4}]
+                }
+            },
+            {
+                "name": "plasmaTechnology",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab",      "level": 4} ],
+                    "researchs": [ {"name": "energyTechnology", "level": 8},
+                                   {"name": "laserTechnology",  "level": 10},
+                                   {"name": "ionTechnology",    "level": 5}]
+                }
+            },
+            {
+                "name": "intergalacticResearchNetwork",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab",          "level": 10} ],
+                    "researchs": [ {"name": "computerTechnology",   "level": 8},
+                                   {"name": "hyperspaceTechnology", "level": 5}]
+                }
+            },
+            {
+                "name": "gravitonTechnology",
+                "requirements": {
+                    "buildings": [ {"name": "researchLab", "level": 12} ],
+                    "researchs": []
                 }
             }
         ]
