@@ -17,6 +17,8 @@ add_subdirectory(tests)
 add_subdirectory(logic)
 add_subdirectory(database)
 add_subdirectory(rnd)
+add_subdirectory(messaging)
+add_subdirectory(resource_owner)
 add_subdirectory(deployments)
 
 

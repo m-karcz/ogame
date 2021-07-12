@@ -95,6 +95,37 @@ OnPlanetResponse Service::handleSinglePlanetRequest(const OnPlanetRequest& reque
     return resp;
 }
 
+OnPlanetResponseNew Service::handleSinglePlanetRequest(const OnPlanetRequestNew& request)
+{
+    OnPlanetQueriesResponse resp;
+    auto playerHandle = storageDb.queryPlayer(request.playerId);
+    auto planetHandle = playerHandle->getPlanet(request.planet);
+
+    SinglePlanetContext ctx{*playerHandle, *planetHandle, time.getTimestamp(), configuration};
+
+    evaluateTimeline(ctx);
+    if(request.action)
+    {
+        std::visit([&](auto&& action){resp.response.push_back(ActionHandlerType<std::decay_t<decltype(action)>>{ctx}.handleAction(action));}, *request.action);
+    }
+
+    const auto handle = [&](auto handler, auto getter){
+        if(auto& req = getter(request))
+        {
+            getter(resp) = handler.handleQuery(*req);
+        }
+    };
+
+    handle(StorageRequestHandler{ctx}, [](auto& req)->auto&{return req.storage;});
+    handle(BuildingsListRequestHandler{ctx}, [](auto& req)->auto&{return req.buildings;});
+    handle(BuildingQueueRequestHandler{ctx}, [](auto& req)->auto&{return req.buildingQueue;});
+    handle(ProductionInformationRequestHandler{ctx}, [](auto& req)->auto&{return req.productionInformation;});
+    handle(ProductionPercentagesRequestHandler{ctx}, [](auto& req)->auto&{return req.productionPercentages;});
+
+    return {resp};
+
+}
+
 LoginResponse Service::handle(const LoginRequest& req)
 {
     auto res = storageDb.queryPlayer(req.credentials);

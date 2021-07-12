@@ -2,10 +2,11 @@
 #include <memory>
 #include "SerializableRequest.hpp"
 #include "SerializableResponse.hpp"
+#include "Payload.hpp"
 
 struct ISerializer
 {
     virtual ~ISerializer() = default;
-    virtual std::vector<uint8_t> serialize(const SerializableResponse&) const = 0;
-    virtual SerializableRequest deserialize(const std::vector<uint8_t>&) const = 0;
+    virtual Payload serialize(const SerializableResponse&) const = 0;
+    virtual SerializableRequest deserialize(const Payload&) const = 0;
 };

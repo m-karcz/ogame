@@ -16,6 +16,7 @@ struct Service
     {}
     GeneralResponse handleRequest(const GeneralRequest&);
     OnPlanetResponse handleSinglePlanetRequest(const OnPlanetRequest&);
+    OnPlanetResponseNew handleSinglePlanetRequest(const OnPlanetRequestNew&);
 private:
     LoginResponse handle(const LoginRequest&);
     RegisterResponse handle(const RegisterRequest&);

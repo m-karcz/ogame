@@ -291,3 +291,37 @@ RefreshContextRequest:
 
 RefreshContextResponse:
   context: GeneralContext
+
+LockRequest:
+  players: PlayerId[]
+  oldLockId: optional<int>
+
+LockResponse:
+  timestamp: Timestamp
+  lockId: int
+
+LockRelease:
+  lockId: int
+
+OnPlanetQueries:
+    storage: optional<StorageRequest>
+    buildings: optional<BuildingsListRequest>
+    buildingQueue: optional<BuildingQueueRequest>
+    productionPercentages: optional<ProductionPercentagesRequest>
+    productionInformation: optional<ProductionInformationRequest>
+
+OnPlanetQueriesResponse:
+    storage: optional<StorageResponse>
+    buildings: optional<BuildingsListResponse>
+    buildingQueue: optional<BuildingQueueResponse>
+    productionPercentages: optional<ProductionPercentagesResponse>
+    productionInformation: optional<ProductionInformationResponse>
+
+OnPlanetResponseNew:
+  response: OnPlanetQueriesResponse
+
+OnPlanetRequestNew:
+  playerId: PlayerId
+  planet: PlanetLocation
+  queries: OnPlanetQueries
+  action: optional<OnPlanetAction>
