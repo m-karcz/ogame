@@ -148,5 +148,3 @@ RegisterResponse Service::handle(const RegisterRequest& req)
     }
     return RegisterResponse{.status = Ok{}/*res ? "ok" : "not ok"*/};
 }
-
-

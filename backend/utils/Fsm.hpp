@@ -5,6 +5,7 @@
 #include <queue>
 #include <optional>
 #include "Overloaded.hpp"
+#include <iostream>
 
 template<typename...T>
 struct TypeList
@@ -15,16 +16,16 @@ struct Transition
 {};
 
 template<typename...T>
-using Transitions = std::variant<T...>;
+using Transitions = std::variant<Transition<T>...>;
 
 struct NoTransition
 {};
 
 template<typename T>
-using PossibleTransition = std::variant<NoTransition, T>;
+using PossibleTransition = std::variant<NoTransition, Transition<T>>;
 
 template<typename...T>
-using PossibleTransitions = std::variant<NoTransition, T...>;
+using PossibleTransitions = std::variant<NoTransition, Transition<T>...>;
 
 template<template<typename...> class Wrapper, typename...Types>
 Wrapper<Types...> wrapTypeListImpl(const TypeList<Types...>&);
@@ -43,9 +44,9 @@ struct Fsm
     using StateVariant = WrapTypeList<std::variant, StateList>;
     void processEvent(const EventVariant& event)
     {
+        events.push(event);
         if(isAlreadyProcessing)
         {
-            events.push(event);
         }
         else
         {
@@ -79,7 +80,7 @@ struct Fsm
         return std::nullopt;
     }
     template<typename...T>
-    std::optional<StateVariant> considerTransition(const Transitions<T...> transitions)
+    std::optional<StateVariant> considerTransition(const std::variant<T...>& transitions)
     {
         //possible place to optimisation
         return std::visit(
@@ -87,7 +88,7 @@ struct Fsm
             transitions);
     }
     template<typename T>
-    std::optional<StateVariant> considerTransition(const Transition<T> transition)
+    std::optional<StateVariant> considerTransition(const Transition<T>& transition)
     {   
         return T{};
     }

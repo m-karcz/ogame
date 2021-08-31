@@ -33,6 +33,8 @@ struct Event
 template<typename T>
 struct PlainEventHolder : IEventHolder<T>
 {
+    PlainEventHolder(T value) : data{std::move(value)}
+    {}
     const T& get() const override
     {
         return data;
@@ -43,6 +45,8 @@ struct PlainEventHolder : IEventHolder<T>
 template<typename T>
 struct SerializedEventHolder : IEventHolder<T>
 {
+    SerializedEventHolder(ITypedDeserializer<T>& deserializer, Payload data) : deserializer{deserializer}, data{data}
+    {}
     const T& get() const override
     {
         if(not deserialized)
@@ -51,8 +55,8 @@ struct SerializedEventHolder : IEventHolder<T>
         }
         return *deserialized;
     }
-    ISerializer& deserializer;
-    mutable std::optional<T> deserialized;
+    ITypedDeserializer<T>& deserializer;
+    mutable std::optional<T> deserialized{};
     Payload data;
 };
 
@@ -62,16 +66,134 @@ struct IResponseSender
     virtual void send(Payload) = 0;
 };
 
-template<typename T>
-struct Request : Event<T>
+struct StdFunctionSender : IResponseSender
 {
-    using Event<T>::get;
-    using Event<T>::operator*;
-    using Event<T>::operator->;
-    ISerializer& serializer;
-    std::shared_ptr<IResponseSender> sender;
-    template<typename U>
-    void respond(U&& msg)
+    StdFunctionSender(std::function<void(Payload)> func) : func{func}
     {}
+    void send(Payload payload) override
+    {
+        func(payload);
+    }
+    std::function<void(Payload)> func;
 };
 
+/*template<typename RespT>
+struct ResponseHandler
+{
+    ITypedSerializer<RespT>& serializer;
+    std::shared_ptr<IResponseSender> sender;
+};*/
+
+template<typename RespT>
+struct IResponseHandler
+{
+    virtual void handle(const RespT&);
+    virtual ~IResponseHandler() = default;
+};
+
+template<typename RespT>
+struct StdFunctionResponseHandler : IResponseHandler<RespT>
+{
+    StdFunctionResponseHandler(std::function<void(const RespT&)> handler) : handler{handler}
+    {}
+    void handle(const RespT& resp) override
+    {
+        handler(resp);
+    }
+    std::function<void(const RespT&)> handler;
+};
+
+template<typename RespT>
+struct SerializingResponseHandler : IResponseHandler<RespT>
+{
+    SerializingResponseHandler(ITypedSerializer<RespT>& serializer, std::shared_ptr<IResponseSender> sender)
+        : serializer{serializer}
+        , sender{sender}
+    {}
+    ITypedSerializer<RespT>& serializer;
+    std::shared_ptr<IResponseSender> sender;
+    void handle(const RespT& resp) override
+    {
+        sender->send(serializer.serialize(resp));
+    }
+};
+
+template<typename ReqT, typename RespT>
+struct Request : Event<ReqT>
+{
+    Request(Event<ReqT>&& event, std::shared_ptr<IResponseHandler<RespT>> responseHandler) : Event<ReqT>{std::move(event)}, responseHandler{responseHandler}
+    {}
+    using Event<ReqT>::get;
+    using Event<ReqT>::operator*;
+    using Event<ReqT>::operator->;
+    std::shared_ptr<IResponseHandler<RespT>> responseHandler;
+    void respond(const RespT& msg)
+    {
+        responseHandler->handle(msg);
+    }
+};
+
+using TypeInformation = std::type_info;
+
+struct TypeErasedEvent
+{
+    template<typename T>
+    TypeErasedEvent(const Event<T>& event)
+    {
+        typeInformation = typeid(T);
+        data = std::make_shared<Event<T>>(event);
+    }
+    TypeInformation typeInformation;
+    std::shared_ptr<void> data;
+
+    template<typename T>
+    const Event<T>& as()
+    {
+        return *std::static_pointer_cast<Event<T>>(data);
+    }
+};
+
+struct IPoller
+{
+    virtual void poll() = 0;
+    virtual ~IPoller() = default;
+};
+
+struct IAsync
+{
+    virtual void registerPoller(IPoller&) = 0;
+    virtual ~IAsync() = default;
+};
+
+template<typename ReqT, typename ResT>
+struct IAsyncResponser : IAsync
+{
+    virtual void registerRequestHandler(std::function<void(Request<ReqT,ResT>)>) = 0;
+};
+
+template<typename ReqT, typename ResT>
+struct IAsyncRequester : IAsync
+{
+    virtual void sendRequest(const ReqT&) = 0;
+    virtual void registerResponseHandler(std::function<void(Event<ResT>)>) = 0;
+};
+
+template<typename IndT>
+struct IIndicatorSender
+{
+    virtual ~IIndicatorSender() = default;
+    virtual void sendIndication(const IndT&) = 0;
+};
+
+template<typename IndT>
+struct IAsyncIndicatorHandler : IAsync
+{
+    virtual void registerIndicationHandler(std::function<void(Event<IndT>)>) = 0;
+};
+
+template<typename StartT, typename ReqT, typename ResT>
+struct IAsyncWorkStealer : IAsync
+{
+    virtual void sendStartIndication(const StartT&) = 0;
+    virtual void registerWorkStealing(std::function<void(Request<ReqT, ResT>)>) = 0;
+};

@@ -40,7 +40,7 @@ struct EvaluateTimelineProcedure : SinglePlanetContext
     }
 };
 
-void evaluteTimelineProcedure(const SinglePlanetContext& ctx)
+void evaluateTimelineProcedure(const SinglePlanetContext& ctx)
 {
     EvaluateTimelineProcedure{ctx};
 }

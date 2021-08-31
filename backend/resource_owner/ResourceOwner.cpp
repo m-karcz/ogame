@@ -1,7 +1,7 @@
 #include "ResourceOwner.hpp"
-#include "LockResponse.hpp"
+#include <iostream>
 
-void ResourceOwner::checkPendingRequests()
+/*void ResourceOwner::checkPendingRequests()
 {
     pendingRequests.remove_if([&, this](auto& request){
         if(canBeAcquired(request->players))
@@ -47,8 +47,18 @@ bool ResourceOwner::canBeAcquired(const std::vector<PlayerId>& toBeAcquired)
 
 ResourceOwner::LockId ResourceOwner::acquireLock(const std::vector<PlayerId>& toBeAcquired)
 {
-    ++lastLockId;
+    ++lastLockId;//very naive strategy
     playersLocked.insert(toBeAcquired.begin(), toBeAcquired.end());
     locked[lastLockId] = toBeAcquired;
     return lastLockId;
+}*/
+
+void ResourceOwner::consume(Request<LockRequestNew, LockResponseNew> req)
+{
+    std::cout << "requested resource" << std::endl;
+    req.respond({
+        .success = true,
+        .timestamp = time.getTimestamp()
+    });
 }
+

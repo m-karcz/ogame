@@ -1,8 +1,6 @@
 import {Reducer, AnyAction} from "redux"
-import {overviewLoaded, registerRequest, loginSucceeded, loginRequest, registerSuccessful, contextUpdated, buildingsLoaded, resourcesLoaded, dependencyTreeLoaded, secondElapsed} from "./Actions"
-import {Store, LoginState, RegisterState, DEFAULT_STORE_STATE, getLoginPageState, getLoginFormState, OVERVIEW_PAGE, INGAME_PAGE, getIngamePageState, getChosenPlanet, BUILDINGS_PAGE, getEmptyContextWithChosen, RESOURCES_PAGE, DEPENDENCY_TREE_PAGE, getBuildingQueue} from "./Store";
-
-//type LoginFormAction = LoginSubmitAction | RegisterSubmitAction | LoginSuccessfulAction | RegisterSuccessfulAction;
+import {registerRequest, loginSucceeded, loginRequest, registerSuccessful, secondElapsed, onPlanetResponseLoaded, pageChanged, loginSucceededNew} from "./Actions"
+import {Store, LoginState, RegisterState, DEFAULT_STORE_STATE, getLoginPageState, getLoginFormState, INGAME_PAGE, getIngamePageState, getBuildingQueue, EMPTY_ON_PLANET, IngamePageType} from "./Store";
 
 function reduceIfInitialized(queue: ReturnType<typeof getBuildingQueue>)
 {
@@ -21,15 +19,18 @@ function reduceSecond(state: Store)
 {
   if(state.page.type === INGAME_PAGE)
   {
-    if(state.page.innerPage.type === BUILDINGS_PAGE)
+    if(state.page.onPlanet.buildingQueue)
     {
       return {
         ...state,
         page : {
           ...getIngamePageState(state),
-          innerPage: {
-            ...getIngamePageState(state).innerPage,
-            queue: reduceIfInitialized(getBuildingQueue(state))
+          onPlanet: {
+            ...getIngamePageState(state).onPlanet,
+            buildingQueue: {
+              ...getBuildingQueue(state)!,
+              timeToFinish: getBuildingQueue(state)!.timeToFinish - 1
+            }
           }
         }
       }
@@ -57,21 +58,19 @@ const myReducer : Reducer<Store, AnyAction> = (state = DEFAULT_STORE_STATE, acti
       ...state,
       page : {
         type: INGAME_PAGE,
-        innerPage : {
-          type: OVERVIEW_PAGE
-        },
-        contextData: getEmptyContextWithChosen(action.payload.chosenPlanet)
+        innerPage : IngamePageType.Overview,
+        onPlanet: EMPTY_ON_PLANET
       }
     }
-  else if(overviewLoaded.match(action))
+  else if(loginSucceededNew.match(action))
   {
     return {
       ...state,
-      page : {
-        ...getIngamePageState(state),
-        innerPage : {
-          type: OVERVIEW_PAGE
-        },
+      page: {
+        ...state.page,
+        type: INGAME_PAGE,
+        innerPage: IngamePageType.Overview,
+        onPlanet: EMPTY_ON_PLANET
       }
     }
   }
@@ -96,52 +95,26 @@ const myReducer : Reducer<Store, AnyAction> = (state = DEFAULT_STORE_STATE, acti
         }
       }
     }
-  else if(contextUpdated.match(action))
+  else if(pageChanged.match(action))
+  {
     return {
       ...state,
       page : {
         ...getIngamePageState(state),
-        contextData: {
-          actualPlanetStorage: action.payload.storage,
-          planetList: action.payload.planetList,
-          chosenPlanet: getChosenPlanet(state),
-          buildings: action.payload.buildings,
-          researchs: action.payload.researchs
-        }
+        innerPage : action.payload
       }
     }
-  else if(buildingsLoaded.match(action))
+  }
+  else if(onPlanetResponseLoaded.match(action))
+  {
     return {
       ...state,
-      page : {
+      page: {
         ...getIngamePageState(state),
-        innerPage: {
-          type: BUILDINGS_PAGE,
-          queue: action.payload.queue
-        }
+        onPlanet: action.payload
       }
     }
-  else if(resourcesLoaded.match(action))
-    return {
-      ...state,
-      page : {
-        ...getIngamePageState(state),
-        innerPage : {
-          type: RESOURCES_PAGE,
-          production: action.payload
-        }
-      }
-    }
-  else if(dependencyTreeLoaded.match(action))
-    return {
-      ...state,
-      page : {
-        ...getIngamePageState(state),
-        innerPage : {
-          type: DEPENDENCY_TREE_PAGE
-        }
-      }
-    }
+  }
   else if(secondElapsed.match(action))
   {
     return reduceSecond(state);

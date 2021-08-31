@@ -2,9 +2,8 @@ import {Buildings,
         Storage,
         PlanetLocation,
         UserCredentials,
-        BuildingQueueResponse,
-        ProductionInformation,
-        Researchs } from "./generated/AllGenerated"
+        Researchs, 
+        OnPlanetState} from "./generated/AllGenerated"
 
 
 export enum LoginState
@@ -47,58 +46,69 @@ export const LOGIN_PAGE = "LOGIN_PAGE";
 export const INGAME_PAGE = "INGAME_PAGE";
 
 
-export type ContextData = 
-{
-    planetList: Array<PlanetLocation>,
-    chosenPlanet: PlanetLocation,
-    actualPlanetStorage: Storage,
-    buildings: Buildings,
-    researchs: Researchs
-}
-
-export const EMPTY_CONTEXT_DATA : ContextData = 
+export const EMPTY_ON_PLANET : OnPlanetState =
 {
     planetList: [],
-    chosenPlanet: { position: 0, galaxy: 0, solar: 0 },
-    actualPlanetStorage: { metal: 0, crystal: 0, deuter: 0, lastUpdatedAt: 0},
-    buildings: undefined as unknown as Buildings,
-    researchs: undefined as unknown as Researchs
-}
-
-export function getEmptyContextWithChosen(chosenPlanet: PlanetLocation) : ContextData
-{
-    return {
-        planetList: [chosenPlanet],
-        chosenPlanet: chosenPlanet,
-        actualPlanetStorage: {metal: 0, crystal: 0, deuter: 0, lastUpdatedAt: 0},
-        buildings: undefined as unknown as Buildings,
-        researchs: undefined as unknown as Researchs
+    storage: 
+    {
+        metal: 0,
+        crystal: 0,
+        deuter: 0,
+        lastUpdatedAt: 0
+    },
+    buildings: {
+        metalMine: 0,
+        crystalMine: 0,
+        deuteriumSynthesizer: 0,
+        solarPlant: 0,
+        metalStorage: 0,
+        deuteriumTank: 0,
+        crystalStorage: 0,
+        fusionReactor: 0,
+        terraformer: 0,
+        researchLab: 0,
+        roboticsFactory: 0,
+        naniteFactory: 0,
+        alianceDepot: 0,
+        shipyard: 0,
+        missileSilo: 0
+    },
+    buildingQueue: null,
+    productionInformation: {
+        production: {
+            metalMineEnergyUsage: 0,
+            metalMineGeneration: 0,
+            metalMineIdealGeneration: 0,
+            crystalMineEnergyUsage: 0,
+            crystalMineGeneration: 0,
+            crystalMineIdealGeneration: 0,
+            deuteriumSynthesizerEnergyUsage: 0,
+            deuteriumSynthesizerGeneration: 0,
+            deuteriumSynthesizerIdealGeneration: 0,
+            solarPlantGeneration: 0,
+            solarSateliteGeneration: 0,
+            fusionReactorDeuterUsage: 0,
+            fusionReactorGeneration: 0,
+            fusionReactorIdealGeneration: 0
+        },
+        percentages: {
+            metalMine: 0,
+            crystalMine: 0,
+            deuteriumSynthesizer: 0,
+            solarPlant: 0,
+            solarSatelite: 0,
+            fusionReactor: 0
+        }
     }
 }
 
-export type OverviewPageState = 
+export enum IngamePageType 
 {
-    type: typeof OVERVIEW_PAGE
+    Overview = "OVERVIEW_PAGE",
+    Buildings = "BUILDINGS_PAGE",
+    Resources = "RESOURCES_PAGE",
+    DependencyTree = "DEPENDENCY_TREE_PAGE"
 }
-
-export type BuildingsPageState =
-{
-    type: typeof BUILDINGS_PAGE
-    queue: BuildingQueueResponse["queue"]
-}
-
-export type ResourcesPageState =
-{
-    type: typeof RESOURCES_PAGE
-    production: ProductionInformation
-}
-
-export type DependencyTreePageState =
-{
-    type: typeof DEPENDENCY_TREE_PAGE
-}
-
-export type IngameInnerPageState = OverviewPageState | BuildingsPageState | ResourcesPageState | DependencyTreePageState;
 
 export type LoginPageState =
 {
@@ -109,8 +119,8 @@ export type LoginPageState =
 export type IngamePageState =
 {
     type: typeof INGAME_PAGE
-    innerPage: IngameInnerPageState
-    contextData: ContextData
+    innerPage: IngamePageType
+    onPlanet: OnPlanetState
 }
 
 export type PageState = LoginPageState | IngamePageState;
@@ -164,47 +174,48 @@ export function getLoginFields(store: Store) : UserCredentials
 
 export function getActualPlanetStorage(store: Store) : Storage
 {
-    return getIngamePageState(store).contextData.actualPlanetStorage;
+    return getIngamePageState(store).onPlanet.storage;
 }
 
-export function getChosenPlanet(store: Store) : PlanetLocation
+export function getChosenPlanet(store: Store) : PlanetLocation | null
 {
-    return getIngamePageState(store).contextData.chosenPlanet;
+    if(getIngamePageState(store).onPlanet.planetList.length > 0)
+    {
+        return getIngamePageState(store).onPlanet.planetList[0];
+    }
+    return null
 }
 
 export function getBuildings(store: Store) : Buildings
 {
-    return getIngamePageState(store).contextData.buildings;
+    return getIngamePageState(store).onPlanet.buildings;
 }
 
 export function getResearchs(store: Store) : Researchs
 {
-    return getIngamePageState(store).contextData.researchs;
+    return {} as unknown as Researchs;
 }
 
 export function getBuildingQueue(store: Store)
 {
-    return (getIngamePageState(store).innerPage as BuildingsPageState).queue;
+    return getIngamePageState(store).onPlanet.buildingQueue;
 }
 
 export function getTotalProduction(store: Store)
 {
-    return (getIngamePageState(store).innerPage as ResourcesPageState).production;
+    return getIngamePageState(store).onPlanet.productionInformation;
 }
 
 export function shouldRefreshDueToDone(store: Store)
 {
   if(store.page.type === INGAME_PAGE)
   {
-    if(store.page.innerPage.type === BUILDINGS_PAGE)
+    if(store.page.innerPage === IngamePageType.Buildings)
     {
-      if(store.page.innerPage.queue)
-      {
-        if(store.page.innerPage.queue.timeToFinish < 1)
+        if(store.page.onPlanet.buildingQueue)
         {
-            return true;
+            return store.page.onPlanet.buildingQueue.timeToFinish < 1;
         }
-      }
     }
   }
   return false;

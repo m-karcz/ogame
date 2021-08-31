@@ -1,7 +1,6 @@
-import express from "express"
+import express, { response } from "express"
 import {Request as ExpressRequest} from "express"
 import {OnPlanetRequestBuilder} from "./OnPlanetRequestBuilder"
-//import {RemoteRouter} from "./RemoteRouter"
 import {RemoteZmqRouter} from "./RemoteZmqRouter"
 import session from "express-session"
 import path from "path"
@@ -28,9 +27,21 @@ StorageRequest,
          BUILDINGS_LIST_RESPONSE, 
          StartBuildingActionRequest,
          StartBuildingActionResponse,
-         BUILD_REQUEST } from "./generated/AllGenerated"
+		 ExternalGeneralRequest,
+		 ExternalGeneralResponse,
+		 InternalGeneralResponse,
+		 InternalGeneralRequest,
+         BUILD_REQUEST, 
+		 LOGIN_RESPONSE_NEW,
+		 REGISTER_RESPONSE_NEW,
+		 LoginResponseNew,
+		 RegisterResponseNew,
+		 INTERNAL_LOGIN_RESPONSE,
+		 OnPlanetRequestNew,
+		 AuthenticatedOnPlanetRequest} from "./generated/AllGenerated"
          //BUILD_REQUEST } from "../../build/common/generated/AllGenerated"
 import { RouterMiddleware} from "./RouterMiddleware"
+import { NewRouterConnectivity, NewRouterMiddleware } from "./NewRouterMiddleware"
 
 const argv = program.option("--binary <path>").parse(process.argv);
 
@@ -70,6 +81,11 @@ interface TypedRequest<T> extends ExpressRequest
 	body: T
 }
 
+const newConnectivity = new NewRouterConnectivity("tcp://127.0.0.1:3333", "tcp://127.0.0.1:1234")
+
+//const newMiddleware = new NewRouterMiddleware(newConnectivity)
+
+
 app.use(function(req, res, next) {
 	if(req.session.authenticated === undefined)
 	{
@@ -98,6 +114,61 @@ app.use(function(req, res, next) {
 	}
 })
 
+function convertGeneralRequest(req: ExternalGeneralRequest) : InternalGeneralRequest
+{
+	return {
+			data:
+			{
+				data: req.data.data,
+				type: req.data.type
+			}
+	};
+}
+
+
+app.post("/api2/general", async (req: TypedRequest<ExternalGeneralRequest>, res) => {
+	console.log("received general request");
+	const internalResp = await newConnectivity.generalReqPool.makeRequest(convertGeneralRequest(req.body));
+	console.log("made general request");
+	const sendResp = (type: typeof LOGIN_RESPONSE_NEW | typeof REGISTER_RESPONSE_NEW, data: LoginResponseNew | RegisterResponseNew) => {
+		res.send({
+			data: {
+				type: type,
+				data: data
+			}
+		} as ExternalGeneralResponse)
+	}
+	switch(internalResp.data.type)
+	{
+		case INTERNAL_LOGIN_RESPONSE:
+		{
+			if(internalResp.data.data.playerId !== null)
+			{
+				req.session.authenticated = true;
+				req.session.playerId = internalResp.data.data.playerId;
+				sendResp(LOGIN_RESPONSE_NEW, {success: true} as LoginResponseNew);
+			}
+			else
+			{
+				sendResp(LOGIN_RESPONSE_NEW, {success: false} as LoginResponseNew);
+			}
+			break;
+		}
+		case REGISTER_RESPONSE_NEW:
+		{
+			sendResp(REGISTER_RESPONSE_NEW, {success: (internalResp.data.data as RegisterResponseNew).success});
+			break;
+		}
+	}
+});
+
+app.post("/game/api2", async (req: TypedRequest<OnPlanetRequestNew>, res)=>{
+	const resp = await newConnectivity.onPlanetPool.makeRequest({
+		playerId: req.session.playerId,
+		request: req.body
+	} as AuthenticatedOnPlanetRequest);
+	res.send(resp);
+});
 
 app.post("/game/buildings", async function(req: TypedRequest<BuildingsViewRequest>, res)
 {

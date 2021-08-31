@@ -6,10 +6,10 @@ import { getChosenPlanet, Store } from './Store';
 
 const mapDispatchToProps = (dispatch: any) => (
 {
-  onOverviewClick: (planet: PlanetLocation) => dispatch(loadOverviewPage({planet: planet})),
-  onBuildingsClick: (planet: PlanetLocation) => dispatch(loadBuildingsPage({planet: planet})),
-  onResourcesClick: (planet: PlanetLocation) => dispatch(loadResourcesPage({planet: planet})),
-  onDependencyTreeClick: (planet: PlanetLocation) => dispatch(loadDependencyTreePage({planet: planet}))
+  onOverviewClick: (planet: PlanetLocation | null) => dispatch(loadOverviewPage({planet: planet})),
+  onBuildingsClick: (planet: PlanetLocation | null) => dispatch(loadBuildingsPage({planet: planet})),
+  onResourcesClick: (planet: PlanetLocation | null) => dispatch(loadResourcesPage({planet: planet})),
+  onDependencyTreeClick: (planet: PlanetLocation | null) => dispatch(loadDependencyTreePage({planet: planet}))
 })
 
 const mapStateToProps = (state: Store) =>

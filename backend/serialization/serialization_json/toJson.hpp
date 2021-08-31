@@ -86,7 +86,7 @@ Json serializeFrom(const U& obj)
     }
     else if constexpr(IsInstantiation<T, std::vector>::value)
     {
-        Json j;
+        Json j = Json::array();
         for(auto& elem : obj)
         {
             j.push_back(serializeFrom(elem));
@@ -105,7 +105,7 @@ Json serializeFrom(const U& obj)
     else if constexpr(boost::hana::Struct<T>::value)
     {
         using namespace boost;
-        Json j;
+        Json j = Json::object();
         hana::for_each(hana::accessors<T>(), [&](auto accessor){
             j[hana::first(accessor).c_str()] = serializeFrom(hana::second(accessor)(obj));
         });
@@ -214,6 +214,10 @@ T deserializeTo(const Json& j)
     else if constexpr(std::is_same_v<T, Duration>)
     {
         return Duration{deserializeTo<int>(j)};
+    }
+    else if constexpr(std::is_same_v<T, Timestamp>)
+    {
+        return Timestamp{deserializeTo<Duration>(j)};
     }
     else if constexpr(std::is_same_v<T, BigNum>)
     {

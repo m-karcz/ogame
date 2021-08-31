@@ -1,7 +1,5 @@
 #pragma once
 
-#include "LockRequest.hpp"
-#include "LockRelease.hpp"
 #include <map>
 #include <set>
 #include <list>
@@ -9,14 +7,16 @@
 #include "Event.hpp"
 #include <cstdint>
 #include "ITime.hpp"
+#include "LockRequestNew.hpp"
+#include "LockResponseNew.hpp"
 
 struct ResourceOwner
 {
     ResourceOwner(ITime& time) : time{time}
     {}
-    void consumeEvent(const Request<LockRequest>&);
-    void consumeEvent(const Event<LockRelease>&);
-    void checkPendingRequests();
+    //void consumeEvent(const Request<LockRequest>&);
+    //void consumeEvent(const Event<LockRelease>&);
+    /*void checkPendingRequests();
     bool canBeAcquired(const std::vector<PlayerId>&);
     using LockId = uint32_t;
     LockId acquireLock(const std::vector<PlayerId>&);
@@ -27,11 +27,12 @@ struct ResourceOwner
         {
             return lhs.id < rhs.id;
         }
-    };
+    };*/
     
     ITime& time;
-    std::map<LockId, std::vector<PlayerId>> locked;
+    void consume(Request<LockRequestNew, LockResponseNew>);
+    /*std::map<LockId, std::vector<PlayerId>> locked;
     std::set<PlayerId, PlayerIdComparator> playersLocked;
     std::list<Request<LockRequest>> pendingRequests;
-    LockId lastLockId = 0;
+    LockId lastLockId = 0;*/
 };

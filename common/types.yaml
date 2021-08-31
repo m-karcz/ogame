@@ -292,6 +292,23 @@ RefreshContextRequest:
 RefreshContextResponse:
   context: GeneralContext
 
+LockPlayersNew: 
+  players: PlayerId[]
+
+LockReleaseNew: {}
+
+LockPlanetCreation: {}
+
+LockRequestData: union<LockPlayersNew,LockPlanetCreation,LockReleaseNew>
+
+LockRequestNew:
+  instanceId: int
+  data: LockRequestData
+  
+LockResponseNew:
+  success: bool
+  timestamp: Timestamp
+
 LockRequest:
   players: PlayerId[]
   oldLockId: optional<int>
@@ -303,25 +320,56 @@ LockResponse:
 LockRelease:
   lockId: int
 
-OnPlanetQueries:
-    storage: optional<StorageRequest>
-    buildings: optional<BuildingsListRequest>
-    buildingQueue: optional<BuildingQueueRequest>
-    productionPercentages: optional<ProductionPercentagesRequest>
-    productionInformation: optional<ProductionInformationRequest>
+OnPlanetState:
+  storage: Storage
+  buildings: Buildings
+  buildingQueue: optional<BuildingQueueEntry>
+  productionInformation: ProductionInformation
+  planetList: PlanetLocation[]
 
 OnPlanetQueriesResponse:
     storage: optional<StorageResponse>
     buildings: optional<BuildingsListResponse>
     buildingQueue: optional<BuildingQueueResponse>
-    productionPercentages: optional<ProductionPercentagesResponse>
-    productionInformation: optional<ProductionInformationResponse>
+    productionInformation: optional<ProductionInformation>
+    planetList: PlanetLocation[]
 
 OnPlanetResponseNew:
-  response: OnPlanetQueriesResponse
+  response: OnPlanetState
 
 OnPlanetRequestNew:
-  playerId: PlayerId
-  planet: PlanetLocation
-  queries: OnPlanetQueries
+  planet: optional<PlanetLocation>
   action: optional<OnPlanetAction>
+  requestType: int
+
+AuthenticatedOnPlanetRequest:
+  playerId: PlayerId
+  request: OnPlanetRequestNew
+
+WorkStealerReady: {}
+
+WorkSharedPlanetRequest:
+  data: union<WorkStealerReady,OnPlanetResponseNew>
+
+WorkSharedPlanetResponse: AuthenticatedOnPlanetRequest
+
+LoginResponseNew:
+  success: bool
+
+RegisterResponseNew:
+  success: bool
+
+InternalLoginResponse:
+  playerId: optional<PlayerId>
+
+ExternalGeneralRequest:
+  data: union<LoginRequest,RegisterRequest>
+
+ExternalGeneralResponse:
+  data: union<LoginResponseNew,RegisterResponseNew>
+
+InternalGeneralRequest:
+  data: union<LoginRequest,RegisterRequest>
+
+InternalGeneralResponse:
+  data: union<InternalLoginResponse,RegisterResponseNew>

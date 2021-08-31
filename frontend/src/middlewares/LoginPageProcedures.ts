@@ -1,22 +1,27 @@
 import {Middleware} from "redux"
 import IRouterConnectivity from "../IRouterConnectivity"
-import {loadOverviewPage, loginRequest, registerRequest, registerSuccessful, loginSucceeded} from "../Actions"
+import {loadOverviewPage, loginRequest, registerRequest, registerSuccessful, loginSucceeded, loginSucceededNew} from "../Actions"
 
 export function getLoginMiddleware(conn: IRouterConnectivity) : Middleware
 {
     return store => next => action => {
         if(loginRequest.match(action))
         {
-            conn.tryLogin(action.payload).then((resp)=>{
-                store.dispatch(loginSucceeded({chosenPlanet: resp.planets[0]}))});
+            conn.tryLoginNewApi(action.payload).then(()=>{
+                store.dispatch(loginSucceededNew());
+            })
         }
         else if(loginSucceeded.match(action))
         {
             store.dispatch(loadOverviewPage({planet: action.payload.chosenPlanet}));
         }
+        else if(loginSucceededNew.match(action))
+        {
+            store.dispatch(loadOverviewPage({planet: null}));
+        }
         else if(registerRequest.match(action))
         {
-            conn.tryRegister(action.payload).then((resp) => store.dispatch(registerSuccessful()));
+            conn.tryRegisterNewApi(action.payload).then(() => store.dispatch(registerSuccessful()));
         }
         next(action);
     }

@@ -4,7 +4,10 @@
 #include "IStorageDb.hpp"
 #include "IPlayerHandle.hpp"
 #include "IPlanetHandle.hpp"
+#include "LockRequestNew.hpp"
+#include "LockResponseNew.hpp"
 #include "procedures/EvaluateTimelineProcedure.hpp"
+#include <iostream>
 
 struct LogicCtx
 {};
@@ -12,24 +15,48 @@ struct LogicCtx
 namespace
 {
 struct WaitingForRequest;
-struct WaitingForLock;
+struct NewAccountChecking;
+struct ProcessingOnPlanet;
+
+using MainRequest = Request<AuthenticatedOnPlanetRequest, OnPlanetResponseNew>;
+
+struct Continue
+{};
 
 struct WaitingForRequest
 {
-    MARK_UNEXPECTED(Request<LockResponse>);
-    Transition<WaitingForLock> process(LogicService::Impl* self, const Request<OnPlanetRequestNew>& request);
+    MARK_UNEXPECTED(Continue);
+    MARK_UNEXPECTED(Event<LockResponseNew>);
+    Transition<NewAccountChecking> process(LogicService::Impl* self, const MainRequest& request);
 };
-struct WaitingForLock
+
+struct NewAccountChecking
 {
-    MARK_UNEXPECTED(Request<OnPlanetRequestNew>);
-    Transition<WaitingForRequest> process(LogicService::Impl* self, const Request<LockResponse>& lockResponse);
+    PossibleTransition<ProcessingOnPlanet> process(LogicService::Impl* self, const Continue&);
+    Transition<ProcessingOnPlanet> process(LogicService::Impl* self, const Event<LockResponseNew>&);
+    MARK_UNEXPECTED(MainRequest);
 };
+
+struct ProcessingOnPlanet
+{
+    NoTransition process(LogicService::Impl* self, const Continue&);
+    PossibleTransition<WaitingForRequest> process(LogicService::Impl* self, const Event<LockResponseNew>& lockResponse);
+    MARK_UNEXPECTED(MainRequest);
+};
+
+/*struct WaitingForLock
+{
+    MARK_UNEXPECTED(MainRequest);
+    Transition<WaitingForRequest> process(LogicService::Impl* self, const Event<LockResponseNew>& lockResponse);
+};*/
 
 using States = TypeList<WaitingForRequest,
-                        WaitingForLock>;
+                        NewAccountChecking,
+                        ProcessingOnPlanet>;
 
-using Events = TypeList<Request<OnPlanetRequestNew>,
-                        Request<LockResponse>>;
+using Events = TypeList<MainRequest,
+                        Event<LockResponseNew>,
+                        Continue>;
 }
 
 
@@ -38,28 +65,39 @@ struct LogicService::Impl : Fsm<Events,
                                 States,
                                 LogicService::Impl*>
 {
-    Impl(IStorageDb& db, const Configuration& configuration) : Fsm<Events, States, LogicService::Impl*>(this),
+    Impl(IStorageDb& db, const Configuration& configuration, IAsyncRequester<LockRequestNew,LockResponseNew>& resOwnConn) : Fsm<Events, States, LogicService::Impl*>(this),
                                         db{db},
-                                        configuration{configuration}
+                                        configuration{configuration},
+                                        resourceOwnerConn{resOwnConn}
     {}
 
     std::vector<PlayerId> getNeededPlayerIds()
     {
         return {playerHandle->getId()};
     }
-    void storeRequestAndHalfEvaluateContext(const Request<OnPlanetRequestNew>& request)
+    void storeRequestAndHalfEvaluateContext(const MainRequest& request)
     {
-        onPlanetRequest = std::make_unique<Request<OnPlanetRequestNew>>(request);
-        playerHandle = db.queryPlayer(request->playerId);
-        planetHandle = playerHandle->getPlanet(request->planet);
+        onPlanetRequest = std::make_unique<MainRequest>(request);
+        /*playerHandle = db.queryPlayer(request->playerId);
+        auto planets = playerHandle->getPlanetList();
+        if(planets.empty())
+        {
+            auto id = playerHandle->getId().id;
+            playerHandle->createPlanet(PlanetLocation{.galaxy = (id / (499 * 6)) % 9 + 1,
+                                                      .solar = (id / 6) % 499 + 1,
+                                                      .position = id % 6 + 4},
+                                        Timestamp{Duration{0}});
+            planets = playerHandle->getPlanetList();
+        }
+        planetHandle = playerHandle->getPlanet(request->request.planet ? *request->request.planet : planets[0]);*/
     }
 
     void sendRequestForLockingPlayers(const std::vector<PlayerId>& playerIds)
     {
-        
+        resourceOwnerConn.sendRequest(LockRequestNew{});
     }
 
-    void finishEvaluatingContext(const LockResponse& response)
+    void finishEvaluatingContext(const LockResponseNew& response)
     {
         auto x = SinglePlanetContext{*playerHandle,
                                   *planetHandle,
@@ -69,41 +107,106 @@ struct LogicService::Impl : Fsm<Events,
     }
 
     std::unique_ptr<SinglePlanetContext> ctx;
-    std::unique_ptr<Request<OnPlanetRequestNew>> onPlanetRequest;
+    std::unique_ptr<MainRequest> onPlanetRequest;
     std::shared_ptr<IPlayerHandle> playerHandle;
     std::shared_ptr<IPlanetHandle> planetHandle;
     IStorageDb& db;
     const Configuration& configuration;
+    IAsyncRequester<LockRequestNew, LockResponseNew>& resourceOwnerConn;
 };
 
 
-Transition<WaitingForLock> WaitingForRequest::process(LogicService::Impl* self, const Request<OnPlanetRequestNew>& request)
+Transition<NewAccountChecking> WaitingForRequest::process(LogicService::Impl* self, const MainRequest& request)
 {
+    std::cout << "processing request" << std::endl;
     self->storeRequestAndHalfEvaluateContext(request);
-    auto&& neededPlayerIds = self->getNeededPlayerIds();
+    /*auto&& neededPlayerIds = self->getNeededPlayerIds();
     self->sendRequestForLockingPlayers(neededPlayerIds);
-    return Transition<WaitingForLock>();
+    return Transition<WaitingForLock>();*/
+    self->processEvent(Continue{});
+    return Transition<NewAccountChecking>{};
 }
 
-Transition<WaitingForRequest> WaitingForLock::process(LogicService::Impl* self, const Request<LockResponse>& lockResponse)
+/*Transition<WaitingForRequest> WaitingForLock::process(LogicService::Impl* self, const Event<LockResponseNew>& lockResponse)
 {
+}*/
+
+PossibleTransition<ProcessingOnPlanet> NewAccountChecking::process(LogicService::Impl* self, const Continue&)
+{
+    self->playerHandle = self->db.queryPlayer((*self->onPlanetRequest)->playerId);
+    auto planets = self->playerHandle->getPlanetList();
+    if(planets.empty())
+    {
+        self->resourceOwnerConn.sendRequest(LockRequestNew{
+            .instanceId = 0,
+            .data = LockPlanetCreation{}
+        });
+        return NoTransition{};
+    }
+    else
+    {
+        self->processEvent(Continue{});
+        return Transition<ProcessingOnPlanet>{};
+    }
+}
+
+Transition<ProcessingOnPlanet> NewAccountChecking::process(LogicService::Impl* self, const Event<LockResponseNew>& lockResponse)
+{
+    auto id = self->playerHandle->getId().id;
+    self->playerHandle->createPlanet(PlanetLocation{.galaxy = (id / (499 * 6)) % 9 + 1,
+                                                .solar = (id / 6) % 499 + 1,
+                                                .position = id % 6 + 4},
+                                     lockResponse->timestamp);
+
+    self->processEvent(Continue{});
+    return Transition<ProcessingOnPlanet>{};
+}
+
+NoTransition ProcessingOnPlanet::process(LogicService::Impl* self, const Continue&)
+{
+    auto& chosenPlanet = (*self->onPlanetRequest)->request.planet;
+    self->planetHandle = self->playerHandle->getPlanet(chosenPlanet ? *chosenPlanet : self->playerHandle->getPlanetList()[0]);
+    
+    self->resourceOwnerConn.sendRequest(LockRequestNew{
+        .instanceId = 0,
+        .data = LockPlayersNew{
+            .players = { self->playerHandle->getId() }
+        }
+    });
+    return NoTransition{};
+}
+PossibleTransition<WaitingForRequest> ProcessingOnPlanet::process(LogicService::Impl* self, const Event<LockResponseNew>& lockResponse)
+{
+    std::cout << "received lock" << std::endl;
     self->finishEvaluatingContext(*lockResponse);
     evaluateTimelineProcedure(*self->ctx);
+    self->onPlanetRequest->respond(OnPlanetResponseNew{
+        .response = {
+            .storage = self->planetHandle->getStorage(),
+            .buildings = self->planetHandle->getBuildings(),
+            .productionInformation = {
+                .percentages = self->planetHandle->getProductionPercentages(),
+                .production = self->planetHandle->getCachedProduction()
+            },
+            .planetList = self->playerHandle->getPlanetList()
+        }
+    });
     return Transition<WaitingForRequest>{};
 }
 
 
-LogicService::LogicService(IStorageDb& storageDb, const Configuration& configuration)
+LogicService::LogicService(IStorageDb& storageDb, const Configuration& configuration, IAsyncRequester<LockRequestNew,LockResponseNew>& resOwnConn)
 {
-    impl = std::make_unique<Impl>(storageDb, configuration);
+    impl = std::make_unique<Impl>(storageDb, configuration, resOwnConn);
 }
 
-void LogicService::process(Request<OnPlanetRequestNew> request)
+void LogicService::process(MainRequest request)
 {
+    std::cout << "processing main request" << std::endl;
     impl->processEvent(request);
 }
 
-void LogicService::process(Request<LockResponse> request)
+void LogicService::process(Event<LockResponseNew> request)
 {
     impl->processEvent(request);
 }

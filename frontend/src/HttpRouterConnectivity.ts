@@ -1,19 +1,13 @@
 import IRouterConnectivity from "./IRouterConnectivity"
 import {UserCredentials,
-        RegisterResponse,
-        LoginResponse,
-        Building,
-         BuildingsViewRequest,
-         BuildingsViewResponse,
-         StartBuildingActionRequest,
-         StartBuildingActionResponse,
          PlanetLocation,
-         OverviewViewRequest,
-         OverviewViewResponse,
-         RefreshContextRequest,
-         RefreshContextResponse,
-        ProductionInformationViewRequest,
-        ProductionInformationViewResponse } from "./generated/AllGenerated"
+        LoginResponseNew,
+        LOGIN_REQUEST,
+        ExternalGeneralRequest,
+        OnPlanetRequestNew,
+        RegisterResponseNew,
+        OnPlanetResponseNew,
+        REGISTER_REQUEST } from "./generated/AllGenerated"
 
 
 function withPayload(payload: any)
@@ -29,6 +23,15 @@ function withPayload(payload: any)
     }
 }
 
+function makeDefaultOnPlanetRequest() : OnPlanetRequestNew
+{
+    return {
+        planet : null,
+        action: null,
+        requestType: 0
+    }
+}
+
 async function fetchAs<T>(dest: string, payload: any) : Promise<T>
 {
     const resp = await fetch(dest, withPayload(payload));
@@ -37,32 +40,16 @@ async function fetchAs<T>(dest: string, payload: any) : Promise<T>
 
 export default class RouterConnectivity implements IRouterConnectivity
 {
-    tryLogin(credentials: UserCredentials) : Promise<LoginResponse>
+    tryLoginNewApi(credentials: UserCredentials) : Promise<LoginResponseNew>
     {
-        return fetchAs<LoginResponse>("/login", credentials);
+        return fetchAs<LoginResponseNew>("/api2/general", {data: {type: LOGIN_REQUEST, data: {credentials: credentials} }} as ExternalGeneralRequest);
     }
-    tryRegister(credentials: UserCredentials) : Promise<RegisterResponse>
+    tryRegisterNewApi(credentials: UserCredentials) : Promise<RegisterResponseNew>
     {
-        return fetchAs<RegisterResponse>("/register", credentials);
+        return fetchAs<RegisterResponseNew>("/api2/general", {data: {type: REGISTER_REQUEST, data: {credentials: credentials}}} as ExternalGeneralRequest);
     }
-    loadOverviewPage(planet: PlanetLocation) : Promise<OverviewViewResponse>
+    loadOnPlanet(planet : PlanetLocation | null) : Promise<OnPlanetResponseNew>
     {
-        return fetchAs<OverviewViewResponse>("/game/overview", {planet: planet} as OverviewViewRequest);
-    }
-    loadBuildingsPage(planet: PlanetLocation) : Promise<BuildingsViewResponse>
-    {
-        return fetchAs<BuildingsViewResponse>("/game/buildings", {planet: planet} as BuildingsViewRequest);
-    }
-    loadResourcesPage(planet: PlanetLocation) : Promise<ProductionInformationViewResponse>
-    {
-        return fetchAs<ProductionInformationViewResponse>("/game/resources", {planet: planet} as ProductionInformationViewRequest);
-    }
-    beginBuilding(planet: PlanetLocation, building: Building) : Promise<StartBuildingActionResponse>
-    {
-        return fetchAs<StartBuildingActionResponse>("/game/startBuilding", {planet: planet, building: building} as StartBuildingActionRequest);
-    }
-    refreshContext(planet: PlanetLocation) : Promise<RefreshContextResponse>
-    {
-        return fetchAs<RefreshContextResponse>("/game/context", {planet: planet} as RefreshContextRequest);
+        return fetchAs<OnPlanetResponseNew>("/game/api2", makeDefaultOnPlanetRequest());
     }
 }

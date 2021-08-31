@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 add_library(ResourceOwner
             ResourceOwner.hpp
-            ResourceOwner.cpp)
+            ResourceOwner.cpp
+            ResourceOwnerApp.cpp)
 
 add_library(ResourceOwner::ResourceOwner ALIAS ResourceOwner)
 
