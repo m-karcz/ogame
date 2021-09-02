@@ -24,15 +24,6 @@ function withPayload(payload: any)
     }
 }
 
-function makeDefaultOnPlanetRequest() : OnPlanetRequestNew
-{
-    return {
-        planet : null,
-        action: null,
-        requestType: 0
-    }
-}
-
 async function fetchAs<T>(dest: string, payload: any) : Promise<T>
 {
     const resp = await fetch(dest, withPayload(payload));

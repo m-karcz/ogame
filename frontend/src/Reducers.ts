@@ -1,19 +1,6 @@
 import {Reducer, AnyAction} from "redux"
-import {registerRequest, loginSucceeded, loginRequest, registerSuccessful, secondElapsed, onPlanetResponseLoaded, pageChanged, loginSucceededNew} from "./Actions"
+import {registerRequest, loginRequest, registerSuccessful, secondElapsed, onPlanetResponseLoaded, pageChanged, loginSucceededNew} from "./Actions"
 import {Store, LoginState, RegisterState, DEFAULT_STORE_STATE, getLoginPageState, getLoginFormState, INGAME_PAGE, getIngamePageState, getBuildingQueue, EMPTY_ON_PLANET, IngamePageType} from "./Store";
-
-function reduceIfInitialized(queue: ReturnType<typeof getBuildingQueue>)
-{
-  if(queue)
-  {
-    return {
-      ...queue,
-      timeToFinish: queue.timeToFinish - 1,
-    }
-  }
-  return queue;
-}
-
 
 function reduceSecond(state: Store)
 {
