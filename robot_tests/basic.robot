@@ -62,6 +62,6 @@ TestBuilding
 	Get Ready
 	Start Building	Metal Mine
 	Assert That Any Building Is Ongoing
-	Forward Time	120
+	Forward Time	240
 	Assert That No Building Is Ongoing
 	Forward Time	120

@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "ZmqHelper.hpp"
-#include "ZmqSimpleLoadBalancer.hpp"
+#include "SimpleLoadBalancer.hpp"
 #include "JsonSerializer.hpp"
 
 #include "AuthenticatedOnPlanetRequest.hpp"
@@ -16,6 +16,8 @@
 #include "AccountServiceApp.hpp"
 #include "ResourceOwnerApp.hpp"
 #include "Time.hpp"
+#include "RnDZmqCommandReceiver.hpp"
+#include "Logger.hpp"
 
 bool isWorkerReady(const WorkSharedPlanetRequest& req)
 {
@@ -35,22 +37,9 @@ SerializationContainer<Types&...> containerize(Types&... toContainerize)
 
 int main()
 {
-    JsonTypedSerializer<std::string> stringSerializer;
-
     zmq::context_t context{1};
-    JsonTypedSerializer<std::string> strSer;
-    JsonTypedDeserializer<std::string> strDes;
-    ZmqRouter<std::string, std::string> testRouter{context, "tcp://127.0.0.1:5777", {strDes, strSer}};
-
-    ZmqDealer<std::string, std::string> testDealer(context, "tcp://127.0.0.1:5777", {strSer, strDes});
 
     ZmqPoller poller{};
-
-    /*ZmqRouter<std::string, std::string> test1{context, "tcp://127.0.0.1:1234", {strDes, strSer}};
-    ZmqRouter<std::string, std::string> test2{context, "tcp://127.0.0.1:1235", {strDes, strSer}};*/
-    using Checked = JsonTypedDeserializer<AuthenticatedOnPlanetRequest>&;
-    using Requested = ITypedDeserializer<AuthenticatedOnPlanetRequest>&;
-    static_assert(std::is_convertible<Checked, Requested>::value);
 
     JsonTypedDeserializer<InternalGeneralRequest> generalRequestDeserializer;
     JsonTypedSerializer<InternalGeneralResponse> generalResponseSerializer;
@@ -74,45 +63,61 @@ int main()
     JsonTypedDeserializer<LockRequestNew> lockRequestDeserializer;
     JsonTypedDeserializer<LockResponseNew> lockResponseDeserializer;
 
-    std::string workStealingAddress = "tcp://127.0.0.1:1235";
-    std::string workDealingAddress = "tcp://127.0.0.1:1234";
-    std::string generalRequestAddress = "tcp://127.0.0.1:3333";
-    std::string resourceOwnerAddress = "tcp://127.0.0.1:4444";
+    Configuration configuration = loadConfiguration(CONFIGURATION_FILE_DIR "Configuration.json");
 
-    ZmqRouter<AuthenticatedOnPlanetRequest, OnPlanetResponseNew> workDealerForBalancer{context, workDealingAddress, containerize(authPlanetRequestDeserializer, onPlanetResponsePlainSerializer)};
-    ZmqRouter<WorkSharedPlanetRequest, AuthenticatedOnPlanetRequest> workStealerForBalancer{context, workStealingAddress, containerize(authPlanetRequestSerializer, workSharedPlanetRequestDeserializer)};
+    ZmqRouter<AuthenticatedOnPlanetRequest, OnPlanetResponseNew> workDealerForBalancer{context, configuration.addresses.workDealing, containerize(authPlanetRequestDeserializer, onPlanetResponsePlainSerializer)};
+    ZmqRouter<WorkSharedPlanetRequest, AuthenticatedOnPlanetRequest> workStealerForBalancer{context, configuration.addresses.workStealing, containerize(authPlanetRequestSerializer, workSharedPlanetRequestDeserializer)};
 
-    ZmqSimpleLoadBalancer<AuthenticatedOnPlanetRequest, OnPlanetResponseNew, WorkSharedPlanetRequest> loadBalancer{workDealerForBalancer, workStealerForBalancer};
+    SimpleLoadBalancer<AuthenticatedOnPlanetRequest, OnPlanetResponseNew, WorkSharedPlanetRequest> loadBalancer{workDealerForBalancer, workStealerForBalancer};
 
-    ZmqWorkStealer<WorkStealerReady, AuthenticatedOnPlanetRequest, OnPlanetResponseNew> logicWorkStealer{context, workStealingAddress, containerize(workStealerSerializer, onPlanetResponseNewCombinedSerializer, authPlanetRequestDeserializer)};
+    ZmqWorkStealer<WorkStealerReady, AuthenticatedOnPlanetRequest, OnPlanetResponseNew> logicWorkStealer{context, configuration.addresses.workStealing, containerize(workStealerSerializer, onPlanetResponseNewCombinedSerializer, authPlanetRequestDeserializer)};
 
     sqlitedb::StorageDbFactory dbFactory{"testtest.db"};
 
     logger.debug("Loading configuration");
 
-    Configuration configuration = loadConfiguration(CONFIGURATION_FILE_DIR "Configuration.json");
+    dbFactory.cleanIfNeeded();
 
     auto db = dbFactory.create();
 
-    ZmqDealer<LockRequestNew, LockResponseNew> lockRequestResOwnerDealer{context, resourceOwnerAddress, containerize(lockRequestSerializer, lockResponseDeserializer)};
+
+
+    ZmqDealer<LockRequestNew, LockResponseNew> lockRequestResOwnerDealer{context, configuration.addresses.resourceOwner, containerize(lockRequestSerializer, lockResponseDeserializer)};
 
     LogicApp logicApp{logicWorkStealer, lockRequestResOwnerDealer, *db, configuration};
 
-    ZmqRouter<InternalGeneralRequest, InternalGeneralResponse> generalRequestRouter{context, generalRequestAddress, containerize(generalRequestDeserializer, generalResponseSerializer)};
+    ZmqRouter<InternalGeneralRequest, InternalGeneralResponse> generalRequestRouter{context, configuration.addresses.generalRequest, containerize(generalRequestDeserializer, generalResponseSerializer)};
 
     AccountServiceApp accServiceApp{*db, generalRequestRouter};
 
     Time realTime{};
 
-    ZmqRouter<LockRequestNew, LockResponseNew> lockRequestResOwnerRouter{context, resourceOwnerAddress, containerize(lockRequestDeserializer, lockResponseSerializer)};
+    ZmqRouter<LockRequestNew, LockResponseNew> lockRequestResOwnerRouter{context, configuration.addresses.resourceOwner, containerize(lockRequestDeserializer, lockResponseSerializer)};
 
     ResourceOwnerApp resourceOwnerApp{realTime, lockRequestResOwnerRouter};
 
+    JsonTypedDeserializer<std::string> stringDeserializer;
+    JsonTypedSerializer<std::string> stringSerializer;
+
+    ZmqRouter<std::string, std::string> rndRouter{context, *configuration.addresses.rndMainAddress, containerize(stringSerializer, stringDeserializer)};
+
+    RnDZmqCommandReceiver rnd{configuration, rndRouter, realTime, *db};
+
+
+    rndRouter.registerPoller(poller);
     logicWorkStealer.registerPoller(poller);
     generalRequestRouter.registerPoller(poller);
     lockRequestResOwnerRouter.registerPoller(poller);
     lockRequestResOwnerDealer.registerPoller(poller);
     workDealerForBalancer.registerPoller(poller);
     workStealerForBalancer.registerPoller(poller);
-    poller.poll();
+    try
+    {
+        poller.poll();
+    }
+    catch(...)
+    {
+        logger.error("died after exception");
+    }
+    
 }

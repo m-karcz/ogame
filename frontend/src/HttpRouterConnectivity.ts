@@ -7,7 +7,8 @@ import {UserCredentials,
         OnPlanetRequestNew,
         RegisterResponseNew,
         OnPlanetResponseNew,
-        REGISTER_REQUEST } from "./generated/AllGenerated"
+        REGISTER_REQUEST, 
+        ExternalGeneralResponse} from "./generated/AllGenerated"
 
 
 function withPayload(payload: any)
@@ -40,16 +41,23 @@ async function fetchAs<T>(dest: string, payload: any) : Promise<T>
 
 export default class RouterConnectivity implements IRouterConnectivity
 {
-    tryLoginNewApi(credentials: UserCredentials) : Promise<LoginResponseNew>
+    async tryLoginNewApi(credentials: UserCredentials) : Promise<LoginResponseNew>
     {
-        return fetchAs<LoginResponseNew>("/api2/general", {data: {type: LOGIN_REQUEST, data: {credentials: credentials} }} as ExternalGeneralRequest);
+        const resp = await fetchAs<ExternalGeneralResponse>("/api2/general", {data: {type: LOGIN_REQUEST, data: {credentials: credentials} }} as ExternalGeneralRequest)
+        return resp.data.data as LoginResponseNew;
     }
-    tryRegisterNewApi(credentials: UserCredentials) : Promise<RegisterResponseNew>
+    async tryRegisterNewApi(credentials: UserCredentials) : Promise<RegisterResponseNew>
     {
-        return fetchAs<RegisterResponseNew>("/api2/general", {data: {type: REGISTER_REQUEST, data: {credentials: credentials}}} as ExternalGeneralRequest);
+        const resp = await fetchAs<ExternalGeneralResponse>("/api2/general", {data: {type: REGISTER_REQUEST, data: {credentials: credentials}}} as ExternalGeneralRequest);
+        return resp.data.data as RegisterResponseNew;
     }
-    loadOnPlanet(planet : PlanetLocation | null) : Promise<OnPlanetResponseNew>
+    loadOnPlanet(planet : PlanetLocation | null, action: OnPlanetRequestNew["action"] | null = null) : Promise<OnPlanetResponseNew>
     {
-        return fetchAs<OnPlanetResponseNew>("/game/api2", makeDefaultOnPlanetRequest());
+        return fetchAs<OnPlanetResponseNew>("/game/api2", /*makeDefaultOnPlanetRequest()*/
+                {
+                    planet: planet,
+                    action: action,
+                    requestType: 0
+                } as OnPlanetRequestNew);
     }
 }

@@ -1,4 +1,12 @@
 {
     "realTime" : false,
-    "buildingSpeed" : 1
+    "buildingSpeed" : 1,
+    "addresses" :
+    {
+        "workStealing" : "tcp://127.0.0.1:1235",
+        "workDealing" : "tcp://127.0.0.1:1234",
+        "generalRequest" : "tcp://127.0.0.1:3333",
+        "resourceOwner" : "tcp://127.0.0.1:4444",
+        "rndMainAddress": "tcp://127.0.0.1:6890"
+    }
 }

@@ -1,15 +1,17 @@
 import {Middleware} from "redux"
 import IRouterConnectivity from "../IRouterConnectivity"
 import {loadResourcesPage, loadOverviewPage, loadBuildingsPage, pageChanged, startBuilding, loadDependencyTreePage, refreshPage, secondElapsed, onPlanetResponseLoaded} from "../Actions"
-import {getIngamePageState, shouldRefreshDueToDone, IngamePageType} from "../Store"
+import {getIngamePageState, getChosenPlanet, shouldRefreshDueToDone, IngamePageType} from "../Store"
+import { OnPlanetRequestNew } from "../generated/OnPlanetRequestNew"
+import { BUILD_REQUEST } from "../generated/DiscBuildRequest"
 
 
 export function getIngameMiddleware(conn: IRouterConnectivity) : Middleware
 {
     return store => next => action => {
         const {dispatch} = store;
-        const loadWithRedirection = (nextPage: IngamePageType) => {
-            conn.loadOnPlanet(action.payload.planet).then(resp => {dispatch(onPlanetResponseLoaded(resp.response));
+        const loadWithRedirection = (nextPage: IngamePageType, act: OnPlanetRequestNew["action"] | null = null) => {
+            conn.loadOnPlanet(getChosenPlanet(store.getState()), act).then(resp => {dispatch(onPlanetResponseLoaded(resp.response));
                                                                    dispatch(pageChanged(nextPage));});
         }
         if(loadOverviewPage.match(action))
@@ -22,8 +24,13 @@ export function getIngameMiddleware(conn: IRouterConnectivity) : Middleware
         }
         else if(startBuilding.match(action))
         {
-            /*conn.beginBuilding(getPlanet(), action.payload.building).then(resp => {updateContext(resp.response);
-                                                                                   updateBuildings(resp.response)});*/
+            loadWithRedirection(IngamePageType.Buildings,
+                                {
+                                    type: BUILD_REQUEST,
+                                    data: {
+                                        buildingName: action.payload.building
+                                    }
+                                });
         }
         else if(loadResourcesPage.match(action))
         {

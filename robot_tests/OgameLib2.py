@@ -1,8 +1,12 @@
 from robot.api.deco import keyword
 from selenium import webdriver
 from selenium.webdriver import FirefoxOptions
+#from selenium.webdriver import ChromeOptions
 
 from webdriver_manager.firefox import GeckoDriverManager
+
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.utils import ChromeType
 import time
 import json
 import os
@@ -20,8 +24,12 @@ class OgameLib2:
 
     def __init__(self, testConf):
         opts = FirefoxOptions()
+        #opts = ChromeOptions()
         opts.add_argument("--headless")
-        self.driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), firefox_options=opts)
+        self.driver = webdriver.Firefox(executable_path="geckodriver", firefox_options=opts)
+        #self.driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), firefox_options=opts)
+        #self.driver = webdriver.Chrome(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install())
+
         print(testConf)
         with open(testConf) as testConfFp:
             self.testConf = json.load(testConfFp)
@@ -46,15 +54,15 @@ class OgameLib2:
 
     @keyword
     def get_ready(self):
-        #self.open_site()
-        #self.clear_database()
-        #time.sleep(0.1)
+        self.open_site()
+        self.clear_database()
+        time.sleep(0.1)
         self.register_and_login_on()
         self.assert_logged_in()
 
 
     @keyword
-    def register_and_login_on(self, login="elo", passcode="320"):
+    def register_and_login_on(self, login="elo1", passcode="320"):
         self.driver.find_element_by_name("login-input").send_keys(login)
         self.driver.find_element_by_name("passcode-input").send_keys(passcode)
         self.driver.find_element_by_xpath('//input[@value="Register"]').click()

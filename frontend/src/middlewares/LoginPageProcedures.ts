@@ -7,8 +7,12 @@ export function getLoginMiddleware(conn: IRouterConnectivity) : Middleware
     return store => next => action => {
         if(loginRequest.match(action))
         {
-            conn.tryLoginNewApi(action.payload).then(()=>{
-                store.dispatch(loginSucceededNew());
+            conn.tryLoginNewApi(action.payload).then((resp)=>{
+                console.log(resp)
+                if(resp.success)
+                {
+                    store.dispatch(loginSucceededNew());
+                }
             })
         }
         else if(loginSucceeded.match(action))

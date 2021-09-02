@@ -229,9 +229,17 @@ Knowledge:
   buildingCosts: BuildingCost[]
   requirements: AllRequirements
 
+Addresses:
+  workStealing: string
+  workDealing: string
+  generalRequest: string
+  resourceOwner: string
+  rndMainAddress: optional<string>
+
 Configuration:
   realTime: bool
   buildingSpeed: int
+  addresses: Addresses
 
 ProductionPercentages:
   metalMine: int

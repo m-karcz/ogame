@@ -179,6 +179,10 @@ export function getActualPlanetStorage(store: Store) : Storage
 
 export function getChosenPlanet(store: Store) : PlanetLocation | null
 {
+    if(! getIngamePageState(store).onPlanet)
+    {
+        return null;
+    }
     if(getIngamePageState(store).onPlanet.planetList.length > 0)
     {
         return getIngamePageState(store).onPlanet.planetList[0];

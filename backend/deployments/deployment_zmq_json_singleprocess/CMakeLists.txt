@@ -13,9 +13,10 @@
 #
 #add_dependencies(zmq_json_1thread put_configuration)
 #
-#add_executable(RnDZmqTimeForwarderApp RnDZmqTimeForwarderApp.cpp)
-#target_compile_features(RnDZmqTimeForwarderApp PRIVATE cxx_std_17)
-#target_link_libraries(RnDZmqTimeForwarderApp SerializationJson::SerializationJson cppzmq Data::Data)
+add_executable(RnDZmqCommandApp RnDZmqCommandApp.cpp)
+target_compile_features(RnDZmqCommandApp PRIVATE cxx_std_17)
+target_link_libraries(RnDZmqCommandApp SerializationJson::SerializationJson cppzmq Data::Data Configuration::Configuration)
+target_compile_definitions(RnDZmqCommandApp PRIVATE CONFIGURATION_FILE_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 #
 #
 ##add_custom_command(OUTPUT time_forwarder.py
@@ -29,16 +30,16 @@
 ##                  
 ##set(TIME_FORWARDER_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
 #
-#set(RND_CALLER_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
+set(RND_CALLER_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
 #
-#add_custom_command(OUTPUT rnd_caller.py
-#                   DEPENDS
-#                        RnDZmqTimeForwarderApp
-#                        rnd_caller_template.py
-#                   COMMAND sed \"s@RND_CALLER_PATH@$<TARGET_FILE:RnDZmqTimeForwarderApp>@g\" ${CMAKE_CURRENT_SOURCE_DIR}/rnd_caller_template.py > ${CMAKE_CURRENT_BINARY_DIR}/rnd_caller.py)
-#
-#add_custom_target(rnd_caller
-#                  DEPENDS rnd_caller.py)
+add_custom_command(OUTPUT rnd_caller.py
+                   DEPENDS
+                        RnDZmqCommandApp
+                        rnd_caller_template.py
+                   COMMAND sed \"s@RND_CALLER_PATH@$<TARGET_FILE:RnDZmqCommandApp>@g\" ${CMAKE_CURRENT_SOURCE_DIR}/rnd_caller_template.py > ${CMAKE_CURRENT_BINARY_DIR}/rnd_caller.py)
+
+add_custom_target(rnd_caller
+                  DEPENDS rnd_caller.py)
 #                  
 #
 #add_executable(server ALIAS zmq_json_1thread)

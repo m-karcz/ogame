@@ -6,6 +6,8 @@
 #include <optional>
 #include "Overloaded.hpp"
 #include <iostream>
+#include "GetTypeName.hpp"
+#include "Logger.hpp"
 
 template<typename...T>
 struct TypeList
@@ -33,7 +35,7 @@ Wrapper<Types...> wrapTypeListImpl(const TypeList<Types...>&);
 template<template<typename...> class Wrapper, typename TypeListT>
 using WrapTypeList = decltype(wrapTypeListImpl<Wrapper>(std::declval<TypeListT>()));
 
-#define MARK_UNEXPECTED(EventType) template<typename T> NoTransition process(const T&, const EventType&) { throw "no elo"; }
+#define MARK_UNEXPECTED(EventType) template<typename T> NoTransition process(const T&, const EventType&) { logger.error("received unexpected event {} in {}", getTypeName<EventType>(), getTypeName<T>()); throw "no elo"; }
 
 template<typename EventList, typename StateList, typename Context>
 struct Fsm
@@ -66,6 +68,7 @@ struct Fsm
         std::optional<StateVariant> nextState;
         std::visit([&, this](const auto& event){
             std::visit([&, this](auto& state){
+                logger.debug("processing event {} in state {}", getTypeName<decltype(event)>(), getTypeName<decltype(state)>());
                 nextState = considerTransition(state.process(ctx, event));
             }, currentState);
         }, eventVariant);

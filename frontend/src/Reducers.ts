@@ -17,10 +17,12 @@ function reduceIfInitialized(queue: ReturnType<typeof getBuildingQueue>)
 
 function reduceSecond(state: Store)
 {
+  console.log("tried to reduce second");
   if(state.page.type === INGAME_PAGE)
   {
     if(state.page.onPlanet.buildingQueue)
     {
+      console.log("reduced second");
       return {
         ...state,
         page : {
@@ -51,15 +53,6 @@ const myReducer : Reducer<Store, AnyAction> = (state = DEFAULT_STORE_STATE, acti
           ...getLoginFormState(state),
           loginState: LoginState.requested
         }
-      }
-    }
-  else if(loginSucceeded.match(action))
-    return {
-      ...state,
-      page : {
-        type: INGAME_PAGE,
-        innerPage : IngamePageType.Overview,
-        onPlanet: EMPTY_ON_PLANET
       }
     }
   else if(loginSucceededNew.match(action))

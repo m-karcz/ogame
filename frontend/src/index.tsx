@@ -19,7 +19,7 @@ const conn = new RouterConnectivity();
 
 const store = createStore(combinedReducer, DEFAULT_STORE_STATE, composeWithDevTools(applyMiddleware(getIngameMiddleware(conn), getLoginMiddleware(conn))));
 
-if(configuration.realTime)
+if(configuration.realTime || true)
 {
     window.setInterval(()=>{
       store.dispatch(secondElapsed());

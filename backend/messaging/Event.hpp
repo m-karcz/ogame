@@ -77,13 +77,6 @@ struct StdFunctionSender : IResponseSender
     std::function<void(Payload)> func;
 };
 
-/*template<typename RespT>
-struct ResponseHandler
-{
-    ITypedSerializer<RespT>& serializer;
-    std::shared_ptr<IResponseSender> sender;
-};*/
-
 template<typename RespT>
 struct IResponseHandler
 {

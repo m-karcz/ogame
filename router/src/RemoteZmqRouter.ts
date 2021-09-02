@@ -22,7 +22,7 @@ export class RemoteZmqRouter implements IRouter
     constructor(remoteAddress: string, binaryPath: string)
     {
         this.remoteAddress = remoteAddress;
-        this.remoteProcess = spawn(binaryPath);
+        this.remoteProcess = spawn(binaryPath, [], {stdio: "ignore"});
         
     }
     async generalRequest(request: GeneralRequestData) : Promise<GeneralResponseData>

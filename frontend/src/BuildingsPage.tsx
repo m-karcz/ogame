@@ -17,6 +17,7 @@ function mapStateToProps(state: Store)
     }
 }
 
+
 const buildingsOrder : Buildings = {
     metalMine:       1,
     crystalMine:     2,

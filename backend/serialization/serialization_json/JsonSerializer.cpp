@@ -21,33 +21,8 @@ template<typename T>
 T JsonTypedDeserializer<T>::deserialize(const Payload& payload) const
 {
     Json j = Json::parse(payload.begin(), payload.end());
-    std::cout << __PRETTY_FUNCTION__ << ": trial to deserialize: " << j.dump() << std::endl;
     return deserializeTo<T>(j);
 }
-
-/*template<>
-Payload JsonTypedSerializer<std::string>::serialize(const std::string&) const;
-
-template<>
-std::string JsonTypedDeserializer<std::string>::deserialize(const Payload&) const;
-
-template<>
-Payload JsonTypedSerializer<OnPlanetResponseNew>::serialize(const OnPlanetResponseNew&) const;
-
-template<>
-OnPlanetResponseNew JsonTypedDeserializer<OnPlanetResponseNew>::deserialize(const Payload&) const;
-
-template<>
-Payload JsonTypedSerializer<AuthenticatedOnPlanetRequest>::serialize(const AuthenticatedOnPlanetRequest&) const;
-
-template<>
-AuthenticatedOnPlanetRequest JsonTypedDeserializer<AuthenticatedOnPlanetRequest>::deserialize(const Payload&) const;
-
-template<>
-Payload JsonTypedSerializer<WorkSharedPlanetRequest>::serialize(const WorkSharedPlanetRequest&) const;
-
-template<>
-WorkSharedPlanetRequest JsonTypedDeserializer<WorkSharedPlanetRequest>::deserialize(const Payload&) const;*/
 
 template struct JsonTypedDeserializer<std::string>;
 template struct JsonTypedSerializer<std::string>;
