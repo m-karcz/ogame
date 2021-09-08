@@ -139,7 +139,6 @@ struct ZmqWorkStealer : IAsyncWorkStealer<StartT, ReqT, ResT>
     void sendStartIndication(const StartT& startReq) override
     {
         std::vector<zmq::message_t> msgs(1);
-        //auto serialized = serializer.serialize(startReq);
         auto serialized = serializationContainer.template get<ITypedSerializer<StartT>&>().serialize(startReq);
         zmq::message_t msg{serialized.data(), serialized.size()};
         msgs.push_back(std::move(msg));

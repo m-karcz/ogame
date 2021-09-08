@@ -126,26 +126,6 @@ struct Request : Event<ReqT>
     }
 };
 
-using TypeInformation = std::type_info;
-
-struct TypeErasedEvent
-{
-    template<typename T>
-    TypeErasedEvent(const Event<T>& event)
-    {
-        typeInformation = typeid(T);
-        data = std::make_shared<Event<T>>(event);
-    }
-    TypeInformation typeInformation;
-    std::shared_ptr<void> data;
-
-    template<typename T>
-    const Event<T>& as()
-    {
-        return *std::static_pointer_cast<Event<T>>(data);
-    }
-};
-
 struct IPoller
 {
     virtual void poll() = 0;

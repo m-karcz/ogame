@@ -3,7 +3,8 @@
 #include <boost/hana/accessors.hpp>
 #include <unordered_map>
 #include <string_view>
-#include <string.h>
+#include <string>
+#include <cstring>
 #include <boost/hana/define_struct.hpp>
 
 

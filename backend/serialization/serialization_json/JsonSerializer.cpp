@@ -38,3 +38,6 @@ template struct JsonTypedSerializer<LockRequestNew>;
 template struct JsonTypedSerializer<LockResponseNew>;
 template struct JsonTypedDeserializer<LockRequestNew>;
 template struct JsonTypedDeserializer<LockResponseNew>;
+
+template struct JsonTypedDeserializer<InternalGeneralResponse>;
+template struct JsonTypedSerializer<InternalGeneralRequest>;

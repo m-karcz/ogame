@@ -147,7 +147,7 @@ Json serializeFrom(const U& obj)
 template<typename T>
 T deserializeTo(const Json& j)
 {
-    logger.trace("Deserializing {} to {}", j.dump(), getTypeName<T>());
+    //logger.debug("Deserializing {} to {}", j.dump(), getTypeName<T>());
     if constexpr(std::is_integral_v<T> or std::is_same_v<T, std::string> or std::is_floating_point_v<T>)
     {
         return j;

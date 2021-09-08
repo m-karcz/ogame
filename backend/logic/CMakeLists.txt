@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 add_library(Logic
-            Service.hpp
+            #Service.hpp
 #            Service.cpp
             AccountService.cpp
             AccountServiceApp.cpp

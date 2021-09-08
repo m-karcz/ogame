@@ -30,7 +30,6 @@ function reduceSecond(state: Store)
 
 const myReducer : Reducer<Store, AnyAction> = (state = DEFAULT_STORE_STATE, action) => {
 
-
   if(loginRequest.match(action))
     return {
       ...state,

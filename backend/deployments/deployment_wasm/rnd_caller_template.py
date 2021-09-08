@@ -8,5 +8,5 @@ def forward_time(time, handle):
 def clear_database(handle):
     print("Clearing database")
     time.sleep(4)
-    handle.execute_script("window.__clearDb()")
+    #handle.execute_script("window.__clearDb()")
     time.sleep(5)

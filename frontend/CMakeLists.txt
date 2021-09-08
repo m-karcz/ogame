@@ -55,9 +55,9 @@ add_custom_target(frontend
 if(EMSCRIPTEN)
     add_custom_command(
         TARGET frontend
-        COMMAND cp $<TARGET_FILE_DIR:wasm_sync>/wasm_sync* ${CMAKE_CURRENT_SOURCE_DIR}/build/)
+        COMMAND cp $<TARGET_FILE_DIR:wasm_async>/wasm_async* ${CMAKE_CURRENT_SOURCE_DIR}/build/)
 else()
     add_custom_command(
         TARGET frontend
-        COMMAND touch ${CMAKE_CURRENT_SOURCE_DIR}/build/wasm_sync.js)
+        COMMAND touch ${CMAKE_CURRENT_SOURCE_DIR}/build/wasm_async.js)
 endif()
