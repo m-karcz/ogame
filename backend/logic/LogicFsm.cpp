@@ -9,7 +9,6 @@
 #include "procedures/EvaluateTimelineProcedure.hpp"
 #include "handlers/BuildRequestHandler.hpp"
 #include "BuildRequest.hpp"
-#include "handlers/BuildingQueueRequestHandler.hpp"
 #include "BuildingQueue.hpp"
 #include "BuildingQueueRequest.hpp"
 #include "BuildingQueueResponse.hpp"
@@ -18,6 +17,7 @@
 #include "Overloaded.hpp"
 #include <iostream>
 #include "Logger.hpp"
+#include "BuildingQueueEntry.hpp"
 
 struct LogicCtx
 {};
@@ -163,6 +163,20 @@ NoTransition ProcessingOnPlanet::process(LogicService::Impl* self, const Continu
     });
     return NoTransition{};
 }
+
+static auto getBuildingQueue(SinglePlanetContext& ctx)
+{
+    std::optional<BuildingQueueEntry> entry{};
+    if(auto queue = ctx.planet.getBuildingQueue())
+    {
+        entry = BuildingQueueEntry{
+                .building = queue->building,
+                .timeToFinish = Duration{queue->finishAt - ctx.timestamp}
+        };
+    }
+    return entry;
+}
+
 PossibleTransition<WaitingForRequest> ProcessingOnPlanet::process(LogicService::Impl* self, const Event<LockResponseNew>& lockResponse)
 {
     logger.debug("received lock for on planet");
@@ -178,7 +192,7 @@ PossibleTransition<WaitingForRequest> ProcessingOnPlanet::process(LogicService::
         .response = {
             .storage = self->planetHandle->getStorage(),
             .buildings = self->planetHandle->getBuildings(),
-            .buildingQueue = /*self->planetHandle->getBuildingQueue(),*/ BuildingQueueRequestHandler{*self->ctx}.handleQuery({}).queue,
+            .buildingQueue = getBuildingQueue(*self->ctx),
             .productionInformation = {
                 .percentages = self->planetHandle->getProductionPercentages(),
                 .production = self->planetHandle->getCachedProduction()

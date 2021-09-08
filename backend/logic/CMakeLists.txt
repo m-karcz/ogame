@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
 add_library(Logic
-            #Service.hpp
-#            Service.cpp
             AccountService.cpp
             AccountServiceApp.cpp
             LogicFsm.hpp
@@ -12,16 +10,6 @@ add_library(Logic
             
             handlers/BuildRequestHandler.cpp
             handlers/BuildRequestHandler.hpp
-            handlers/StorageRequestHandler.cpp
-            handlers/StorageRequestHandler.hpp
-            handlers/BuildingsListRequestHandler.cpp
-            handlers/BuildingsListRequestHandler.hpp
-            handlers/BuildingQueueRequestHandler.hpp
-            handlers/BuildingQueueRequestHandler.cpp
-            handlers/ProductionInformationRequestHandler.hpp
-            handlers/ProductionInformationRequestHandler.cpp
-            handlers/ProductionPercentagesRequestHandler.hpp
-            handlers/ProductionPercentagesRequestHandler.cpp
             procedures/ProductionRecalculationProcedure.hpp
             procedures/ProductionRecalculationProcedure.cpp
             procedures/ProductionStorageUpdateProcedure.hpp
