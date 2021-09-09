@@ -45,7 +45,7 @@ jobs:
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       #run: cmake --build . --config $BUILD_TYPE --target robot_tests
-      run: make robot_tests
+      run: make robot_tests || cat /home/runner/work/ogame/ogame/router/src/generated/CMakeFiles/GenHeaders.dir/compiler_depend.ts | make robot_tests
 
     - name: Prepare WASM compiler
       uses: mymindstorm/setup-emsdk@v7
