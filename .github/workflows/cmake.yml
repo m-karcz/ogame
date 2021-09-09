@@ -21,7 +21,7 @@ jobs:
 
       # install dependencies
     - name: apt-dependencies
-      run: sudo apt-get update && sudo apt install firefox-geckodriver cmake git gcc g++ make nodejs npm node-typescript -y #&& sudo apt-get install -yq libboost-dev libboost-program-options-dev
+      run: sudo apt-get update && sudo apt install firefox-geckodriver tree cmake git gcc g++ make nodejs npm node-typescript -y #&& sudo apt-get install -yq libboost-dev libboost-program-options-dev
     - name: virtualenv
       run: python -m pip install virtualenv && python -m pip install pyyaml
       
@@ -45,7 +45,7 @@ jobs:
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       #run: cmake --build . --config $BUILD_TYPE --target robot_tests
-      run: make robot_tests || ls -la /home/runner/work/ogame/ogame/router/src/generated/CMakeFiles/GenHeaders.dir/
+      run: make robot_tests || tree /home/runner/work/ogame/ogame/router/src/
 
     - name: Prepare WASM compiler
       uses: mymindstorm/setup-emsdk@v7
