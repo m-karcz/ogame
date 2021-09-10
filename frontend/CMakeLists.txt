@@ -15,7 +15,7 @@ if(EMSCRIPTEN)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     execute_process(
         #COMMAND cp ${GENERATED_PATH}                       ./src/ -r
-        COMMAND mkdir -p #{CMAKE_CURRENT_SOURCE_DIR}/generated
+        COMMAND mkdir -p {CMAKE_CURRENT_SOURCE_DIR}/src/generated
         COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
         #COMMAND cp ../router/src/IRouter.ts                ./src/
         #COMMAND cp ../router/src/RouterMiddleware.ts       ./src/
@@ -31,7 +31,7 @@ else()
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     execute_process(
         #COMMAND cp ${GENERATED_PATH} ./src/ -r
-        COMMAND mkdir -p #{CMAKE_CURRENT_SOURCE_DIR}/generated
+        COMMAND mkdir -p {CMAKE_CURRENT_SOURCE_DIR}/src/generated
         COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
         COMMAND cp ../common/knowledge/Knowledge.json ./src/
         COMMAND cp ../common/configuration/Configuration.json ./src/
