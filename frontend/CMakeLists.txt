@@ -17,7 +17,7 @@ if(EMSCRIPTEN)
         #COMMAND cp ${GENERATED_PATH}                       ./src/ -r
         COMMAND mkdir -p ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
         #COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
-        COMMAND find ${GENERATED_PATH} -name "*.ts" -exec cp {} ${CMAKE_CURRENT_SOURCE_DIR}/src/generated \;
+        COMMAND find ${GENERATED_PATH}/generated/ts -name "*.ts" -exec cp {} ${CMAKE_CURRENT_SOURCE_DIR}/src/generated \;
         COMMAND rm ${CMAKE_CURRENT_SOURCE_DIR}/src/generated/compiler_depend.ts -rf
         #COMMAND cp ../router/src/IRouter.ts                ./src/
         #COMMAND cp ../router/src/RouterMiddleware.ts       ./src/
@@ -35,7 +35,7 @@ else()
         #COMMAND cp ${GENERATED_PATH} ./src/ -r
         COMMAND mkdir -p ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
         #COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
-        COMMAND find ${GENERATED_PATH} -name "*.ts" -exec cp {} ${CMAKE_CURRENT_SOURCE_DIR}/src/generated \;
+        COMMAND find ${GENERATED_PATH}/generated/ts -name "*.ts" -exec cp {} ${CMAKE_CURRENT_SOURCE_DIR}/src/generated \;
         COMMAND rm ${CMAKE_CURRENT_SOURCE_DIR}/src/generated/compiler_depend.ts -rf
         COMMAND cp ../common/knowledge/Knowledge.json ./src/
         COMMAND cp ../common/configuration/Configuration.json ./src/

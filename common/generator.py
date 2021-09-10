@@ -4,6 +4,8 @@ import re
 import subprocess
 
 output_dir = sys.argv[1]
+output_dir_cpp = output_dir + "/cpp"
+output_dir_ts = output_dir + "/ts"
 
 headers_list = []
 ts_list = set()
@@ -51,7 +53,7 @@ def makeIndex(field_type):
 
 def writeDiscriminatedType(field_type):
     ts_list.add(DISCRIMINATED_PREFIX + field_type)
-    with open(output_dir + "/" + DISCRIMINATED_PREFIX + field_type + ".ts", "w") as fp:
+    with open(output_dir_ts + "/" + DISCRIMINATED_PREFIX + field_type + ".ts", "w") as fp:
         fp.write("import {" + field_type + '} from "./' + field_type + '"\n\n')
         index = makeIndex(field_type)
         body = ['export const {} = "{}";'.format(index, field_type),
@@ -148,7 +150,7 @@ def writeFieldToTs(field_type):
 
 def dumpToHpp(name, fields):
     headers_list.append(name + ".hpp")
-    origPath = output_dir + "/" + name  + ".hpp"
+    origPath = output_dir_cpp + "/" + name  + ".hpp"
     tempPath = origPath + ".temp"
     with open(tempPath, "w") as fp:
         headers = ['<boost/hana/define_struct.hpp>']
@@ -175,7 +177,7 @@ def dumpToHpp(name, fields):
 
 def dumpAliasOnlyToHpp(new_name, name):
     headers_list.append(new_name + ".hpp")
-    origPath = output_dir + "/" + new_name  + ".hpp"
+    origPath = output_dir_cpp + "/" + new_name  + ".hpp"
     tempPath = origPath + ".temp"
     with open(tempPath, "w") as fp:
         headers = []
@@ -192,7 +194,7 @@ def dumpAliasOnlyToHpp(new_name, name):
 
 def dumpAliasOnlyToTs(new_name, name):
     ts_list.add(new_name)
-    with open(output_dir + "/" + new_name + ".ts", "w") as fp:
+    with open(output_dir_ts + "/" + new_name + ".ts", "w") as fp:
         [imports, new_field_type] = writeFieldToTs(name)
         body = ["export type {} = {};".format(new_name, new_field_type)]
 
@@ -204,7 +206,7 @@ def dumpAliasOnlyToTs(new_name, name):
 
 def dumpToTs(name, fields):
     ts_list.add(name)
-    with open(output_dir + "/" + name + ".ts", "w") as fp:
+    with open(output_dir_ts + "/" + name + ".ts", "w") as fp:
         imports = []
         body = ["export type " + name + " = {"]
 
@@ -220,7 +222,7 @@ def dumpToTs(name, fields):
 
 def defineTsAlias(original, new_name, dependencies = []):
     ts_list.add(new_name)
-    with open(output_dir + "/" + new_name + ".ts", "w") as fp:
+    with open(output_dir_ts + "/" + new_name + ".ts", "w") as fp:
         fp.write("\n".join(['import {{ {} }} from "./{}"'.format(im, im) for im in set(dependencies)]))
         fp.write("\n\n")
         fp.write("export type {} = {}".format(new_name, original))
@@ -247,12 +249,12 @@ with open("types.yaml") as fp:
 with open(output_dir + "/CMakeLists.txt", "w") as fp:
     cmake = []
     cmakeTarget = "GenHeaders"
-    cmake.append("add_library({} {})".format(cmakeTarget, " ".join([output_dir + "/" + header for header in headers_list])))
+    cmake.append("add_library({} {})".format(cmakeTarget, " ".join([output_dir_cpp + "/" + header for header in headers_list])))
     cmake.append("add_library({}::{} ALIAS {})".format(cmakeTarget, cmakeTarget, cmakeTarget))
-    cmake.append("target_include_directories({} PUBLIC {})".format(cmakeTarget, output_dir))
+    cmake.append("target_include_directories({} PUBLIC {})".format(cmakeTarget, output_dir_cpp))
     cmake.append("set_target_properties({} PROPERTIES LINKER_LANGUAGE CXX)".format(cmakeTarget))
     fp.write("\n".join(cmake))
 
-with open(output_dir + "/AllGenerated.ts", "w") as fp:
+with open(output_dir_ts + "/AllGenerated.ts", "w") as fp:
     for name in ts_list:
         fp.write("export * from \"./{}\"\n".format(name))
