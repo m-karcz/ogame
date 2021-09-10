@@ -18,6 +18,7 @@ if(EMSCRIPTEN)
         COMMAND mkdir -p ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
         #COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
         COMMAND find ${GENERATED_PATH} -name "*.ts" -exec cp {} ${CMAKE_CURRENT_SOURCE_DIR}/src/generated \;
+        COMMAND rm ${CMAKE_CURRENT_SOURCE_DIR}/src/generated/compiler_depend.ts -rf
         #COMMAND cp ../router/src/IRouter.ts                ./src/
         #COMMAND cp ../router/src/RouterMiddleware.ts       ./src/
         #COMMAND cp ../router/src/OnPlanetRequestBuilder.ts ./src/
