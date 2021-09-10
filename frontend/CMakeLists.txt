@@ -14,7 +14,9 @@ if(EMSCRIPTEN)
         COMMAND rm -f ${CMAKE_CURRENT_BINARY_DIR}/frontend_cmd
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     execute_process(
-        COMMAND cp ${GENERATED_PATH}                       ./src/ -r
+        #COMMAND cp ${GENERATED_PATH}                       ./src/ -r
+        COMMAND mkdir -p #{CMAKE_CURRENT_SOURCE_DIR}/generated
+        COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
         #COMMAND cp ../router/src/IRouter.ts                ./src/
         #COMMAND cp ../router/src/RouterMiddleware.ts       ./src/
         #COMMAND cp ../router/src/OnPlanetRequestBuilder.ts ./src/
@@ -28,7 +30,9 @@ else()
         COMMAND rm -f ${CMAKE_CURRENT_BINARY_DIR}/frontend_cmd
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     execute_process(
-        COMMAND cp ${GENERATED_PATH} ./src/ -r
+        #COMMAND cp ${GENERATED_PATH} ./src/ -r
+        COMMAND mkdir -p #{CMAKE_CURRENT_SOURCE_DIR}/generated
+        COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
         COMMAND cp ../common/knowledge/Knowledge.json ./src/
         COMMAND cp ../common/configuration/Configuration.json ./src/
         #COMMAND rm ./src/IRouter.ts -f
