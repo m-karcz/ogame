@@ -10,8 +10,8 @@ set(OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 execute_process(COMMAND mkdir -p ${OUTDIR})
 
 set(GENERATED_PATH ${CMAKE_CURRENT_BINARY_DIR}/generated CACHE INTERNAL "")
-execute_process(COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/generated/cpp
-                COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/generated/ts}
+execute_process(COMMAND mkdir -p ${GENERATED_PATH}/cpp
+                COMMAND mkdir -p ${GENERATED_PATH}/ts
                 COMMAND python3 generator.py ${GENERATED_PATH}
                 COMMAND cp tsconfig.json ${GENERATED_PATH}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -19,5 +19,5 @@ execute_process(COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/generated/cpp
 
 add_subdirectory(knowledge)
 add_subdirectory(configuration)
-add_subdirectory(${OUTDIR} ${OUTDIR})
+add_subdirectory(${OUTDIR}/cpp ${OUTDIR}/cpp)
 

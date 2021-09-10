@@ -246,7 +246,7 @@ with open("types.yaml") as fp:
     
 
 
-with open(output_dir + "/CMakeLists.txt", "w") as fp:
+with open(output_dir_cpp + "/CMakeLists.txt", "w") as fp:
     cmake = []
     cmakeTarget = "GenHeaders"
     cmake.append("add_library({} {})".format(cmakeTarget, " ".join([output_dir_cpp + "/" + header for header in headers_list])))
