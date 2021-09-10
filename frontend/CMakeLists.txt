@@ -16,7 +16,8 @@ if(EMSCRIPTEN)
     execute_process(
         #COMMAND cp ${GENERATED_PATH}                       ./src/ -r
         COMMAND mkdir -p ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
-        COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
+        #COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
+        COMMAND find ${GENERATED_PATH} -name "*.ts" -exec cp {} ${CMAKE_CURRENT_SOURCE_DIR}/src/generated \;
         #COMMAND cp ../router/src/IRouter.ts                ./src/
         #COMMAND cp ../router/src/RouterMiddleware.ts       ./src/
         #COMMAND cp ../router/src/OnPlanetRequestBuilder.ts ./src/
@@ -32,7 +33,8 @@ else()
     execute_process(
         #COMMAND cp ${GENERATED_PATH} ./src/ -r
         COMMAND mkdir -p ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
-        COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
+        #COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
+        COMMAND find ${GENERATED_PATH} -name "*.ts" -exec cp {} ${CMAKE_CURRENT_SOURCE_DIR}/src/generated \;
         COMMAND cp ../common/knowledge/Knowledge.json ./src/
         COMMAND cp ../common/configuration/Configuration.json ./src/
         #COMMAND rm ./src/IRouter.ts -f

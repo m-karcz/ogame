@@ -23,7 +23,8 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/common_router_built.stamp
                         tsconfig.json
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                    COMMAND mkdir -p ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
-                   COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
+                   #COMMAND cp ${GENERATED_PATH}/*.ts ${CMAKE_CURRENT_SOURCE_DIR}/src/generated
+                   COMMAND find ${GENERATED_PATH} -name "*.ts" -exec cp {} ${CMAKE_CURRENT_SOURCE_DIR}/src/generated \;
                    COMMAND npm run prestart
                    COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/common_router_built.stamp)
 
