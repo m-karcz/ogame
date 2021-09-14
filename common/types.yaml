@@ -217,13 +217,6 @@ OnPlanetState:
   productionInformation: ProductionInformation
   planetList: PlanetLocation[]
 
-OnPlanetQueriesResponse:
-    storage: optional<StorageResponse>
-    buildings: optional<BuildingsListResponse>
-    buildingQueue: optional<BuildingQueueResponse>
-    productionInformation: optional<ProductionInformation>
-    planetList: PlanetLocation[]
-
 OnPlanetResponseNew:
   response: OnPlanetState
 
