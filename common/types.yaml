@@ -81,10 +81,6 @@ StartBuildingActionRequest:
   building: Building
   planet: PlanetLocation
 
-StartBuildingActionResponse:
-  status: Status
-  response: BuildingsViewResponse
-
 Cost:
   metal: BigNum
   crystal: BigNum
