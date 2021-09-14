@@ -10,7 +10,7 @@ target_link_options(wasm_async PRIVATE "-sEXPORT_NAME=makeBackend")
 target_link_options(wasm_async PRIVATE --embed-file ${CONFIGURATION_PATH}@Configuration.json)
 target_link_options(wasm_async PRIVATE "-o wasmtest.html")
 target_link_options(wasm_async PRIVATE -lidbfs.js)
-target_link_libraries(wasm_async DatabaseSQLite::DatabaseSQLite SerializationJson::SerializationJson RnD::RnD Configuration::Configuration)
+target_link_libraries(wasm_async DeploymentCommon::DeploymentCommon DatabaseSQLite::DatabaseSQLite SerializationJson::SerializationJson RnD::RnD Configuration::Configuration)
 
 
 set(RND_CALLER_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
