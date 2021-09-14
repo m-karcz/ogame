@@ -182,9 +182,6 @@ ChangePercentageUsageActionRequest:
   chosenEntity: string
   newPercentage: number
 
-ChangePercentageUsageActionResponse:
-  response: ProductionInformationViewResponse
-
 LockPlayersNew: 
   players: PlayerId[]
 
