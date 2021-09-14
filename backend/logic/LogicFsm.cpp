@@ -10,8 +10,6 @@
 #include "handlers/BuildRequestHandler.hpp"
 #include "BuildRequest.hpp"
 #include "BuildingQueue.hpp"
-#include "BuildingQueueRequest.hpp"
-#include "BuildingQueueResponse.hpp"
 #include "BuildResponse.hpp"
 #include "AuthenticatedOnPlanetRequest.hpp"
 #include "Overloaded.hpp"

@@ -1,37 +1,18 @@
 import express, { response } from "express"
 import {Request as ExpressRequest} from "express"
-import {OnPlanetRequestBuilder} from "./OnPlanetRequestBuilder"
 import {RemoteZmqRouter} from "./RemoteZmqRouter"
 import session from "express-session"
 import path from "path"
 import {program} from "commander"
 import bodyParser from "body-parser"
 import {UserCredentials,
-StorageRequest,
-	STORAGE_REQUEST,
         LOGIN_REQUEST,
         REGISTER_REQUEST,
         PlayerId,
-        OverviewViewRequest,
-        OverviewViewResponse,
-        OnPlanetResponse,
-        StorageResponse,
-        STORAGE_RESPONSE,
-         BuildingsViewRequest,
-         BuildingsViewResponse,
-		 ProductionInformationViewRequest,
-         BUILDINGS_LIST_REQUEST,
-         BUILDING_QUEUE_REQUEST,
-         BUILDING_QUEUE_RESPONSE,
-         BuildingsListResponse,
-         BUILDINGS_LIST_RESPONSE, 
-         StartBuildingActionRequest,
-         StartBuildingActionResponse,
 		 ExternalGeneralRequest,
 		 ExternalGeneralResponse,
 		 InternalGeneralResponse,
 		 InternalGeneralRequest,
-         BUILD_REQUEST, 
 		 LOGIN_RESPONSE_NEW,
 		 REGISTER_RESPONSE_NEW,
 		 LoginResponseNew,
@@ -39,8 +20,6 @@ StorageRequest,
 		 INTERNAL_LOGIN_RESPONSE,
 		 OnPlanetRequestNew,
 		 AuthenticatedOnPlanetRequest} from "./generated/AllGenerated"
-         //BUILD_REQUEST } from "../../build/common/generated/AllGenerated"
-import { RouterMiddleware} from "./RouterMiddleware"
 import { NewRouterConnectivity, NewRouterMiddleware } from "./NewRouterMiddleware"
 
 const argv = program.option("--binary <path>").parse(process.argv);
@@ -57,7 +36,7 @@ const port = 8888;
 
 const router = new RemoteZmqRouter("http://127.0.0.1:8080", argv["binary"] as string);
 
-const routerMiddleware = new RouterMiddleware(router);
+//const routerMiddleware = new RouterMiddleware(router);
 
 app.use(session({ secret: 'no elo', cookie: { maxAge: 600000 }}));
 
@@ -170,7 +149,7 @@ app.post("/game/api2", async (req: TypedRequest<OnPlanetRequestNew>, res)=>{
 	res.send(resp);
 });
 
-app.post("/game/buildings", async function(req: TypedRequest<BuildingsViewRequest>, res)
+/*app.post("/game/buildings", async function(req: TypedRequest<BuildingsViewRequest>, res)
 {
 	const resp = await routerMiddleware.buildingsView(req.session.playerId!, req.body);
 	res.send(resp);
@@ -230,7 +209,7 @@ app.post("/register", (req, res) => {
 		credentials: req.body as UserCredentials
 	}
 	router.generalRequest({type: REGISTER_REQUEST, data: pass}).then((resp) => res.send(resp.data));
-});
+});*/
 
 
 app.listen(port, ()=>{
