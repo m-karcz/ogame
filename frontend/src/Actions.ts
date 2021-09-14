@@ -32,7 +32,6 @@ export type DependenciesPayload =
 {
 }
 
-
 export const registerRequest = createAction<UserCredentials>("login/registerRequest");
 export const registerSuccessful = createAction("login/registerSuccessful");
 export const loginRequest = createAction<UserCredentials>("login/loginRequest");

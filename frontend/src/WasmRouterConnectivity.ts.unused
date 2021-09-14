@@ -12,8 +12,6 @@ import { PlanetLocation,
          LOGIN_REQUEST,
          INTERNAL_LOGIN_RESPONSE,
          AuthenticatedOnPlanetRequest} from "./generated/AllGenerated"
-import { ModuleResolutionKind } from "typescript";
-
 
 interface WasmModule
 {
