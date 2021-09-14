@@ -2,9 +2,7 @@ import {createAction} from "@reduxjs/toolkit"
 
 import { UserCredentials,
          PlanetLocation,
-         GeneralContext,
          Building,
-         BuildingQueueResponse,
         ProductionInformation, 
         OnPlanetState } from "./generated/AllGenerated"
 import { IngamePageType } from "./Store"
@@ -23,11 +21,6 @@ export type PlanetPayload =
 export type BuildingPayload =
 {
     building: Building
-}
-
-export type BuildingsLoadedPayload = 
-{
-    queue: BuildingQueueResponse["queue"]
 }
 
 export type ChosenPlanetPayload =
@@ -49,23 +42,11 @@ export const loadBuildingsPage = createAction<PlanetPayload>("ingame/buildingsPa
 export const loadResourcesPage = createAction<PlanetPayload>("ingame/resourcesPage");
 export const loadDependencyTreePage = createAction<PlanetPayload>("ingame/dependencyTreePage");
 export const startBuilding = createAction<BuildingPayload>("ingame/startBuilding");
-export const contextUpdated = createAction<GeneralContext>("ingame/contextUpdated");
 export const overviewLoaded = createAction("ingame/overviewLoaded");
 export const dependencyTreeLoaded = createAction<DependenciesPayload>("ingame/dependencyTreeLoaded");
-export const buildingsLoaded = createAction<BuildingsLoadedPayload>("ingame/buildingsLoaded");
 export const resourcesLoaded = createAction<ProductionInformation>("ingame/resourcesLoaded");
 export const refreshPage = createAction("ingame/refresh");
 export const secondElapsed = createAction("ingame/secondElapsed");
 export const loginSucceededNew = createAction("login/succeeedNew");
 export const onPlanetResponseLoaded = createAction<OnPlanetState>("ingame/onPlanetResponseLoaded")
 export const pageChanged = createAction<IngamePageType>("ingame/pageChanged");
-
-interface WithContext
-{
-    context: GeneralContext
-}
-
-export function getContextUpdated(msg: WithContext)
-{
-    return contextUpdated(msg.context);
-}
