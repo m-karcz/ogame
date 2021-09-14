@@ -1,19 +1,23 @@
-#include "IStorageDbFactory.hpp"
-#include <string_view>
 #include "StorageDb.hpp"
+#include "IStorageDbFactory.hpp"
 
-namespace sqlite
+namespace sqlitedb
 {
 
 struct StorageDbFactory : ::IStorageDbFactory
 {
-    StorageDbFactory(std::string_view path) : path{path}
+    StorageDbFactory(std::string path) : path{path}
     {}
+    void cleanIfNeeded() override
+    {
+        sqlitedb::StorageDb::cleanIfNeeded(path);
+    }
     std::shared_ptr<IStorageDb> create() const override
     {
-        return std::make_shared<sqlite::StorageDb>(path);
+        return std::make_shared<sqlitedb::StorageDb>(std::move(path));
     }
-    std::string_view path;
+private:
+    std::string path;
 };
 
 }

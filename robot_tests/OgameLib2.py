@@ -24,13 +24,9 @@ class OgameLib2:
 
     def __init__(self, testConf):
         opts = FirefoxOptions()
-        #opts = ChromeOptions()
         opts.add_argument("--headless")
         self.driver = webdriver.Firefox(executable_path="geckodriver", firefox_options=opts)
-        #self.driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), firefox_options=opts)
-        #self.driver = webdriver.Chrome(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install())
 
-        print(testConf)
         with open(testConf) as testConfFp:
             self.testConf = json.load(testConfFp)
 

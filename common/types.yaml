@@ -47,25 +47,11 @@ Researchs:
 LoginRequest:
   credentials: UserCredentials
 
-LoginResponse:
-  playerId: optional<PlayerId>
-  planets: PlanetLocation[]
-
 RegisterRequest:
   credentials: UserCredentials
 
 RegisterResponse:
   status: Status
-
-GeneralRequestData: union<LoginRequest,RegisterRequest>
-
-GeneralRequest:
-  request: GeneralRequestData
-
-GeneralResponseData: union<LoginResponse,RegisterResponse>
-
-GeneralResponse:
-  response: GeneralResponseData
 
 BuildRequest:
   buildingName: Building
@@ -85,57 +71,7 @@ Materials:
   deuter: BigNum
   energy: BigNum
 
-StorageRequest: {}
-
-StorageResponse:
-  storage: Storage
-
-BuildingsListRequest: {}
-
-BuildingsListResponse:
-  buildings: Buildings
-
-BuildingQueueEntry:
-  building: Building
-  timeToFinish: Duration
-
-BuildingQueueRequest: {}
-
-BuildingQueueResponse:
-  queue: optional<BuildingQueueEntry>
-
-OnPlanetQuery: union<StorageRequest,BuildingsListRequest,BuildingQueueRequest,ProductionPercentagesRequest,ProductionInformationRequest>
 OnPlanetAction: union<BuildRequest>
-
-OnPlanetRequest:
-  playerId: PlayerId
-  planet: PlanetLocation
-  queries: OnPlanetQuery[]
-  action: optional<OnPlanetAction>
-
-OnPlanetResponseData: union<StorageResponse,BuildingsListResponse,BuildingQueueResponse,BuildResponse,ProductionPercentagesResponse,ProductionInformationResponse>[]
-
-OnPlanetResponse:
-  response: OnPlanetResponseData
-
-GeneralContext:
-  planetList: PlanetLocation[]
-  storage: Storage
-  buildings: Buildings
-  researchs: Researchs
-
-OverviewViewRequest:
-  planet: PlanetLocation
-
-OverviewViewResponse:
-  context: GeneralContext
-
-BuildingsViewRequest:
-  planet: PlanetLocation
-
-BuildingsViewResponse:
-  context: GeneralContext
-  buildingQueue: BuildingQueueResponse
 
 StartBuildingActionRequest:
   building: Building
@@ -144,34 +80,6 @@ StartBuildingActionRequest:
 StartBuildingActionResponse:
   status: Status
   response: BuildingsViewResponse
-
-TimeForwardRequest:
-  duration: Duration
-
-TimeForwardResponse:
-  status: Status
-
-ClearDatabaseRequest: {}
-
-ClearDatabaseResponse: {}
-
-RndRequestData: union<TimeForwardRequest,ClearDatabaseRequest>
-
-RndRequest:
-  request: RndRequestData
-
-RndResponseData: union<TimeForwardResponse,ClearDatabaseResponse>
-
-RndResponse:
-  response: RndResponseData
-
-SerializableRequest:
-  request: union<GeneralRequest,OnPlanetRequest,RndRequest>
-  transactionId: int
-
-SerializableResponse:
-  response: union<GeneralResponse,OnPlanetResponse,RndResponse>
-  transactionId: int
 
 Cost:
   metal: BigNum
@@ -265,16 +173,9 @@ CachedProduction:
   fusionReactorIdealGeneration: int
   fusionReactorDeuterUsage: int
 
-ProductionInformationViewRequest:
-  planet: PlanetLocation
-
 ProductionInformation:
   percentages: ProductionPercentages
   production: CachedProduction
-
-ProductionInformationViewResponse:
-  context: GeneralContext
-  productionInformation: ProductionInformation
 
 ChangePercentageUsageActionRequest:
   planet: PlanetLocation
@@ -283,22 +184,6 @@ ChangePercentageUsageActionRequest:
 
 ChangePercentageUsageActionResponse:
   response: ProductionInformationViewResponse
-
-ProductionInformationRequest: {}
-
-ProductionInformationResponse:
-  production: CachedProduction
-
-ProductionPercentagesRequest: {}
-
-ProductionPercentagesResponse:
-  percentages: ProductionPercentages
-
-RefreshContextRequest:
-  planet: PlanetLocation
-
-RefreshContextResponse:
-  context: GeneralContext
 
 LockPlayersNew: 
   players: PlayerId[]

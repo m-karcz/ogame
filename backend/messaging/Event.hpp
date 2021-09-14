@@ -111,6 +111,21 @@ struct SerializingResponseHandler : IResponseHandler<RespT>
     }
 };
 
+template<typename InputT, typename OutputT>
+struct TransformingResponseHandler : IResponseHandler<InputT>
+{
+    TransformingResponseHandler(std::function<OutputT(const InputT&)> func, std::shared_ptr<IResponseHandler<OutputT>> handler)
+        : func{func}
+        , handler{handler}
+    {}
+    void handle(const InputT& resp) override
+    {
+        handler->handle(func(resp));
+    }
+    std::function<OutputT(const InputT&)> func;
+    std::shared_ptr<IResponseHandler<OutputT>> handler;
+};
+
 template<typename ReqT, typename RespT>
 struct Request : Event<ReqT>
 {

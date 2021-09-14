@@ -1,266 +1,506 @@
 #include "StorageDb.hpp"
-#include <sqlite_orm.h>
-#include <boost/hana/find_if.hpp>
-#include <boost/hana/equal.hpp>
-#include <boost/hana/for_each.hpp>
-#include <iostream>
-#include "PlanetLocation.hpp"
 #include "Buildings.hpp"
-#include "NamedColumn.hpp"
-#include "BuildingsWrapper.hpp"
-#include "PlanetWrapper.hpp"
-#include "BuildingQueueWrapper.hpp"
-#include "UserCredentialsWrapper.hpp"
-#include "PlayerHandle.hpp"
-#include "TimestampSerializer.hpp"
-#include "BuildingSerializer.hpp"
-#include "BigNumSerializer.hpp"
-#include "StorageWrapper.hpp"
+#include "PlanetLocation.hpp"
+#include "Researchs.hpp"
+#include "CachedProduction.hpp"
+#include "ProductionPercentages.hpp"
+#include "Storage.hpp"
 #include "IPlanetHandle.hpp"
-#include "CachedProductionWrapper.hpp"
-#include <iostream>
-#include <thread>
+#include "IPlayerHandle.hpp"
+#include "MakeTable.hpp"
+#include "BuildingQueue.hpp"
+#include <optional>
+#include "UserCredentials.hpp"
 #include "Logger.hpp"
+#include "Reflection.hpp"
+#include <filesystem>
+#include <cstdlib>
+#ifdef __EMSCRIPTEN__
+    #include <emscripten.h>
+#endif
 
-using namespace sqlite_orm;
-
-namespace {
-    template<typename T, typename Ret, typename U>
-    Ret T::* upcast(Ret U::*ptr)
-    {
-        return static_cast<Ret T::*>(ptr);
-    }
+namespace sqlitedb
+{
+namespace
+{
+void fireAndForget(sqlite3* handle, std::string query)
+{
+    logger.debug(query);
+    if(query.back() != ';')
+    query += ";";
+    sqlite3_exec(handle,
+                query.c_str(),
+                +[](void*, int, char**, char**)->int{
+                    return 0;
+                },
+                nullptr,
+                nullptr);
 }
 
-#define C(Type, Member) c(upcast<Type>(&Type::Member))
-
-
-
-auto makeStorage(std::string_view path)
+template<typename T>
+std::string serialize(const T& value)
 {
-    const auto buildingsTable = makeTable<sqlite::BuildingQueueWrapper>("buildingQueue");
-    const auto storageTable = makeTable<sqlite::StorageWrapper>("storage");
-    const auto productionTable = makeTable<sqlite::CachedProductionWrapper>("cachedProduction");
-    return make_storage(std::string{path},
-                                   makeTable<sqlite::UserCredentialsWrapper>("users"),
-                                   makeTable<sqlite::PlanetWrapper>("planets"),
-                                   makeTable<sqlite::BuildingsWrapper>("buildings"),
-                                   buildingsTable,
-                                   storageTable,
-                                   productionTable
-                               );
+    return Serialization<std::decay_t<T>>::serialize(value);
 }
 
-using StorageT = decltype(makeStorage(""));
-
-namespace sqlite
+template<typename T>
+void deserializeAllFields(T& obj, char** values)
 {
-    auto& StorageDb::storage()
+    size_t i = 0;
+    forEachField(obj, [&](auto& field){
+        field = Serialization<std::decay_t<decltype(field)>>::deserialize(values[i++]);
+    });
+}
+
+template<typename T>
+T deserializeAllFields(char** values)
+{
+    T obj;
+    deserializeAllFields(obj, values);
+    return obj;
+}
+
+template<typename T>
+std::string commaSeparatedFieldNames()
+{
+    std::string query;
+    forEachFieldName<T>([&](auto name){
+        query += name;
+        query += ',';
+    });
+    query.pop_back();
+    return query;
+}
+
+template<typename T>
+std::string commaSeparatedFieldValues(const T& obj)
+{
+    std::string query;
+    forEachField(obj, [&](auto& field){
+        query += serialize(field);
+        query += ",";
+    });
+    query.pop_back();
+    return query;
+}
+
+template<typename T>
+std::optional<T> queryPrimaryKeyed(sqlite3* handle, int key, std::string tableName = std::string{getTypeName<T>()})
+{
+    using namespace boost;
+    std::string query = "SELECT ";
+    query += commaSeparatedFieldNames<T>();
+    query += " FROM ";
+    query += tableName;
+    query += " WHERE id = ";
+    query += std::to_string(key);
+
+    std::optional<T> ret;
+
+    logger.debug(query);
+    sqlite3_exec(handle,
+                query.c_str(),
+                +[](void* data, int size, char** values, char** column)->int{
+                    *static_cast<std::optional<T>*>(data) = deserializeAllFields<T>(values);
+                    return 0;
+                },
+                &ret,
+                nullptr);
+    return ret;
+}
+template<typename T>
+void initializePrimaryKeyed(sqlite3* handle, int key, const T& value, std::string tableName = std::string{getTypeName<T>()})
+{
+    std::string query = "INSERT INTO " + tableName + " (id";
+    query += ",";
+    query += commaSeparatedFieldNames<T>();
+    query += (") VALUES (" + std::to_string(key));
+    query += ",";
+    query += commaSeparatedFieldValues(value);
+    query += ")";
+    fireAndForget(handle, query);
+}
+template<typename T>
+void updatePrimaryKeyed(sqlite3* handle, int key, const T& newValue, std::string tableName = std::string{getTypeName<T>()})
+{
+    std::string query = "UPDATE " + tableName + " SET ";
+
+    forEachNamedField(newValue, [&](std::string name, auto& field){
+        query += (name + " = " + serialize(field) + ",");
+    });
+    query.pop_back();
+
+    query += (" WHERE id = " + std::to_string(key));
+
+    fireAndForget(handle, query);
+}
+template<typename T>
+void deletePrimaryKeyed(sqlite3* handle, int key, std::string tableName = std::string{getTypeName<T>()})
+{
+    std::string query = "DELETE FROM " + tableName + " WHERE id = " + std::to_string(key);
+
+    fireAndForget(handle, query);
+}
+
+std::optional<PlayerId> queryPlayerBy(sqlite3* handle, PlayerId playerId)
+{
+    std::string query = "SELECT id FROM " + std::string{getTypeName<UserCredentials>()} + " WHERE id = " + Serialization<int>::serialize(playerId.id);
+    query += ";";
+    std::optional<PlayerId> ret;
+    logger.debug(query);
+    sqlite3_exec(handle,
+                query.c_str(),
+                +[](void* data, int size, char** values, char** column)->int{
+                    if(size < 1)
+                    {
+                        return 0;
+                    }
+                    *static_cast<std::optional<PlayerId>*>(data) = PlayerId{Serialization<int>::deserialize(values[0])};
+                    return 0;
+                },
+                &ret,
+                nullptr);
+    return ret;
+}
+
+std::optional<PlayerId> queryPlayerBy(sqlite3* handle, const UserCredentials& cred)
+{
+    std::string query = "SELECT id FROM " + std::string{getTypeName<UserCredentials>()} + " WHERE login = ";
+    query += Serialization<std::string>::serialize(cred.login);
+    query += " AND passcode = ";
+    query += Serialization<std::string>::serialize(cred.passcode);
+    query += ";";
+    logger.debug(query);
+    std::optional<PlayerId> ret;
+    sqlite3_exec(handle,
+                query.c_str(),
+                +[](void* data, int size, char** values, char** column)->int{
+                    *static_cast<std::optional<PlayerId>*>(data) = PlayerId{Serialization<int>::deserialize(values[0])};
+                    return 0;
+                },
+                &ret,
+                nullptr);
+    logger.debug("tried to query by user credentials: {}", (bool)ret);
+    return ret;
+}
+
+bool registerPlayer(sqlite3* handle, const UserCredentials& cred)
+{
+    std::string query = "SELECT id FROM " + std::string{getTypeName<UserCredentials>()} + " WHERE login = ";
+    query += Serialization<std::string>::serialize(cred.login);
+    std::optional<PlayerId> id;
+    logger.debug(query);
+    sqlite3_exec(handle,
+                query.c_str(),
+                +[](void* data, int size, char** values, char** column)->int{
+                    *static_cast<std::optional<PlayerId>*>(data) = PlayerId{Serialization<int>::deserialize(values[0])};
+                    return 0;
+                },
+                &id,
+                nullptr);
+    if(id)
     {
-        return std::any_cast<StorageT&>(typeErasedStorage);
+        return false;
     }
-    struct StorageDb::PlanetHandle : IPlanetHandle
+
+    std::string query2 = "INSERT INTO " + std::string{getTypeName<UserCredentials>()} + " (login, passcode) ";
+
+    query2 += "VALUES (";
+
+    query2 += Serialization<std::string>::serialize(cred.login);
+    query2 += ",";
+    query2 += Serialization<std::string>::serialize(cred.passcode);
+    
+    query2 += ")";
+
+    fireAndForget(handle, query2);
+
+    return true;
+}
+void makePlanetTable(sqlite3* handle)
+{
+    using namespace boost;
+    std::string query = "CREATE TABLE IF NOT EXISTS " + std::string{getTypeName<PlanetLocation>()} + "(";
+    query += "planetId INTEGER PRIMARY KEY AUTOINCREMENT";
+    query += ",";
+    query += "playerId INTEGER";
+    hana::for_each(hana::accessors<PlanetLocation>(), [&](auto accessor){
+        query += ", ";
+        query += hana::first(accessor).c_str();
+        query += " ";
+        query += serializationRepresentation<decltype(hana::second(accessor)(std::declval<PlanetLocation>()))>();
+    });
+    query += ");";
+
+    fireAndForget(handle, query);
+}
+void createPlanet(sqlite3* handle, PlayerId playerId, const PlanetLocation& location)
+{
+    std::string query = "INSERT INTO " + std::string{getTypeName<PlanetLocation>()} + " (playerId,";
+
+    query += commaSeparatedFieldNames<PlanetLocation>();
+    query += ") VALUES (";
+    query += Serialization<int>::serialize(playerId.id);
+    query += ",";
+    query += commaSeparatedFieldValues(location);
+    query += ")";
+
+    fireAndForget(handle, query);
+}
+std::optional<int> getPlanetId(sqlite3* handle, const PlanetLocation& location)
+{
+    using namespace boost;
+    std::string query = "SELECT planetId FROM " + std::string{getTypeName<PlanetLocation>()} + " WHERE ";
+
+    forEachNamedField(location, [&](std::string name, auto& field){
+        query += (name + " = " + serialize(field) + " AND ");
+    });
+
+    query.pop_back();
+    query.pop_back();
+    query.pop_back();
+    query.pop_back();
+    query.pop_back();
+
+    std::optional<int> ret;
+    logger.debug(query);
+    sqlite3_exec(handle,
+                query.c_str(),
+                +[](void* data, int size, char** values, char** column)->int{
+                    *static_cast<std::optional<int>*>(data) = Serialization<int>::deserialize(values[0]);
+                    return 0;
+                },
+                &ret,
+                nullptr);
+    return ret;
+}
+std::vector<PlanetLocation> queryPlanets(sqlite3* handle, PlayerId playerId)
+{
+    std::vector<PlanetLocation> ret;
+    std::string query = "SELECT ";
+    query += commaSeparatedFieldNames<PlanetLocation>();
+    query += " FROM " + std::string{getTypeName<PlanetLocation>()} + " WHERE playerId = " + Serialization<int>::serialize(playerId.id) + ";";
+
+    logger.debug(query);
+
+    sqlite3_exec(handle,
+                 query.c_str(),
+                +[](void* data, int size, char** values, char** column)->int{
+                    static_cast<decltype(ret)*>(data)->push_back(deserializeAllFields<PlanetLocation>(values));
+                    return 0;
+                },
+                &ret,
+                nullptr
+                );
+    return ret;
+}
+constexpr int DB_VERSION = 2;
+void makeDbVersionTable(sqlite3* handle)
+{
+    fireAndForget(handle, "CREATE TABLE IF NOT EXISTS DbVersion (value INTEGER);");
+}
+int queryDbVersion(sqlite3* handle)
+{
+    int version = DB_VERSION;
+    sqlite3_exec(handle,
+                 "SELECT value FROM DbVersion;",
+                 +[](void* data, int size, char** values, char** column)->int{
+                    *static_cast<int*>(data) = Serialization<int>::deserialize(values[0]);
+                    return 0;
+                 },
+                 &version,
+                 nullptr
+                 );
+    return version;
+}
+void setDbVersion(sqlite3* handle, int version = DB_VERSION)
+{
+    fireAndForget(handle, "DELETE FROM DbVersion");
+    fireAndForget(handle, std::string{""} + "INSERT INTO DbVersion (value) VALUES (" + Serialization<int>::serialize(version) + ");");
+}
+}
+
+StorageDb::StorageDb(std::string path) : path{path}
+{
+    initDb();
+}
+
+void StorageDb::initDb()
+{
+    constexpr bool autoincrement = true;
+    sqlite3_open(path.c_str(), &handle);
+    makePrimaryKeyedTable<UserCredentials>(handle, std::string{getTypeName<UserCredentials>()}, autoincrement);
+    makePlanetTable(handle);
+    makePrimaryKeyedTable<Buildings>(handle);
+    makePrimaryKeyedTable<Researchs>(handle);
+    makePrimaryKeyedTable<Storage>(handle);
+    makePrimaryKeyedTable<BuildingQueue>(handle);
+    makePrimaryKeyedTable<CachedProduction>(handle);
+    makePrimaryKeyedTable<ProductionPercentages>(handle);
+}
+
+void StorageDb::cleanIfNeeded(const std::string& path)
+{
+    logger.debug("Check if database is outdated");
+
+    sqlite3* handle;
+
+    sqlite3_open(path.c_str(), &handle);
+    makeDbVersionTable(handle);
+    int actual = queryDbVersion(handle);
+    sqlite3_close(handle);
+
+    bool removalNeed = actual < DB_VERSION;
+
+    if(removalNeed)
     {
-        PlanetHandle(StorageT& storageDb, int id) : db{storageDb}, planetId{id}
-        {}
-        Buildings getBuildings() override
-        {
-            try
-            {
-                logger.debug("Querying buildings");
-                return db.get<BuildingsWrapper>(planetId);
-            }
-            catch(std::exception& ex)
-            {
-                logger.error("Error in querying buildings: {}", ex.what());
-                throw;
-            }
-        }
-        CachedProduction getCachedProduction() override
-        {
-            try
-            {
-                logger.debug("Querying production");
-                return db.get<CachedProductionWrapper>(planetId);
-            }
-            catch(std::exception& ex)
-            {
-                logger.error("Error in querying production : {}", ex.what());
-                throw;
-            }
-
-        }
-        void setNewCachedProduction(const CachedProduction& production) override
-        {
-            logger.debug("Setting new cachedProduction");
-            CachedProductionWrapper wrapper{production};
-            wrapper.planetId = planetId;
-            db.replace(wrapper);
-        }
-        void setNewStorage(const Storage& storage) override
-        {
-            logger.debug("Setting new storage");
-            StorageWrapper wrapper{storage};
-            wrapper.planetId = planetId;
-            db.replace(wrapper);
-        }
-        std::optional<BuildingQueue> getBuildingQueue() override
-        {
-            logger.debug("Querying building queue");
-            return db.get_optional<BuildingQueueWrapper>(planetId);
-        }
-
-        void incrementBuildingLevel(const Building& building) override
-        {
-            logger.debug("Incrementing building level for {}", building.fieldName);
-            auto wrapper = db.get<BuildingsWrapper>(planetId);
-            building.increment(wrapper);
-            db.replace(wrapper);
-        }
-        Storage getStorage() override
-        {
-            logger.debug("Getting storage");
-            return db.get<StorageWrapper>(planetId);
-        }
-        int getBuildingLevel(const Building& building) override
-        {
-            logger.debug("Getting building level for {}", building.fieldName);
-            auto buildings = db.get<BuildingsWrapper>(planetId);
-            return buildings.*(building.field);
-        }
-        void queueBuilding(const BuildingQueue& building) override
-        {
-            logger.debug("Queueing {} to build", building.building.fieldName);
-            BuildingQueueWrapper wrapper{building};
-            wrapper.planetId = planetId;
-            db.insert(wrapper);
-        }
-        void dequeueBuilding(const BuildingQueue& building) override
-        {
-            (void)building;
-            db.remove<BuildingQueueWrapper>(planetId);
-        }
-        int planetId;
-        StorageT& db;
-    };
-
-
-    struct StorageDb::PlayerHandle : IPlayerHandle
+        #ifdef __EMSCRIPTEN__
+        EM_ASM({
+            window.indexedDB.deleteDatabase("/sqlite");
+            window.location.reload(true);
+        });
+        #else
+        std::filesystem::rename(path, path + ".removed");
+        std::filesystem::remove(path + ".removed");
+        #endif
+        //initDb();
+    }
+    else
     {
-        PlayerHandle(StorageT& db, PlayerId playerId) : db{db}, playerId{playerId}
-        {}
-        PlayerId getId() const override
-        {
-            return playerId;
-        }
-        std::vector<PlanetLocation> getPlanetList() override
-        {
-            auto planets = db.get_all<PlanetWrapper>(where(c(&PlanetWrapper::playerId) == playerId.id));
-            return {planets.begin(), planets.end()};
-        }
-        std::shared_ptr<IPlanetHandle> getPlanet(const PlanetLocation& loc) override
-        {
-            auto id = db.select(&PlanetWrapper::planetId, where(C(PlanetWrapper,galaxy)   == loc.galaxy
-                                                               and  C(PlanetWrapper,solar)    == loc.solar
-                                                               and  C(PlanetWrapper,position) == loc.position
-                                                               and  C(PlanetWrapper,playerId) == playerId.id));
+        logger.debug("Clean not needed");
+    }
+    sqlite3_open(path.c_str(), &handle);
+    makeDbVersionTable(handle);
+    setDbVersion(handle, DB_VERSION);
+    sqlite3_close(handle);
+}
+void StorageDb::simulateVersionBreak()
+{
+    setDbVersion(handle, 0);
+}
 
-            if(id.size())
-            {
-                return std::make_shared<PlanetHandle>(db, id.front());
-            }
-            return nullptr;
-        }
-        bool createPlanet(const PlanetLocation& planet, const Timestamp& createdAt) override
-        {
-            PlanetWrapper wrapper{planet};
-            wrapper.playerId = playerId.id;
-            wrapper.planetId = -1;
+struct StorageDb::PlanetHandle : ::IPlanetHandle
+{
+    PlanetHandle(sqlite3* handle, int id) : handle{handle}, id{id}
+    {}
 
-            try
-            {
-                auto planetId = db.insert(wrapper);
-                createStorage(planetId, createdAt);
-                createBuildings(planetId);
-                createCachedProduction(planetId);
-                return true;
-            }
-            catch(...)
-            {
-                return false;
-            }
-        }
-        std::shared_ptr<ILazyResearchs> getResearchs() override;
-    private:
-        void createStorage(int planetId, const Timestamp& createdAt)
-        {
-            StorageWrapper storageWrapper{Storage{.lastUpdatedAt = createdAt, .metal = 500, .crystal = 500, .deuter = 0}};
-            storageWrapper.planetId = planetId;
-            db.insert(storageWrapper);
-        }
-        void createBuildings(int planetId)
-        {
-            BuildingsWrapper wrapper{};
-            wrapper.planetId = planetId;
-            auto givenId = db.insert(wrapper);
-            logger.debug("Added buildings with id {} and planetId = {}", givenId, planetId);
-            db.update_all(set(c(&BuildingsWrapper::planetId) = planetId), where(c(&BuildingsWrapper::planetId) == givenId));
-        }
-        void createCachedProduction(int planetId)
-        {
-            CachedProductionWrapper wrapper{};
-            wrapper.planetId = planetId;
-            auto givenId = db.insert(wrapper);
-            logger.debug("Added empty cachedProduction with id {} and planetId = {}", givenId, planetId);
-            db.update_all(set(c(&CachedProductionWrapper::planetId) = planetId), where(c(&CachedProductionWrapper::planetId) == givenId));
-        }
-        StorageT& db;
-        PlayerId playerId;
-    };
-
-    std::shared_ptr<ILazyResearchs> StorageDb::PlayerHandle::getResearchs()
+    Buildings getBuildings() override
     {
+        return queryPrimaryKeyed<Buildings>(handle, id).value();
+    }
+    std::optional<BuildingQueue> getBuildingQueue() override
+    {
+        return queryPrimaryKeyed<BuildingQueue>(handle, id);
+    }
+    void incrementBuildingLevel(const Building& building) override
+    {
+        auto buildings = getBuildings();
+        building.increment(buildings);
+        updatePrimaryKeyed(handle, id, buildings);
+    }
+    Storage getStorage() override
+    {
+        return queryPrimaryKeyed<Storage>(handle, id).value();
+    }
+    void setNewStorage(const Storage& newValue) override
+    {
+        updatePrimaryKeyed(handle, id, newValue);
+    }
+    int getBuildingLevel(const Building& building) override
+    {
+        return building.value(getBuildings());
+    }
+    void queueBuilding(const BuildingQueue& queue) override
+    {
+        initializePrimaryKeyed(handle, id, queue);
+    }
+    void dequeueBuilding(const BuildingQueue&) override
+    {
+        deletePrimaryKeyed<BuildingQueue>(handle, id);
+    }
+    CachedProduction getCachedProduction() override
+    {
+        return queryPrimaryKeyed<CachedProduction>(handle, id).value();
+    }
+    void setNewCachedProduction(const CachedProduction& newValue) override
+    {
+        updatePrimaryKeyed(handle, id, newValue);
+    }
+    ProductionPercentages getProductionPercentages() override
+    {
+        return queryPrimaryKeyed<ProductionPercentages>(handle, id).value();
+    }
+    void setNewProductionPercentages(const ProductionPercentages& newValue) override
+    {
+        updatePrimaryKeyed(handle, id, newValue);
+    }
+private:
+    int id;
+    sqlite3* handle;
+};
+
+struct StorageDb::PlayerHandle : ::IPlayerHandle
+{
+    PlayerHandle(sqlite3* handle, PlayerId id) : handle{handle}, id{id}
+    {}
+    PlayerId getId() const
+    {
+        return id;
+    }
+    std::vector<PlanetLocation> getPlanetList()
+    {
+        return queryPlanets(handle, id);
+    }
+    std::shared_ptr<IPlanetHandle> getPlanet(const PlanetLocation& location)
+    {
+        if(auto planetId = getPlanetId(handle, location))
+        {
+            return std::make_shared<PlanetHandle>(handle, *planetId);
+        }
         return nullptr;
     }
-    StorageDb::StorageDb(std::string_view path)
+    bool createPlanet(const PlanetLocation& location, const Timestamp& timestamp)
     {
-        initDb(path);
-    }
-    void StorageDb::initDb(std::string_view path)
-    {
-        typeErasedStorage = makeStorage(path);
-        storage().sync_schema();
-        storage().open_forever();
-    }
-
-    std::shared_ptr<IPlayerHandle> StorageDb::queryPlayer(const UserCredentials& credentials)
-    {
-        auto user = storage().select(&UserCredentialsWrapper::id, where(C(UserCredentialsWrapper,login)    == credentials.login
-                                                                    and C(UserCredentialsWrapper,passcode) == credentials.passcode));
-        if(user.size())
-        {
-            return queryPlayer({user.front()});
-        }
-        return nullptr;
-    }
-
-    std::shared_ptr<IPlayerHandle> StorageDb::queryPlayer(PlayerId playerId)
-    {
-        return std::make_shared<PlayerHandle>(storage(), playerId);
-    }
-
-    bool StorageDb::registerPlayer(const UserCredentials& credentials)
-    {
-        try
-        {
-            UserCredentialsWrapper wrapper{credentials, -1};
-            auto id = storage().insert(wrapper);
-            std::cerr << id << std::endl;
-            return true;
-        }
-        catch(...)
+        if(auto planetId = getPlanetId(handle, location))
         {
             return false;
         }
+        ::sqlitedb::createPlanet(handle, id, location);
+        auto planetId = getPlanetId(handle, location);
+        initializePrimaryKeyed(handle, *planetId, Storage{.lastUpdatedAt = timestamp, .metal = 500, .crystal = 500, .deuter = 0});
+        initializePrimaryKeyed(handle, *planetId, Buildings{});
+        initializePrimaryKeyed(handle, *planetId, CachedProduction{});
+        initializePrimaryKeyed(handle, *planetId, ProductionPercentages{100, 100, 100, 100, 100, 100});
+        return true;
     }
+    std::shared_ptr<ILazyResearchs> getResearchs()
+    {
+        return nullptr;
+    }
+private:
+    sqlite3* handle;
+    PlayerId id;
+};
+
+
+std::shared_ptr<IPlayerHandle> StorageDb::queryPlayer(const UserCredentials& cred)
+{
+    if(auto id = queryPlayerBy(handle, cred))
+    {
+        return std::make_shared<StorageDb::PlayerHandle>(handle, *id);
+    }
+    return nullptr;
+}
+std::shared_ptr<IPlayerHandle> StorageDb::queryPlayer(PlayerId playerId)
+{
+    if(auto id = queryPlayerBy(handle, playerId))
+    {
+        return std::make_shared<StorageDb::PlayerHandle>(handle, *id);
+    }
+    return nullptr;
+}
+bool StorageDb::registerPlayer(const UserCredentials& cred)
+{
+    return ::sqlitedb::registerPlayer(handle, cred);
+}
 }

@@ -125,11 +125,10 @@ struct ZmqDealer : IAsyncRequester<ReqT, ResT>
     zmq::socket_t socket;
 };
 
-template<typename StartT, typename ReqT, typename ResT>
+template<typename StartT, typename ReqT, typename ResT, typename CombinedT>
 struct ZmqWorkStealer : IAsyncWorkStealer<StartT, ReqT, ResT>
 {
-    ZmqWorkStealer(zmq::context_t& context, std::string address, SerializationContainer<ITypedSerializer<StartT>&,
-                                                                                        ITypedSerializer<ResT>&,
+    ZmqWorkStealer(zmq::context_t& context, std::string address, SerializationContainer<ITypedSerializer<CombinedT>&,
                                                                                         ITypedDeserializer<ReqT>&> serializationContainer)
         : socket{context, zmq::socket_type::dealer}
         , serializationContainer{serializationContainer}
@@ -139,7 +138,7 @@ struct ZmqWorkStealer : IAsyncWorkStealer<StartT, ReqT, ResT>
     void sendStartIndication(const StartT& startReq) override
     {
         std::vector<zmq::message_t> msgs(1);
-        auto serialized = serializationContainer.template get<ITypedSerializer<StartT>&>().serialize(startReq);
+        auto serialized = serializationContainer.template get<ITypedSerializer<CombinedT>&>().serialize(wrapWorkerReady(startReq));
         zmq::message_t msg{serialized.data(), serialized.size()};
         msgs.push_back(std::move(msg));
         sendMultipart(socket, msgs);
@@ -160,13 +159,15 @@ struct ZmqWorkStealer : IAsyncWorkStealer<StartT, ReqT, ResT>
         Event<ReqT> event{std::make_shared<SerializedEventHolder<ReqT>>(serializationContainer.template get<ITypedDeserializer<ReqT>&>(), Payload{(char*)rawRequest.back().data(), (char*)rawRequest.back().data() + rawRequest.back().size()})};
         rawRequest.pop_back();
         auto responseSender = std::make_shared<ZmqResponseSender>(std::move(rawRequest), socket);
-        Request<ReqT, ResT> request{std::move(event), std::make_shared<SerializingResponseHandler<ResT>>(serializationContainer.template get<ITypedSerializer<ResT>&>(), responseSender)};
+        auto& serializer = serializationContainer.template get<ITypedSerializer<CombinedT>&>();
+        Request<ReqT, ResT> request(std::move(event), std::make_shared<TransformingResponseHandler<ResT, CombinedT>>(
+                                                            [](auto&& resp){return wrapWorkResponse(resp);},
+                                                            std::make_shared<SerializingResponseHandler<CombinedT>>(serializer, responseSender)));
         return request;
     }
 
     std::function<void(Request<ReqT, ResT>)> workHandler;
     zmq::socket_t socket;
-    SerializationContainer<ITypedSerializer<StartT>&,
-                            ITypedSerializer<ResT>&,
-                            ITypedDeserializer<ReqT>&> serializationContainer;
+    SerializationContainer<ITypedSerializer<CombinedT>&,
+                           ITypedDeserializer<ReqT>&> serializationContainer;
 };

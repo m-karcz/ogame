@@ -12,6 +12,7 @@ import { PlanetLocation,
          LOGIN_REQUEST,
          INTERNAL_LOGIN_RESPONSE,
          AuthenticatedOnPlanetRequest} from "./generated/AllGenerated"
+import { ModuleResolutionKind } from "typescript";
 
 
 interface WasmModule
@@ -21,6 +22,7 @@ interface WasmModule
     //processRequest(str: number) : number
     forwardTime(duration: number) : void
     clearDb() : void
+    prepareFsAndStart() : void
     //writeAsciiToMemory(str: string, mem: number) : void
     FileSystem : any
     //AsciiToString(mem: number) : string
@@ -54,20 +56,35 @@ class WasmBackend
     {
         this.module = makeBackend()
         this.module.then((module)=>{
-            window.__forwardTime = (duration: number)=>module.forwardTime(duration);
-            window.__clearDb = ()=>module.clearDb();
-            window.__elo = this.module
-            this.generalRequestDealer = (module as any).getGeneralRequestDealer();
-            this.onPlanetDealer = (module as any).getOnPlanetDealer();
+            (module as any)["toMainImpl"] = ()=>{
+                window.__forwardTime = (duration: number)=>module.forwardTime(duration);
+                window.__clearDb = ()=>module.clearDb();
+                window.__elo = this.module
+                this.generalRequestDealer = (module as any).getGeneralRequestDealer();
+                this.onPlanetDealer = (module as any).getOnPlanetDealer();
+            }
+            //module.mainImpl();
+            module.prepareFsAndStart();
         })
+    }
+    async withSaving<T>(response: T) : Promise<T>
+    {
+        const module = await this.module;
+        await new Promise<void>((resolve)=>{
+            module.FileSystem.syncfs(false, function(err: any){
+                console.log("saved")
+                resolve();
+            })
+        })
+        return response;
     }
     async generalRequestNew(request: InternalGeneralRequest) : Promise<InternalGeneralResponse>
     {
-        return requestAsPromise(this.generalRequestDealer, request) as Promise<InternalGeneralResponse>
+        return this.withSaving(await requestAsPromise(this.generalRequestDealer, request) as Promise<InternalGeneralResponse>)
     }
     async onPlanetNew(request: AuthenticatedOnPlanetRequest) : Promise<OnPlanetResponseNew>
     {
-        return requestAsPromise(this.onPlanetDealer, request) as Promise<OnPlanetResponseNew>
+        return this.withSaving(await requestAsPromise(this.onPlanetDealer, request) as Promise<OnPlanetResponseNew>)
     }
     module: Promise<WasmModule>
     generalRequestDealer: any

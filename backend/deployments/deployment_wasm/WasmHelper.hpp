@@ -165,20 +165,22 @@ struct WasmRouter : IAsyncResponser<ReqT, ResT>, IPollable
 
 void WasmPoller::poll() 
 {
-    emscripten_set_main_loop_arg(+[](void* self){
-        for(auto* pollable : static_cast<decltype(this)>(self)->pollables)
+    emscripten_async_call(+[](void* self){
+        auto* dis = static_cast<decltype(this)>(self);
+        for(auto* pollable : dis->pollables)
         {
             pollable->poll();
         }
-    }, (void*)this, 30/*fps*/, 1/*infinite*/);
+        dis->poll();
+    }, (void*)this, 30);
+
 }
 
-template<typename StartT, typename ReqT, typename ResT>
+template<typename StartT, typename ReqT, typename ResT, typename CombinedT>
 struct WasmWorkStealer : IAsyncWorkStealer<StartT, ReqT, ResT>, IPollable
 {
-    WasmWorkStealer(WasmContext& context, std::string address, SerializationContainer<ITypedSerializer<StartT>&,
-                                                                                        ITypedSerializer<ResT>&,
-                                                                                        ITypedDeserializer<ReqT>&> serializationContainer)
+    WasmWorkStealer(WasmContext& context, std::string address, SerializationContainer<ITypedDeserializer<ReqT>&,
+                                                                                        ITypedSerializer<CombinedT>&> serializationContainer)
         : ctx{context}
         , address{address}
         , serializationContainer{serializationContainer}
@@ -191,7 +193,7 @@ struct WasmWorkStealer : IAsyncWorkStealer<StartT, ReqT, ResT>, IPollable
     }
     void sendStartIndication(const StartT& startReq) override
     {
-        send(serializationContainer.template get<ITypedSerializer<StartT>&>().serialize(startReq));
+        send(serializationContainer.template get<ITypedSerializer<CombinedT>&>().serialize(wrapWorkerReady(startReq)));
     }
     void send(Payload payload)
     {
@@ -213,8 +215,10 @@ struct WasmWorkStealer : IAsyncWorkStealer<StartT, ReqT, ResT>, IPollable
             auto wasmMessage = queue.messages.front();
             queue.messages.pop();
             Event<ReqT> event{std::make_shared<SerializedEventHolder<ReqT>>(serializationContainer.template get<ITypedDeserializer<ReqT>&>(), wasmMessage.payload)}; auto responseSender = std::make_shared<WasmResponseSender>(address, ctx, ownGeneratedAddress);
-            auto& serializer = serializationContainer.template get<ITypedSerializer<ResT>&>();
-            Request<ReqT, ResT> request(std::move(event), std::make_shared<SerializingResponseHandler<ResT>>(serializer, responseSender));
+            auto& serializer = serializationContainer.template get<ITypedSerializer<CombinedT>&>();
+            Request<ReqT, ResT> request(std::move(event), std::make_shared<TransformingResponseHandler<ResT, CombinedT>>(
+                                                                [](auto&& resp){return wrapWorkResponse(resp);},
+                                                                std::make_shared<SerializingResponseHandler<CombinedT>>(serializer, responseSender)));
             workHandler(std::move(request));
         }
     }
@@ -222,8 +226,7 @@ struct WasmWorkStealer : IAsyncWorkStealer<StartT, ReqT, ResT>, IPollable
     WasmContext& ctx;
     std::string address;
     std::string ownGeneratedAddress;
-    SerializationContainer<ITypedSerializer<StartT>&,
-                            ITypedSerializer<ResT>&,
-                            ITypedDeserializer<ReqT>&> serializationContainer;
+    SerializationContainer<ITypedDeserializer<ReqT>&,
+                           ITypedSerializer<CombinedT>&> serializationContainer;
     std::function<void(Request<ReqT, ResT>)> workHandler;
 };

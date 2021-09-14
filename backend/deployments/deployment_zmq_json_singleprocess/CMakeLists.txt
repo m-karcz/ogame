@@ -57,11 +57,6 @@ target_compile_definitions(zmq_json_1process PRIVATE CONFIGURATION_FILE_DIR="${C
 target_compile_features(zmq_json_1process PRIVATE cxx_std_17)
 
 #target_compile_definitions(zmq_json_1process PRIVATE ZMQ_BUILD_DRAFT_API=1)
-target_link_libraries(zmq_json_1process cppzmq Messaging::Messaging SerializationJson::SerializationJson Configuration::Configuration DatabaseSQLite::DatabaseSQLite Logic::Logic ResourceOwner::ResourceOwner)
+target_link_libraries(zmq_json_1process DeploymentCommon::DeploymentCommon cppzmq Messaging::Messaging SerializationJson::SerializationJson Configuration::Configuration DatabaseSQLite::DatabaseSQLite Logic::Logic ResourceOwner::ResourceOwner)
 
 add_executable(server ALIAS zmq_json_1process)
-
-add_executable(zmq_test_app ZmqTestApp.cpp)
-target_compile_features(zmq_test_app PRIVATE cxx_std_17)
-
-target_link_libraries(zmq_test_app cppzmq Messaging::Messaging Configuration::Configuration DatabaseSQLite::DatabaseSQLite)

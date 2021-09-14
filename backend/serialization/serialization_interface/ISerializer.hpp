@@ -7,14 +7,14 @@ template<typename T>
 struct ITypedSerializer
 {
     virtual ~ITypedSerializer() = default;
-    virtual Payload serialize(const T&) const;
+    virtual Payload serialize(const T&) const = 0;
 };
 
 template<typename T>
 struct ITypedDeserializer
 {
     virtual ~ITypedDeserializer() = default;
-    virtual T deserialize(const Payload&) const;
+    virtual T deserialize(const Payload&) const = 0;
 };
 
 template<typename From, typename To>

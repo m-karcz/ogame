@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-add_library(Utils BigNum.hpp dummy.cpp Logger.cpp)
+add_library(Utils BigNum.hpp Logger.cpp)
 add_library(Utils::Utils ALIAS Utils)
 
 #find_package(Boost REQUIRED)

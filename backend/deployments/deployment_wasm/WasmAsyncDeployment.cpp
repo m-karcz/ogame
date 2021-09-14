@@ -16,27 +16,14 @@
 #include "AccountServiceApp.hpp"
 #include "ResourceOwnerApp.hpp"
 #include "Time.hpp"
+#include <iostream>
 //#include "RnDZmqCommandReceiver.hpp"
 #include "Logger.hpp"
 #include <emscripten.h>
 #include <emscripten/val.h>
 #include <emscripten/bind.h>
-
-bool isWorkerReady(const WorkSharedPlanetRequest& req)
-{
-    return std::holds_alternative<WorkStealerReady>(req.data);
-}
-
-const OnPlanetResponseNew& getWorkResponse(const WorkSharedPlanetRequest& req)
-{
-    return std::get<OnPlanetResponseNew>(req.data);
-}
-
-template<typename...Types>
-SerializationContainer<Types&...> containerize(Types&... toContainerize)
-{
-    return {toContainerize...};
-}
+#include "JsonContainerMaker.hpp"
+#include "WorkLoadHelperFunctions.hpp"
 
 using namespace emscripten;
 
@@ -56,16 +43,12 @@ struct JsonWasmDealer : WasmDealer<ReqT, ResT>, IJsonWasmDealer
     void registerHandler(std::function<void(Payload)> callback) override
     {
         this->registerResponseHandler([=](auto event){
-            Payload serialized = outputSerializer.serialize(*event);
-            logger.debug("sending resposne back to js: {}", std::string{serialized.begin(), serialized.end()});
-            callback(serialized);
+            callback(outputSerializer.serialize(*event));
         });
-        logger.debug("registered callback");
     }
     void sendMessage(Payload payload) override
     {
-        auto message = inputDeserializer.deserialize(payload);
-        this->sendRequest(message);
+        this->sendRequest(inputDeserializer.deserialize(payload));
     }
 };
 
@@ -76,11 +59,8 @@ struct WasmDealerWrapper
     void registerCallback(emscripten::val callback)
     {
         wasmDealer->registerHandler([=](Payload payload){
-            logger.debug("responding with payload");
-            std::string str{payload.begin(), payload.end()};
-            callback(str);
+            callback(std::string{payload.begin(), payload.end()});
         });
-        logger.debug("registered handler");
     }
     void sendMessage(std::string str)
     {
@@ -100,125 +80,117 @@ EMSCRIPTEN_BINDINGS(no_elo) {
 std::function<WasmDealerWrapper()> generalRequestWrapper;
 std::function<WasmDealerWrapper()> onPlanetWrapper;
 std::function<void(int)> forwardTimeExecutor;
+std::function<void()> dbClearer;
+
+
+
+struct WasmInstance
+{
+    Configuration configuration = loadConfiguration("/Configuration.json");
+    WasmContext context{};
+    WasmPoller poller{};
+    JsonContainerMaker containerMaker{};
+    WasmRouter<AuthenticatedOnPlanetRequest, OnPlanetResponseNew> workDealerForBalancer{context, configuration.addresses.workDealing, containerMaker};
+    WasmRouter<WorkSharedPlanetRequest, AuthenticatedOnPlanetRequest> workStealerForBalancer{context, configuration.addresses.workStealing, containerMaker};
+    SimpleLoadBalancer<AuthenticatedOnPlanetRequest, OnPlanetResponseNew, WorkSharedPlanetRequest> loadBalancer{workDealerForBalancer, workStealerForBalancer};
+    WasmWorkStealer<WorkStealerReady, AuthenticatedOnPlanetRequest, OnPlanetResponseNew, WorkSharedPlanetRequest> logicWorkStealer{context, configuration.addresses.workStealing, containerMaker};
+    sqlitedb::StorageDbFactory dbFactory{"/sqlite/testtest.db"};
+    std::shared_ptr<IStorageDb> db = [&](){
+        dbFactory.cleanIfNeeded();
+        return dbFactory.create();
+    }();
+    WasmDealer<LockRequestNew, LockResponseNew> lockRequestResOwnerDealer{context, configuration.addresses.resourceOwner, containerMaker};
+    LogicApp logicApp{logicWorkStealer, lockRequestResOwnerDealer, *db, configuration};
+    WasmRouter<InternalGeneralRequest, InternalGeneralResponse> generalRequestRouter{context, configuration.addresses.generalRequest, containerMaker};
+    AccountServiceApp accServiceApp{*db, generalRequestRouter};
+    Time realTime{};
+    WasmRouter<LockRequestNew, LockResponseNew> lockRequestResOwnerRouter{context, configuration.addresses.resourceOwner, containerMaker};
+    ResourceOwnerApp resourceOwnerApp{realTime, lockRequestResOwnerRouter};
+    WasmRouter<std::string, std::string> rndRouter{context, *configuration.addresses.rndMainAddress, containerMaker};
+
+    WasmInstance(emscripten::val onReady)
+    {
+        forwardTimeExecutor = [&](int s){
+            realTime.shiftTimeBy(std::chrono::seconds{s});
+        };
+
+        generalRequestWrapper = [&](){
+            auto jsonWasmDealer = std::make_shared<JsonWasmDealer<InternalGeneralRequest,InternalGeneralResponse>>(
+                context,
+                configuration.addresses.generalRequest,
+                containerMaker
+            );
+
+            jsonWasmDealer->registerPoller(poller);
+            return WasmDealerWrapper{jsonWasmDealer};
+        };
+
+        onPlanetWrapper = [&](){
+            auto jsonWasmDealer = std::make_shared<JsonWasmDealer<AuthenticatedOnPlanetRequest,OnPlanetResponseNew>>(
+                context,
+                configuration.addresses.workDealing,
+                containerMaker
+            );
+
+            jsonWasmDealer->registerPoller(poller);
+            return WasmDealerWrapper{jsonWasmDealer};
+        };
+
+        dbClearer = [&](){
+            db->simulateVersionBreak();
+        };
+
+        logicWorkStealer.registerPoller(poller);
+        generalRequestRouter.registerPoller(poller);
+        lockRequestResOwnerRouter.registerPoller(poller);
+        lockRequestResOwnerDealer.registerPoller(poller);
+        workDealerForBalancer.registerPoller(poller);
+        workStealerForBalancer.registerPoller(poller);
+
+        onReady();
+
+        poller.poll();
+    }
+    ~WasmInstance()
+    {
+        std::cout << "instance died" << std::endl;
+    }
+};
+
+std::unique_ptr<WasmInstance> wasmInstance;
+
+
+void mainImpl(emscripten::val onReady)
+{
+    wasmInstance = std::make_unique<WasmInstance>(onReady);
+};
+
+void prepareFsAndStart()
+{
+    EM_ASM({
+        Module.FileSystem = FS;
+        FS.mkdir("/sqlite");
+        FS.mount(IDBFS, {}, '/sqlite');
+        FS.syncfs(true, function(err){
+            if(err)
+            {
+                console.log(err);
+            }
+            Module.mainImpl(Module.toMainImpl);
+        });
+    });
+}
 
 EMSCRIPTEN_BINDINGS(no_elo2) {
     function("getGeneralRequestDealer", +[](){return generalRequestWrapper();});
     function("getOnPlanetDealer", +[](){return onPlanetWrapper();});
     function("forwardTime", +[](int s){forwardTimeExecutor(s);});
+    function("clearDb", +[](){dbClearer();});
+    function("mainImpl", mainImpl);
+    function("prepareFsAndStart", prepareFsAndStart);
 }
-
 
 int main()
 {
-    WasmContext context;
-
-    WasmPoller poller{};
-
-    JsonTypedDeserializer<InternalGeneralRequest> generalRequestDeserializer;
-    JsonTypedSerializer<InternalGeneralRequest> generalRequestSerializer;
-    JsonTypedSerializer<InternalGeneralResponse> generalResponseSerializer;
-    JsonTypedDeserializer<InternalGeneralResponse> generalResponseDeserializer;
-    JsonTypedDeserializer<AuthenticatedOnPlanetRequest> authPlanetRequestDeserializer;
-    JsonTypedSerializer<AuthenticatedOnPlanetRequest> authPlanetRequestSerializer;
-    JsonTypedSerializer<WorkSharedPlanetRequest> workSharedPlanetRequestSerializer;
-    TransformingSerializer<WorkStealerReady, WorkSharedPlanetRequest> workStealerSerializer{
-        workSharedPlanetRequestSerializer,
-        [](auto& ready)->WorkSharedPlanetRequest{return {. data = ready};}
-    };
-    TransformingSerializer<OnPlanetResponseNew, WorkSharedPlanetRequest> onPlanetResponseNewCombinedSerializer{
-        workSharedPlanetRequestSerializer,
-        [](auto& response)->WorkSharedPlanetRequest{return {. data = response};}
-    };
-    JsonTypedSerializer<OnPlanetResponseNew> onPlanetResponsePlainSerializer;
-
-    JsonTypedDeserializer<WorkSharedPlanetRequest> workSharedPlanetRequestDeserializer;
-
-    JsonTypedSerializer<LockRequestNew> lockRequestSerializer;
-    JsonTypedSerializer<LockResponseNew> lockResponseSerializer;
-    JsonTypedDeserializer<LockRequestNew> lockRequestDeserializer;
-    JsonTypedDeserializer<LockResponseNew> lockResponseDeserializer;
-
-    Configuration configuration = loadConfiguration("/Configuration.json");
-
-    WasmRouter<AuthenticatedOnPlanetRequest, OnPlanetResponseNew> workDealerForBalancer{context, configuration.addresses.workDealing, containerize(authPlanetRequestDeserializer, onPlanetResponsePlainSerializer)};
-    WasmRouter<WorkSharedPlanetRequest, AuthenticatedOnPlanetRequest> workStealerForBalancer{context, configuration.addresses.workStealing, containerize(authPlanetRequestSerializer, workSharedPlanetRequestDeserializer)};
-
-    SimpleLoadBalancer<AuthenticatedOnPlanetRequest, OnPlanetResponseNew, WorkSharedPlanetRequest> loadBalancer{workDealerForBalancer, workStealerForBalancer};
-
-    WasmWorkStealer<WorkStealerReady, AuthenticatedOnPlanetRequest, OnPlanetResponseNew> logicWorkStealer{context, configuration.addresses.workStealing, containerize(workStealerSerializer, onPlanetResponseNewCombinedSerializer, authPlanetRequestDeserializer)};
-
-    sqlitedb::StorageDbFactory dbFactory{"testtest.db"};
-
-
-    dbFactory.cleanIfNeeded();
-
-    auto db = dbFactory.create();
-
-    WasmDealer<LockRequestNew, LockResponseNew> lockRequestResOwnerDealer{context, configuration.addresses.resourceOwner, containerize(lockRequestSerializer, lockResponseDeserializer)};
-
-    LogicApp logicApp{logicWorkStealer, lockRequestResOwnerDealer, *db, configuration};
-
-    WasmRouter<InternalGeneralRequest, InternalGeneralResponse> generalRequestRouter{context, configuration.addresses.generalRequest, containerize(generalRequestDeserializer, generalResponseSerializer)};
-
-    AccountServiceApp accServiceApp{*db, generalRequestRouter};
-
-    Time realTime{};
-
-    forwardTimeExecutor = [&](int s){
-        realTime.shiftTimeBy(std::chrono::seconds{s});
-    };
-
-    WasmRouter<LockRequestNew, LockResponseNew> lockRequestResOwnerRouter{context, configuration.addresses.resourceOwner, containerize(lockRequestDeserializer, lockResponseSerializer)};
-
-    ResourceOwnerApp resourceOwnerApp{realTime, lockRequestResOwnerRouter};
-
-    JsonTypedDeserializer<std::string> stringDeserializer;
-    JsonTypedSerializer<std::string> stringSerializer;
-
-    WasmRouter<std::string, std::string> rndRouter{context, *configuration.addresses.rndMainAddress, containerize(stringSerializer, stringDeserializer)};
-
-    //RnDZmqCommandReceiver rnd{configuration, rndRouter, realTime, *db};
-
-    generalRequestWrapper = [&](){
-        auto jsonWasmDealer = std::make_shared<JsonWasmDealer<InternalGeneralRequest,InternalGeneralResponse>>(
-            context,
-            configuration.addresses.generalRequest,
-            containerize(generalRequestSerializer, generalResponseDeserializer)
-        );
-
-        jsonWasmDealer->registerPoller(poller);
-        return WasmDealerWrapper{jsonWasmDealer};
-    };
-
-    JsonTypedDeserializer<OnPlanetResponseNew> onPlanetResponseNewDeserializer;
-    JsonTypedSerializer<AuthenticatedOnPlanetRequest> authenticatedOnPlanetRequestSerializer;
-
-    onPlanetWrapper = [&](){
-        auto jsonWasmDealer = std::make_shared<JsonWasmDealer<AuthenticatedOnPlanetRequest,OnPlanetResponseNew>>(
-            context,
-            configuration.addresses.workDealing,
-            containerize(authenticatedOnPlanetRequestSerializer, onPlanetResponseNewDeserializer)
-        );
-
-        jsonWasmDealer->registerPoller(poller);
-        return WasmDealerWrapper{jsonWasmDealer};
-    };
-
-
-    //rndRouter.registerPoller(poller);
-    logicWorkStealer.registerPoller(poller);
-    generalRequestRouter.registerPoller(poller);
-    lockRequestResOwnerRouter.registerPoller(poller);
-    lockRequestResOwnerDealer.registerPoller(poller);
-    workDealerForBalancer.registerPoller(poller);
-    workStealerForBalancer.registerPoller(poller);
-    try
-    {
-        poller.poll();
-    }
-    catch(...)
-    {
-        logger.error("died after exception");
-    }
-    
+    emscripten_exit_with_live_runtime();
 }
