@@ -53,6 +53,10 @@ RegisterRequest:
 RegisterResponse:
   status: Status
 
+BuildingQueueEntry:
+  building: Building
+  timeToFinish: Duration
+
 BuildRequest:
   buildingName: Building
 
