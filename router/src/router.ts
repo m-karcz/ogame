@@ -5,10 +5,7 @@ import session from "express-session"
 import path from "path"
 import {program} from "commander"
 import bodyParser from "body-parser"
-import {UserCredentials,
-        LOGIN_REQUEST,
-        REGISTER_REQUEST,
-        PlayerId,
+import { PlayerId,
 		 ExternalGeneralRequest,
 		 ExternalGeneralResponse,
 		 InternalGeneralResponse,
@@ -20,11 +17,9 @@ import {UserCredentials,
 		 INTERNAL_LOGIN_RESPONSE,
 		 OnPlanetRequestNew,
 		 AuthenticatedOnPlanetRequest} from "./generated/AllGenerated"
-import { NewRouterConnectivity, NewRouterMiddleware } from "./NewRouterMiddleware"
+import { NewRouterConnectivity } from "./NewRouterMiddleware"
 
 const argv = program.option("--binary <path>").parse(process.argv);
-
-//console.log(argv)
 
 if(! argv["binary"])
 {
@@ -35,8 +30,6 @@ const app = express();
 const port = 8888;
 
 const router = new RemoteZmqRouter("http://127.0.0.1:8080", argv["binary"] as string);
-
-//const routerMiddleware = new RouterMiddleware(router);
 
 app.use(session({ secret: 'no elo', cookie: { maxAge: 600000 }}));
 
@@ -61,9 +54,6 @@ interface TypedRequest<T> extends ExpressRequest
 }
 
 const newConnectivity = new NewRouterConnectivity("tcp://127.0.0.1:3333", "tcp://127.0.0.1:1234")
-
-//const newMiddleware = new NewRouterMiddleware(newConnectivity)
-
 
 app.use(function(req, res, next) {
 	if(req.session.authenticated === undefined)
@@ -149,72 +139,6 @@ app.post("/game/api2", async (req: TypedRequest<OnPlanetRequestNew>, res)=>{
 	res.send(resp);
 });
 
-/*app.post("/game/buildings", async function(req: TypedRequest<BuildingsViewRequest>, res)
-{
-	const resp = await routerMiddleware.buildingsView(req.session.playerId!, req.body);
-	res.send(resp);
-});
-
-app.post("/game/startBuilding", async function(req: TypedRequest<StartBuildingActionRequest>, res)
-{
-	const resp = await routerMiddleware.startBuilding(req.session.playerId!, req.body);
-	res.send(resp);
-})
-
-app.post("/game/overview", async function(req : TypedRequest<OverviewViewRequest>, res)
-{
-	const resp = await routerMiddleware.overview(req.session.playerId!, req.body);
-	res.send(resp);
-});
-
-app.post("/game/resources", async function(req : TypedRequest<ProductionInformationViewRequest>, res)
-{
-	const resp = await routerMiddleware.queryProduction(req.session.playerId!, req.body);
-	res.send(resp);
-})
-
-app.post("/login", (req : TypedRequest<UserCredentials>, res) => {
-	console.log(req.session)
-	const pass = {
-		credentials: req.body
-	}
-	router.generalRequest({type: LOGIN_REQUEST, data: pass}).then(function(resp: any)
-	{
-		console.log(resp)
-
-		resp = resp.data;
-		if(resp.playerId)
-		{
-			req.session.authenticated = true;
-			req.session.playerId = resp.playerId
-		}
-		if(!resp.planets)
-		{
-			res.send(null)
-			return
-		}
-		router.onPlanetRequest(new OnPlanetRequestBuilder(resp.playerId, resp.planets[0]).addQuery({type: STORAGE_REQUEST, data:{}}).msg).then((storageResp) => {
-			const finalResp = {
-				planets: resp.planets,
-				firstPlanetStorage: storageResp
-			}
-			console.log(storageResp);
-			res.send(finalResp)
-		})
-	});
-});
-
-app.post("/register", (req, res) => {
-	const pass = {
-		credentials: req.body as UserCredentials
-	}
-	router.generalRequest({type: REGISTER_REQUEST, data: pass}).then((resp) => res.send(resp.data));
-});*/
-
-
 app.listen(port, ()=>{
-	//let cred: Api.UserCredentials = { login: "aaa", passcode: "bbb"};
-	//let loginReq: Api.LoginRequest = { credentials: cred};
-	//console.log(makeBuildingViewRequest({id: 5}, {solar: 5, galaxy:6, position:7}));
 	console.log("working on")
 });

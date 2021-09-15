@@ -14,13 +14,3 @@ export class NewRouterConnectivity
     onPlanetPool: ZmqReqPool<AuthenticatedOnPlanetRequest, OnPlanetResponseNew>
     generalReqPool: ZmqReqPool<InternalGeneralRequest, InternalGeneralResponse>
 }
-
-
-export class NewRouterMiddleware
-{
-    constructor(connectivity: NewRouterConnectivity)
-    {
-        this.connectivity = connectivity;
-    }
-    connectivity: NewRouterConnectivity
-}

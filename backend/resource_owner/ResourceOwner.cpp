@@ -1,38 +1,6 @@
 #include "ResourceOwner.hpp"
 #include <iostream>
 
-/*void ResourceOwner::checkPendingRequests()
-{
-    pendingRequests.remove_if([&, this](auto& request){
-        if(canBeAcquired(request->players))
-        {
-            auto lockId = acquireLock(request->players);
-            request.respond(LockResponse{
-                .timestamp = time.getTimestamp(),
-                .lockId = (int)lockId
-            });
-            return true;
-        }
-        return false;
-    });
-}
-
-void ResourceOwner::consumeEvent(const Request<LockRequest>& request)
-{
-    pendingRequests.push_back(request);
-    checkPendingRequests();
-}
-
-void ResourceOwner::consumeEvent(const Event<LockRelease>& release)
-{
-    for(auto& id : locked[release->lockId])
-    {
-        playersLocked.erase(id);
-    }
-    locked.erase(release->lockId);
-    checkPendingRequests();
-}
-
 bool ResourceOwner::canBeAcquired(const std::vector<PlayerId>& toBeAcquired)
 {
     for(auto& playerId : toBeAcquired)
@@ -45,20 +13,58 @@ bool ResourceOwner::canBeAcquired(const std::vector<PlayerId>& toBeAcquired)
     return true;
 }
 
-ResourceOwner::LockId ResourceOwner::acquireLock(const std::vector<PlayerId>& toBeAcquired)
-{
-    ++lastLockId;//very naive strategy
-    playersLocked.insert(toBeAcquired.begin(), toBeAcquired.end());
-    locked[lastLockId] = toBeAcquired;
-    return lastLockId;
-}*/
-
 void ResourceOwner::consume(Request<LockRequestNew, LockResponseNew> req)
 {
-    std::cout << "requested resource" << std::endl;
+    if(std::holds_alternative<LockReleaseNew>(req->data))
+    {
+        if(planetCreationLocked == req->instanceId)
+        {
+            planetCreationLocked = std::nullopt;
+        }
+        else
+        {
+            for(auto playerId : lockedMapping.extract(req->instanceId).mapped())
+            {
+                playersLocked.erase(playerId);
+            }
+        }
+    }
+    else
+    {
+        pendingRequests.push_back(std::move(req));
+    }
+    evaluatePendingRequests();
+}
+void ResourceOwner::respondSuccessfulLock(Request<LockRequestNew, LockResponseNew>& req)
+{
     req.respond({
         .success = true,
         .timestamp = time.getTimestamp()
+    });
+}
+
+void ResourceOwner::evaluatePendingRequests()
+{
+    pendingRequests.remove_if([&](auto& request){
+        if(std::holds_alternative<LockPlanetCreation>(request->data))
+        {
+            if(not planetCreationLocked)
+            {
+                planetCreationLocked = request->instanceId;
+                respondSuccessfulLock(request);
+                return true;
+            }
+        }
+        else if(auto* lockPlayersReq = std::get_if<LockPlayersNew>(&request->data))
+        {
+            if(canBeAcquired(lockPlayersReq->players))
+            {
+                lockedMapping[request->instanceId] = lockPlayersReq->players;
+                respondSuccessfulLock(request);
+                return true;
+            }
+        }
+        return false;
     });
 }
 
